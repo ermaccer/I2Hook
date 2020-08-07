@@ -13,3 +13,6 @@ I2Hook requires Ultimate ASI Loader(https://github.com/ThirteenAG/Ultimate-ASI-L
 # Features:
 
 Game is now no longer locked at 30FPS.
+
+# Used stuff
+https://github.com/CookiePLMonster/ModUtils
