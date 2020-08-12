@@ -35,7 +35,6 @@ bool __fastcall SetFlagNull()
 }
 
 
-
 void OnInitializeHook()
 {
 	AllocConsole();
@@ -47,14 +46,7 @@ void OnInitializeHook()
 	printf("I2Hook::OnInitializeHook() | Game detected: %s\n", (char*)GetMKXAddr(0x143455150));
 	Trampoline* tramp = Trampoline::MakeTrampoline(GetModuleHandle(nullptr));
 
-	Patch<char>(GetMKXAddr(0x147EC2FCC + 6), 0);
-	Nop(GetMKXAddr(0x148384D0F), 0x148384D25 - 0x148384D0F);
-	Nop(GetMKXAddr(0x148384D2F), 5);
 	// 60 fps
 	Patch<char>(GetMKXAddr(0x145EDC870 + 1), 0);
 	InjectHook(GetMKXAddr(0x14A370B70), tramp->Jump(SetFlagNull), PATCH_JUMP);
-
-
-
 }
-
