@@ -14,11 +14,14 @@ I2Hook requires Ultimate ASI Loader(https://github.com/ThirteenAG/Ultimate-ASI-L
 
 Press F1 (default) at any time to open the menu.
 
+## Character Modifier
+Allows you to play as anyone in any game mode.
+
 ## Gamespeed Control
 Allows you to enable slowmotion, fastmotion or anything you like.
 
 ## Camera Control
-Allows you to freely move camera.
+Allows you to freely move camera. Includes few custom cameras such as 3RD or 1ST person camera.
 
 ## Other
 Game is now no longer locked to 30FPS.
