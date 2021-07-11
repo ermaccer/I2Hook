@@ -5,6 +5,9 @@
 #include "eSettingsManager.h"
 #include "eNotifManager.h"
 #include <Windows.h>
+#include "mkcamera.h"
+
+int64 hud_property = 0;
 
 static int64 gametimer = GetTickCount64();
 
@@ -77,6 +80,16 @@ void __fastcall DCF2Hooks::HookProcessStuff()
 	}
 
 
+	if (TheMenu->bForceMoveCamera)
+	{
+		if (TheCamera)
+		{
+			TheCamera->HookedSetPosition(&TheMenu->camPos);
+			TheCamera->HookedSetRotation(&TheMenu->camRot);
+			TheCamera->SetFOV(TheMenu->camFov);
+		}
+
+	}
 
 
 	((void(__fastcall*)())(0x1498F27F0))();
@@ -134,6 +147,24 @@ int64 __fastcall DCF2Hooks::HookLoadCharacter(int64 ptr, char * name)
 
 	}
 	return ((int64(__fastcall*)(int64, char*))_addr(0x145EAEC10))(ptr, name);
+}
+
+int64 DCF2Hooks::HookSetProperty(int64 ptr, char * name, int64 unk)
+{
+	hud_property = ptr;
+	return ((int64(__fastcall*)(int64, char*, int64))_addr(0x14218EC40))(ptr, name, unk);
+}
+
+void DCF2Hooks::HookReadPropertyValue(int64 ptr, int64 * unk, int64 * value)
+{
+	int64 input = *value;
+	if (ptr == hud_property)
+	{
+		if (TheMenu->bForceDisableHUD)
+			input ^= 1;
+	}
+
+	*unk = *(int64*)(ptr + 296) & input | *unk & ~*(int64*)(ptr + 296);
 }
 
 

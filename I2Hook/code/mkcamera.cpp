@@ -2,8 +2,11 @@
 #include "dcf2menu.h"
 #include <iostream>
 
+MKCamera* TheCamera;
+
 void MKCamera::SetPosition(FVector * pos)
 {
+	TheCamera = this;
 	*(float*)(this + 0x584) = pos->X;
 	*(float*)(this + 0x584 + 4) = pos->Y;
 	*(float*)(this + 0x584 + 8) = pos->Z;
@@ -13,6 +16,7 @@ void MKCamera::SetPosition(FVector * pos)
 
 void MKCamera::SetRotation(FRotator * rot)
 {
+	TheCamera = this;
 	*(int*)(this + 0x584 + 12) = rot->Pitch;
 	*(int*)(this + 0x584 + 12 + 4) = rot->Yaw;
 	*(int*)(this + 0x584 + 12 + 8) = rot->Roll;
@@ -111,6 +115,12 @@ void MKCamera::HookedSetPosition(FVector * pos)
 
 			TheMenu->camPos = *pos;
 			break;
+		case CAMERA_MK11:
+			pos->X += 120.0f;
+			pos->Z += 25.0f;
+
+			TheMenu->camPos = *pos;
+			break;
 		}
 		SetPosition(pos);
 	}
@@ -196,6 +206,10 @@ void MKCamera::HookedSetRotation(FRotator * rot)
 				rot->Yaw = -16000;
 			}
 
+			TheMenu->camRot = *rot;
+			break;
+		case CAMERA_MK11:
+			rot->Pitch -= 1258;
 			TheMenu->camRot = *rot;
 			break;
 		}

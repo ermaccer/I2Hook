@@ -138,6 +138,7 @@ const char* szCameraModes[TOTAL_CUSTOM_CAMERAS] = {
 	"Third Person #2",
 	"First Person",
 	"First Person Mid",
+	"Mortal Kombat 11"
 };
 
 int GetCamMode(const char* mode)
@@ -212,6 +213,8 @@ void DCF2Menu::Initialize()
 	fAdjustCamZ3 = 0;
 	bYObtained = false;
 	bFocused = false;
+	bForceMoveCamera = false;
+	bForceDisableHUD = false;
 }
 
 void DCF2Menu::Draw()
@@ -239,6 +242,7 @@ void DCF2Menu::Draw()
 				}
 				ImGui::EndCombo();
 			}
+
 			ImGui::Separator();
 			ImGui::Checkbox("Enable Player 2 Modifier", &bPlayer2ModifierEnabled);
 
@@ -285,9 +289,16 @@ void DCF2Menu::Draw()
 
 			ImGui::Separator();
 			ImGui::Checkbox("Enable Freecam", &bFreeCameraMovement);
-			ImGui::SameLine(); ShowHelpMarker("Requires all toggles enabled!\n You can configure keys in .ini file.");
+			ImGui::SameLine(); ShowHelpMarker("Requires all toggles enabled!\nYou can configure keys in .ini file.");
 			ImGui::InputFloat("Freecam Speed", &fFreeCameraSpeed);
 			ImGui::InputInt("Freecam Rotation Speed", &iFreeCameraRotSpeed);
+
+
+
+			ImGui::Separator();
+			ImGui::Text("Check this option if the game you can't move camera anymore win poses.");
+			ImGui::Checkbox("Force Camera To Move", &bForceMoveCamera);
+
 
 			if (bFreeCameraMovement)
 			{
@@ -372,6 +383,15 @@ void DCF2Menu::Draw()
 
 			ImGui::EndTabItem();
 		}
+
+		if (ImGui::BeginTabItem("Misc."))
+		{
+			ImGui::Checkbox("Disable HUD Completely", &bForceDisableHUD);
+			ImGui::SameLine();
+			ShowHelpMarker("You'll need to go in-game/back to menu for this option to take effect.");
+
+			ImGui::EndTabItem();
+		}
 	}
 }
 
@@ -384,13 +404,6 @@ void DCF2Menu::Process()
 
 void DCF2Menu::UpdateControls()
 {
-	if (GetAsyncKeyState(SettingsMgr->iHookMenuOpenKey))
-	{
-		if (GetTickCount64() - timer <= 150) return;
-		timer = GetTickCount64();
-		bIsActive ^= 1;
-	}
-
 	if (GetAsyncKeyState(VK_F5))
 	{
 		if (GetTickCount64() - timer <= 150) return;

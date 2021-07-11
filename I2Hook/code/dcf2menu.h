@@ -13,6 +13,7 @@ enum eCustomCameras {
 	CAMERA_3RDPERSON2,
 	CAMERA_1STPERSON,
 	CAMERA_1STPERSON_MID,
+	CAMERA_MK11,
 	TOTAL_CUSTOM_CAMERAS
 };
 
@@ -21,9 +22,10 @@ enum eCustomCameras {
 
 class DCF2Menu {
 private:
-	bool bIsActive;
 	int  iCurrentTab;
 public:
+	bool bIsActive;
+
 	bool	 bSlowMotionEnabled;
 	int      iSlowMotionTicks;
 	float	 fSlowMotionSpeed;
@@ -72,6 +74,7 @@ public:
 	int     mouseSpeedY;
 	int     mouseSens;
 
+
 	bool bFreeCameraMovement;
 	float fFreeCameraSpeed;
 	int  iFreeCameraRotSpeed;
@@ -89,7 +92,13 @@ public:
 	float fAdjustCamZ3;
 	float fAdjustCamX3;
 
+	bool  bForceMoveCamera;
+
 	int  iSlowMoRefreshDelay;
+
+
+	bool bForceDisableHUD;
+
 	void Initialize();
 	void Draw();
 	void Process();
