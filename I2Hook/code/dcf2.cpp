@@ -155,16 +155,16 @@ int64 DCF2Hooks::HookSetProperty(int64 ptr, char * name, int64 unk)
 	return ((int64(__fastcall*)(int64, char*, int64))_addr(0x14218EC40))(ptr, name, unk);
 }
 
-void DCF2Hooks::HookReadPropertyValue(int64 ptr, int64 * unk, int64 * value)
+void DCF2Hooks::HookReadPropertyValue(int64 ptr, int* unk, int* value)
 {
-	int64 input = *value;
+	int input = *value;
 	if (ptr == hud_property)
 	{
 		if (TheMenu->bForceDisableHUD)
 			input ^= 1;
 	}
 
-	*unk = *(int64*)(ptr + 296) & input | *unk & ~*(int64*)(ptr + 296);
+	*unk = *(int*)(ptr + 296) & input | *unk & ~*(int*)(ptr + 296);
 }
 
 
