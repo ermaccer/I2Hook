@@ -43,6 +43,7 @@ void __fastcall DCF2Hooks::HookProcessStuff()
 		if (TheMenu->bEnableCustomCameras)
 			TheMenu->bEnableCustomCameras = false;
 	}
+
 	if (TheMenu->bFreeCameraMovement)
 	{
 		if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyXPlus))
@@ -91,8 +92,7 @@ void __fastcall DCF2Hooks::HookProcessStuff()
 
 	}
 
-
-	((void(__fastcall*)())(0x1498F27F0))();
+	((void(__fastcall*)())(0x1499BC1B0))();
 }
 
 void __fastcall DCF2Hooks::HookStartupFightRecording(int64 eventID, int64 a2, int64 a3, int64 a4)
@@ -110,49 +110,14 @@ void __fastcall DCF2Hooks::HookStartupFightRecording(int64 eventID, int64 a2, in
 
 	printf("I2Hook::Info() | %s VS %s\n", DCF2::GetCharacterName(PLAYER1), DCF2::GetCharacterName(PLAYER2));
 
-	((void(__fastcall*)(int64, int64, int64, int64))_addr(0x1416EC5B0))(eventID, a2, a3, a4);
+	((void(__fastcall*)(int64, int64, int64, int64))_addr(0x14172B4C0))(eventID, a2, a3, a4);
 }
 
-int64 __fastcall DCF2Hooks::HookLoadCharacter(int64 ptr, char * name)
-{
-	// mk11 select screen swap, not sure if needed
-	if (name)
-	{
-
-			if (TheMenu->bPlayer1ModifierEnabled)
-			{
-				if (ptr == DCF2::GetCharacterInfo(PLAYER1))
-				{
-
-					char* original_name = name;
-					printf("I2Hook::Info() | Setting Player %d as %s\n",DCF2::GetPlayerIDFromData(ptr), TheMenu->szPlayer1ModifierCharacter);
-					strcpy((char*)(int64)&original_name[0], TheMenu->szPlayer1ModifierCharacter);
-					strcpy((char*)(int64)&original_name[0], original_name);
-
-					// crash fix
-					TheMenu->bPlayer1ModifierEnabled = false;
-				}
-			}
-			if (TheMenu->bPlayer2ModifierEnabled)
-			{
-				if (ptr == DCF2::GetCharacterInfo(PLAYER2))
-				{
-					char* original_name = name;
-					printf("I2Hook::Info() | Setting Player %d as %s\n", DCF2::GetPlayerIDFromData(ptr), TheMenu->szPlayer2ModifierCharacter);
-					strcpy((char*)(int64)&original_name[0], TheMenu->szPlayer2ModifierCharacter);
-					strcpy((char*)(int64)&original_name[0], original_name);
-					TheMenu->bPlayer2ModifierEnabled = false;
-				}
-			}
-
-	}
-	return ((int64(__fastcall*)(int64, char*))_addr(0x145EAEC10))(ptr, name);
-}
 
 int64 DCF2Hooks::HookSetProperty(int64 ptr, char * name, int64 unk)
 {
 	hud_property = ptr;
-	return ((int64(__fastcall*)(int64, char*, int64))_addr(0x14218EC40))(ptr, name, unk);
+	return ((int64(__fastcall*)(int64, char*, int64))_addr(0x1421DFCE0))(ptr, name, unk);
 }
 
 void DCF2Hooks::HookReadPropertyValue(int64 ptr, int* unk, int* value)
@@ -174,13 +139,13 @@ int64 DCF2::GetCharacterObject(PLAYER_NUM plr)
 {
 	int64 info = GetCharacterInfo(plr);
 	if (info)
-		return ((int64(__fastcall*)(int64, int))_addr(0x1472D7AA0))(info, 0);
+		return ((int64(__fastcall*)(int64, int))_addr(0x147397630))(info, 0);
 }
 
 int64 DCF2::GetCharacterInfo(PLAYER_NUM plr)
 {
 	int64 gameinfo = *(__int64*)_addr(GFG_GAME_INFO);
-	return ((int64(__fastcall*)(int64, PLAYER_NUM))_addr(0x145EB53B0))(gameinfo, plr);
+	return ((int64(__fastcall*)(int64, PLAYER_NUM))_addr(0x14612D280))(gameinfo, plr);
 }
 
 PLAYER_NUM DCF2::GetPlayerIDFromData(int64 data)
@@ -200,17 +165,17 @@ void DCF2::SetCharacterMKX(PLAYER_NUM plr, char * name)
 
 void DCF2::SetCharacter(int64 chr, char * name, int64 ptr, int64 unk)
 {
-	((void(__fastcall*)(int64, const char*, int64, int64))_addr(0x14730AD10))(chr, name, ptr, unk);
+	((void(__fastcall*)(int64, const char*, int64, int64))_addr(0x1473C66A0))(chr, name, ptr, unk);
 }
 
 void DCF2::SlowGameTimeForXTicks(float speed, int ticks)
 {
-	((void(__fastcall*)(float, int, int))_addr(0x146E107F0))(speed, ticks, 0);
+	((void(__fastcall*)(float, int, int))_addr(0x146F33D50))(speed, ticks, 0);
 }
 
 void DCF2::SetCharacterLife(int64 obj, float life)
 {
-	((void(__fastcall*)(int64, float))_addr(0x146D71630))(obj, life);
+	((void(__fastcall*)(int64, float))_addr(0x146E3D380))(obj, life);
 }
 
 char * DCF2::GetCharacterName(PLAYER_NUM plr)
@@ -223,11 +188,6 @@ char * DCF2::GetCharacterName(PLAYER_NUM plr)
 
 void DCF2::GetCharacterPosition(FVector * vec,PLAYER_NUM plr)
 {
-	((void(__fastcall*)(int64, FVector*))_addr(0x1472ED830))(GetCharacterInfo(plr), vec);
-}
-
-void DCF2::SetCharacter(PLAYER_NUM plr, char * name)
-{
-	((void(__fastcall*)(int64, char*))_addr(0x145EAEC10))(GetCharacterInfo(plr), name);
+	((void(__fastcall*)(int64, FVector*))_addr(0x1473AABC0))(GetCharacterInfo(plr), vec);
 }
 

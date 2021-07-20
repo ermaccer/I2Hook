@@ -1,6 +1,6 @@
 #pragma once
 #include "mk10utils.h"
-#define GFG_GAME_INFO 0x14410C6D8
+#define GFG_GAME_INFO 0x14417DF30
 
 #define I2HOOK_VERSION "0.3"
 
@@ -55,16 +55,12 @@ namespace DCF2 {
 
 
 	void  GetCharacterPosition(FVector* vec,PLAYER_NUM plr);
-
-	// mkx recreation
-	void SetCharacter(PLAYER_NUM plr, char* name);
 }
 
 namespace DCF2Hooks {
 	// hooks
 	void __fastcall HookProcessStuff();
 	void __fastcall HookStartupFightRecording(int64 eventID, int64 a2, int64 a3, int64 a4);
-	int64 __fastcall HookLoadCharacter(int64 ptr, char * name);
 
 
 	int64  HookSetProperty(int64 ptr, char* name, int64 unk);

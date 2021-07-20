@@ -28,10 +28,8 @@ void __fastcall  GenericDummy() {}
 
 bool __fastcall SetFlagNull()
 {
-	bool result = 0;
-	Patch<int>(_addr(0x14444D58C), 0);
-
-	return result;
+	Patch<int>(_addr(0x1445404EC), 0);
+	return 0;
 
 }
 
@@ -49,27 +47,28 @@ void OnInitializeHook()
 	printf("I2Hook::OnInitializeHook() | Begin!\n");
 	TheMenu->Initialize();
 	Notifications->Init();
-	printf("I2Hook::OnInitializeHook() | Game detected: %s\n", (char*)_addr(0x143455150));
+	printf("I2Hook::OnInitializeHook() | Game detected: %s\n", (char*)_addr(0x1434B1F90));
 	Trampoline* tramp = Trampoline::MakeTrampoline(GetModuleHandle(nullptr));
 
 
 	// 60 fps
 	if (SettingsMgr->bEnable60FPSFrontend)
 	{
-		Patch<char>(_addr(0x145EDC870 + 1), 0);
-		InjectHook(_addr(0x14A370B70), tramp->Jump(SetFlagNull), PATCH_JUMP);
+		//Patch<char>(_addr(0x145EDC870 + 1), 0);
+		InjectHook(_addr(0x14A28EB80), tramp->Jump(SetFlagNull), PATCH_JUMP);
 	}
 
 
-	InjectHook(_addr(0x145E1AC78), tramp->Jump(DCF2Hooks::HookProcessStuff));
-	InjectHook(_addr(0x14599F39E), tramp->Jump(DCF2Hooks::HookStartupFightRecording));
+	InjectHook(_addr(0x14607D248), tramp->Jump(DCF2Hooks::HookProcessStuff));
+	InjectHook(_addr(0x145AFBEBE), tramp->Jump(DCF2Hooks::HookStartupFightRecording));
 
-	Nop(_addr(0x14AD1C597), 7);
-	Nop(_addr(0x14AD1C5A7), 8);
-	InjectHook(_addr(0x14AD1C5B5), tramp->Jump(&MKCamera::HookedSetPosition));
-	InjectHook(_addr(0x14AD1C5C2), tramp->Jump(&MKCamera::HookedSetRotation));
-	InjectHook(_addr(0x14B113190), tramp->Jump(DCF2Hooks::HookReadPropertyValue), PATCH_JUMP);
-	InjectHook(_addr(0x141974468), tramp->Jump(DCF2Hooks::HookSetProperty));
+	Nop(_addr(0x14AC151A3), 7);
+	Nop(_addr(0x14AC151B3), 8);
+	InjectHook(_addr(0x14AC151C1), tramp->Jump(&MKCamera::HookedSetPosition));
+	InjectHook(_addr(0x14AC151CE), tramp->Jump(&MKCamera::HookedSetRotation));
+
+	InjectHook(_addr(0x14B097C40), tramp->Jump(DCF2Hooks::HookReadPropertyValue), PATCH_JUMP);
+	InjectHook(_addr(0x1419C37E8), tramp->Jump(DCF2Hooks::HookSetProperty));
 
 
 }
@@ -78,7 +77,7 @@ void OnInitializeHook()
 
 bool ValidateGameVersion()
 {
-	char* gameName = (char*)_addr(0x143455150);
+	char* gameName = (char*)_addr(0x1434B1F90);
 
 	if (strncmp(gameName, "Injustice", strlen("Injustice")) == 0)
 	{
@@ -106,8 +105,7 @@ BOOL WINAPI DllMain(HMODULE hMod, DWORD dwReason, LPVOID lpReserved)
 			if (SettingsMgr->b60FPSModeOnly)
 			{
 				Trampoline* tramp = Trampoline::MakeTrampoline(GetModuleHandle(nullptr));
-				Patch<char>(_addr(0x145EDC870 + 1), 0);
-				InjectHook(_addr(0x14A370B70), tramp->Jump(SetFlagNull), PATCH_JUMP);
+				InjectHook(_addr(0x14A28EB80), tramp->Jump(SetFlagNull), PATCH_JUMP);
 			}
 			else
 			{

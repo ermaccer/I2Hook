@@ -11,7 +11,7 @@ void MKCamera::SetPosition(FVector * pos)
 	*(float*)(this + 0x584 + 4) = pos->Y;
 	*(float*)(this + 0x584 + 8) = pos->Z;
 
-	((void(__thiscall*)(MKCamera*, FVector*))_addr(0x141A10140))(this, pos);
+	((void(__thiscall*)(MKCamera*, FVector*))_addr(0x14ADC4660))(this, pos);
 }
 
 void MKCamera::SetRotation(FRotator * rot)
@@ -21,7 +21,7 @@ void MKCamera::SetRotation(FRotator * rot)
 	*(int*)(this + 0x584 + 12 + 4) = rot->Yaw;
 	*(int*)(this + 0x584 + 12 + 8) = rot->Roll;
 
-	((void(__thiscall*)(MKCamera*, FRotator*))_addr(0x14AEA2640))(this, rot);
+	((void(__thiscall*)(MKCamera*, FRotator*))_addr(0x14ADE1B20))(this, rot);
 }
 
 void MKCamera::SetFOV(float FOV)
