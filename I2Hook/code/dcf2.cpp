@@ -92,7 +92,7 @@ void __fastcall DCF2Hooks::HookProcessStuff()
 
 	}
 
-	((void(__fastcall*)())(0x1499BC1B0))();
+	((void(__fastcall*)())(0x149AD72E0))();
 }
 
 void __fastcall DCF2Hooks::HookStartupFightRecording(int64 eventID, int64 a2, int64 a3, int64 a4)
@@ -139,13 +139,13 @@ int64 DCF2::GetCharacterObject(PLAYER_NUM plr)
 {
 	int64 info = GetCharacterInfo(plr);
 	if (info)
-		return ((int64(__fastcall*)(int64, int))_addr(0x147397630))(info, 0);
+		return ((int64(__fastcall*)(int64, int))_addr(0x1477E5E50))(info, 0);
 }
 
 int64 DCF2::GetCharacterInfo(PLAYER_NUM plr)
 {
 	int64 gameinfo = *(__int64*)_addr(GFG_GAME_INFO);
-	return ((int64(__fastcall*)(int64, PLAYER_NUM))_addr(0x14612D280))(gameinfo, plr);
+	return ((int64(__fastcall*)(int64, PLAYER_NUM))_addr(0x1465018D0))(gameinfo, plr);
 }
 
 PLAYER_NUM DCF2::GetPlayerIDFromData(int64 data)
@@ -165,17 +165,17 @@ void DCF2::SetCharacterMKX(PLAYER_NUM plr, char * name)
 
 void DCF2::SetCharacter(int64 chr, char * name, int64 ptr, int64 unk)
 {
-	((void(__fastcall*)(int64, const char*, int64, int64))_addr(0x1473C66A0))(chr, name, ptr, unk);
+	((void(__fastcall*)(int64, const char*, int64, int64))_addr(0x147829EA0))(chr, name, ptr, unk);
 }
 
 void DCF2::SlowGameTimeForXTicks(float speed, int ticks)
 {
-	((void(__fastcall*)(float, int, int))_addr(0x146F33D50))(speed, ticks, 0);
+	((void(__fastcall*)(float, int, int))_addr(0x1473892D0))(speed, ticks, 0);
 }
 
 void DCF2::SetCharacterLife(int64 obj, float life)
 {
-	((void(__fastcall*)(int64, float))_addr(0x146E3D380))(obj, life);
+	((void(__fastcall*)(int64, float))_addr(0x1472C7DD0))(obj, life);
 }
 
 char * DCF2::GetCharacterName(PLAYER_NUM plr)
@@ -188,6 +188,6 @@ char * DCF2::GetCharacterName(PLAYER_NUM plr)
 
 void DCF2::GetCharacterPosition(FVector * vec,PLAYER_NUM plr)
 {
-	((void(__fastcall*)(int64, FVector*))_addr(0x1473AABC0))(GetCharacterInfo(plr), vec);
+	((void(__fastcall*)(int64, FVector*))_addr(0x14780CEA0))(GetCharacterInfo(plr), vec);
 }
 

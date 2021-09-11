@@ -47,7 +47,7 @@ void OnInitializeHook()
 	printf("I2Hook::OnInitializeHook() | Begin!\n");
 	TheMenu->Initialize();
 	Notifications->Init();
-	printf("I2Hook::OnInitializeHook() | Game detected: %s\n", (char*)_addr(0x1434B1F90));
+	printf("I2Hook::OnInitializeHook() | Game detected: %s\n", (char*)_addr(0x1434B1FC0));
 	Trampoline* tramp = Trampoline::MakeTrampoline(GetModuleHandle(nullptr));
 
 
@@ -55,19 +55,19 @@ void OnInitializeHook()
 	if (SettingsMgr->bEnable60FPSFrontend)
 	{
 		//Patch<char>(_addr(0x145EDC870 + 1), 0);
-		InjectHook(_addr(0x14A28EB80), tramp->Jump(SetFlagNull), PATCH_JUMP);
+		InjectHook(_addr(0x14A449B00), tramp->Jump(SetFlagNull), PATCH_JUMP);
 	}
 
 
-	InjectHook(_addr(0x14607D248), tramp->Jump(DCF2Hooks::HookProcessStuff));
-	InjectHook(_addr(0x145AFBEBE), tramp->Jump(DCF2Hooks::HookStartupFightRecording));
+	InjectHook(_addr(0x14646DBFF), tramp->Jump(DCF2Hooks::HookProcessStuff));
+	InjectHook(_addr(0x145EFF3EE), tramp->Jump(DCF2Hooks::HookStartupFightRecording));
 
-	Nop(_addr(0x14AC151A3), 7);
-	Nop(_addr(0x14AC151B3), 8);
-	InjectHook(_addr(0x14AC151C1), tramp->Jump(&MKCamera::HookedSetPosition));
-	InjectHook(_addr(0x14AC151CE), tramp->Jump(&MKCamera::HookedSetRotation));
+	Nop(_addr(0x14AE26B63), 7);
+	Nop(_addr(0x14AE26B73), 8);
+	InjectHook(_addr(0x14AE26B81), tramp->Jump(&MKCamera::HookedSetPosition));
+	InjectHook(_addr(0x14AE26B8E), tramp->Jump(&MKCamera::HookedSetRotation));
 
-	InjectHook(_addr(0x14B097C40), tramp->Jump(DCF2Hooks::HookReadPropertyValue), PATCH_JUMP);
+	InjectHook(_addr(0x14B294260), tramp->Jump(DCF2Hooks::HookReadPropertyValue), PATCH_JUMP);
 	InjectHook(_addr(0x1419C37E8), tramp->Jump(DCF2Hooks::HookSetProperty));
 
 
@@ -77,7 +77,7 @@ void OnInitializeHook()
 
 bool ValidateGameVersion()
 {
-	char* gameName = (char*)_addr(0x1434B1F90);
+	char* gameName = (char*)_addr(0x1434B1FC0);
 
 	if (strncmp(gameName, "Injustice", strlen("Injustice")) == 0)
 	{
@@ -105,7 +105,7 @@ BOOL WINAPI DllMain(HMODULE hMod, DWORD dwReason, LPVOID lpReserved)
 			if (SettingsMgr->b60FPSModeOnly)
 			{
 				Trampoline* tramp = Trampoline::MakeTrampoline(GetModuleHandle(nullptr));
-				InjectHook(_addr(0x14A28EB80), tramp->Jump(SetFlagNull), PATCH_JUMP);
+				InjectHook(_addr(0x14A449B00), tramp->Jump(SetFlagNull), PATCH_JUMP);
 			}
 			else
 			{
