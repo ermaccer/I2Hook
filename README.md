@@ -13,8 +13,8 @@ If you are not sure how to find your Injustice folder, search for it in your Ste
 Archive breakdown:
 
  - dinput8.dll - [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader/)
- - I2.asi 
- - I2.ini - configuration file
+ - I2Hook.asi 
+ - I2Hook.ini - configuration file
 
 # Usage
 
@@ -27,6 +27,8 @@ and is ready to use. By default **F1** will open or close in-game menu.
 ## Features
 | Feature | Description |
 | --- | --- |
+|60 FPS Patch| <ul><li>Removes 30 fps lock from supermoves, intros and menus.</li><li>**If your PC does not have required hardware, turning this option on might have negative impact on perfomance!**</li> <li>**You might need to turn off in-game V-Sync if 60 fps is not applied**</li></ul> |
+| | **Menu Features**| 
 |Character Modifier| <ul><li>Play as NPCs - Nightwing, Boss Brainiac.</li><li>Change forced character in story mode or other modes.</li><li>**You need to restart fight after using this modifier to load extra data!**</ul>|
 |Speed Modifier| <ul><li>Change game speed, enjoy fights in slowmotion!</li></ul> |
 |Camera Control| <ul><li>Freeze camera position & rotation.</li><li>Freely move and rotate camera with keyboard hotkeys.</li><li>Play in predefined custom camera modes: <ul><li>Mortal Kombat 11</li><li>3RD Person</li><li>1ST Person</li></ul> |
