@@ -140,7 +140,26 @@ const char* szCameraModes[TOTAL_CUSTOM_CAMERAS] = {
 	"First Person Mid",
 	"Mortal Kombat 11"
 };
+const char* szStageNames[]{
+  "BGND_ArkhamAsylum",
+  "BGND_Atlantis",
+  "BGND_BatCave",
+  "BGND_BrainiacShip",
+  "BGND_FortressOfSolitude",
+  "BGND_GorillaCity",
+  "BGND_GothamCity",
+  "BGND_JokerPlayground",
+  "BGND_Kahndaq",
+  "BGND_Metropolis",
+  "BGND_RedSunPrison",
+  "BGND_SlaughterSwamp",
+  "BGND_WatchTower",
+  "BGND_CharacterTest",
+  "BGND_DCF2Physics",
+  "BGND_EmptyMap",
 
+
+};
 int GetCamMode(const char* mode)
 {
 	for (int i = 0; i < TOTAL_CUSTOM_CAMERAS; i++)
@@ -203,9 +222,11 @@ void DCF2Menu::Initialize()
 
 	bEnableCustomCameras = false;
 	iCurrentCustomCamera = -1;
+	bStageModifier = false;
 	sprintf(szPlayer1ModifierCharacter, szCharacters[0]);
 	sprintf(szPlayer2ModifierCharacter, szCharacters[0]);
 	sprintf(szCurrentCameraOption, szCameraModes[0]);
+	sprintf(szStageModifierStage, szStageNames[0]);
 	fAdjustCamZ = 161.0f;
 	fAdjustCamX = -10.0f;
 	fAdjustCam3 = 0;
@@ -215,6 +236,15 @@ void DCF2Menu::Initialize()
 	bFocused = false;
 	bForceMoveCamera = false;
 	bForceDisableHUD = false;
+	bAutoHideHUD = false;
+	bChangePlayerSpeed = false;
+	bChangePlayerScale = false;
+	fPlayer1Speed = 1.0f;
+	fPlayer2Speed = 1.0f;
+	fPlayer1Scale = { 1.0f,1.0f,1.0f };
+	fPlayer2Scale = { 1.0f,1.0f,1.0f };
+	bFreezeWorld = false;
+	bHookDispatch = false;
 }
 
 void DCF2Menu::Draw()
@@ -262,6 +292,25 @@ void DCF2Menu::Draw()
 
 			ImGui::EndTabItem();
 		}
+		if (ImGui::BeginTabItem("Stage Modifier"))
+		{
+			ImGui::Checkbox("Enable Stage Modifier", &bStageModifier);
+
+			if (ImGui::BeginCombo("Stage", szStageModifierStage))
+			{
+				for (int n = 0; n < IM_ARRAYSIZE(szStageNames); n++)
+				{
+					bool is_selected = (szStageModifierStage == szStageNames[n]);
+					if (ImGui::Selectable(szStageNames[n], is_selected))
+						sprintf(szStageModifierStage, szStageNames[n]);
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
+
+				}
+				ImGui::EndCombo();
+			}
+			ImGui::EndTabItem();
+		}
 		if (ImGui::BeginTabItem("Speed Modifier"))
 			{
 				ImGui::Text("Gamespeed Control");
@@ -275,6 +324,19 @@ void DCF2Menu::Draw()
 				ImGui::SameLine();
 				if (ImGui::Button("Reset"))
 					DCF2::SlowGameTimeForXTicks(fSlowMotionSpeed, 1);
+
+				ImGui::Separator();
+				ImGui::Text("Tick this checkbox if you want to freeze game with a button, this might cause\nissues with pause menus and stuff so enable only when needed!");
+				ImGui::Checkbox("Hook Freeze World", &bHookDispatch);
+
+				if (bHookDispatch)
+				{
+					ImGui::Checkbox("Freeze World", &bFreezeWorld);
+					ImGui::SameLine();
+					ShowHelpMarker("Hotkey - F2");
+				}
+
+
 				ImGui::EndTabItem();
 			}
 		if (ImGui::BeginTabItem("Camera Control"))
@@ -345,12 +407,45 @@ void DCF2Menu::Draw()
 				}
 			}
 			else
-				ImGui::Text("Custom cameras will appear once ingame!");
+				ImGui::Text("Custom cameras will appear once in-game!");
 			ImGui::EndTabItem();
 		}
 		if (ImGui::BeginTabItem("Player Control"))
+		{
+			if (DCF2::GetCharacterObject(PLAYER1) && DCF2::GetCharacterObject(PLAYER2))
 			{
+				ImGui::Checkbox("Change Player Speed", &bChangePlayerSpeed);
+				ImGui::SliderFloat("Player 1", &fPlayer1Speed, 0.0, 10.0f);
+				ImGui::SliderFloat("Player 2", &fPlayer2Speed, 0.0, 10.0f);
 
+				bool reset = ImGui::Button("Reset Speed");
+				if (reset)
+				{
+					fPlayer1Speed = 1.0f;
+					fPlayer2Speed = 1.0f;
+					if (DCF2::GetCharacterObject(PLAYER1))
+						DCF2::SetCharacterSpeed(DCF2::GetCharacterObject(PLAYER1), TheMenu->fPlayer1Speed);
+					if (DCF2::GetCharacterObject(PLAYER2))
+						DCF2::SetCharacterSpeed(DCF2::GetCharacterObject(PLAYER2), TheMenu->fPlayer2Speed);
+				}
+
+				ImGui::Checkbox("Change Player Scale", &bChangePlayerScale);
+				ImGui::InputFloat3("Player 1 ", &fPlayer1Scale.X);
+				ImGui::InputFloat3("Player 2 ", &fPlayer2Scale.X);
+
+				bool scale_reset = ImGui::Button("Reset Scale");
+				if (scale_reset)
+				{
+					fPlayer1Scale = { 1.0f,1.0f,1.0f };
+					fPlayer2Scale = { 1.0f,1.0f,1.0f };
+					if (DCF2::GetCharacterObject(PLAYER1))
+						DCF2::SetCharacterScale(DCF2::GetCharacterObject(PLAYER1), &fPlayer1Scale);
+					if (DCF2::GetCharacterObject(PLAYER2))
+						DCF2::SetCharacterScale(DCF2::GetCharacterObject(PLAYER2), &fPlayer2Scale);
+				}
+
+
+				ImGui::Separator();
 				ImGui::Text("Position");
 				ImGui::SameLine(); ShowHelpMarker("Preview only!");
 				if (DCF2::GetCharacterObject(PLAYER1))
@@ -363,8 +458,12 @@ void DCF2Menu::Draw()
 					DCF2::GetCharacterPosition(&plrPos2, PLAYER2);
 					ImGui::InputFloat3("X | Y | Z", &plrPos2.X);
 				}
-				ImGui::EndTabItem();
 			}
+			else
+				ImGui::Text("Player options are only available in-game!");
+			
+			ImGui::EndTabItem();
+		}
 		if (ImGui::BeginTabItem("Cheats"))
 		{
 			ImGui::Text("Player 1");
@@ -390,6 +489,10 @@ void DCF2Menu::Draw()
 			ImGui::SameLine();
 			ShowHelpMarker("You'll need to go in-game/back to menu for this option to take effect.");
 
+			//if (ImGui::Button("Get Player Stuff"))
+			//{
+			//	printf("P1 OBJ %x INFO %x\n", DCF2::GetCharacterObject(PLAYER1), DCF2::GetCharacterInfo(PLAYER1));
+			//}
 			ImGui::EndTabItem();
 		}
 	}
@@ -413,6 +516,16 @@ void DCF2Menu::UpdateControls()
 			DCF2::SlowGameTimeForXTicks(fSlowMotionSpeed, 0x7FFFFFFF);
 		else
 			DCF2::SlowGameTimeForXTicks(1.0, 10);
+	}
+
+	if (GetAsyncKeyState(VK_F2))
+	{
+		if (bHookDispatch)
+		{
+			if (GetTickCount64() - timer <= 150) return;
+			timer = GetTickCount64();
+			bFreezeWorld ^= 1;
+		}
 	}
 
 }

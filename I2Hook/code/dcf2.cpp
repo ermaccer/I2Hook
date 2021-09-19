@@ -16,6 +16,22 @@ void __fastcall DCF2Hooks::HookProcessStuff()
 	TheMenu->Process();
 	Notifications->Update();
 
+	if (TheMenu->bChangePlayerSpeed)
+	{
+		if (DCF2::GetCharacterObject(PLAYER1))
+			DCF2::SetCharacterSpeed(DCF2::GetCharacterObject(PLAYER1), TheMenu->fPlayer1Speed);
+		if (DCF2::GetCharacterObject(PLAYER2))
+			DCF2::SetCharacterSpeed(DCF2::GetCharacterObject(PLAYER2), TheMenu->fPlayer2Speed);
+	}
+	if (TheMenu->bChangePlayerScale)
+	{
+		if (DCF2::GetCharacterObject(PLAYER1))
+			DCF2::SetCharacterScale(DCF2::GetCharacterObject(PLAYER1), &TheMenu->fPlayer1Scale);
+		if (DCF2::GetCharacterObject(PLAYER2))					
+			DCF2::SetCharacterScale(DCF2::GetCharacterObject(PLAYER2), &TheMenu->fPlayer2Scale);
+	}
+
+
 
 	if (TheMenu->bNoHealthPlayer1)
 	{
@@ -103,6 +119,9 @@ void __fastcall DCF2Hooks::HookStartupFightRecording(int64 eventID, int64 a2, in
 	TheMenu->bCustomCameraRot = false;
 	TheMenu->bYObtained = false;
 
+	if (TheMenu->bStageModifier)
+		DCF2::SetStage(TheMenu->szStageModifierStage);
+
 	if (TheMenu->bPlayer1ModifierEnabled)
 		DCF2::SetCharacterMKX(PLAYER1, TheMenu->szPlayer1ModifierCharacter);
 	if (TheMenu->bPlayer2ModifierEnabled)
@@ -113,6 +132,25 @@ void __fastcall DCF2Hooks::HookStartupFightRecording(int64 eventID, int64 a2, in
 	((void(__fastcall*)(int64, int64, int64, int64))_addr(0x14172B4C0))(eventID, a2, a3, a4);
 }
 
+
+void DCF2Hooks::HookDispatch(int64 ptr, int a2)
+{
+	if (TheMenu->bHookDispatch)
+	{
+		int64 arg = *(int64*)(ptr);
+
+		if (!TheMenu->bFreezeWorld)
+			a2 = *(uint32_t*)(ptr + 0x18);
+
+		if (*(uint32_t*)(ptr + 0x14) == a2)
+			return;
+
+		*(int*)(ptr + 0x14) = a2;
+		((void(*)(int64, int))*(int64*)(arg + 0xF8))(ptr, a2);
+	}
+	else
+		((int64(__fastcall*)(int64, int))_addr(0x148BACCF0))(ptr, a2);
+}
 
 int64 DCF2Hooks::HookSetProperty(int64 ptr, char * name, int64 unk)
 {
@@ -168,6 +206,13 @@ void DCF2::SetCharacter(int64 chr, char * name, int64 ptr, int64 unk)
 	((void(__fastcall*)(int64, const char*, int64, int64))_addr(0x147829EA0))(chr, name, ptr, unk);
 }
 
+void DCF2::SetStage(const char * stage)
+{
+	__int64 gameinfo = *(__int64*)_addr(GFG_GAME_INFO);
+
+	((void(__fastcall*)(int64, const char*))_addr(0x148BA2BD0))(gameinfo, stage);
+}
+
 void DCF2::SlowGameTimeForXTicks(float speed, int ticks)
 {
 	((void(__fastcall*)(float, int, int))_addr(0x1473892D0))(speed, ticks, 0);
@@ -177,6 +222,18 @@ void DCF2::SetCharacterLife(int64 obj, float life)
 {
 	((void(__fastcall*)(int64, float))_addr(0x1472C7DD0))(obj, life);
 }
+
+void DCF2::SetCharacterScale(int64 obj, FVector * scale)
+{
+	((void(__fastcall*)(int64, FVector*))_addr(0x149AEC310))(obj, scale);
+}
+
+void DCF2::SetCharacterSpeed(int64 obj, float speed)
+{
+	((void(__fastcall*)(int64, float))_addr(0x1472BD780))(obj, speed);
+}
+
+
 
 char * DCF2::GetCharacterName(PLAYER_NUM plr)
 {

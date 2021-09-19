@@ -29,7 +29,7 @@ public:
 	bool	 bSlowMotionEnabled;
 	int      iSlowMotionTicks;
 	float	 fSlowMotionSpeed;
-
+	bool     bFreezeWorld;
 	// window data
 	
 
@@ -42,9 +42,17 @@ public:
 	char szPlayer1ModifierCharacter[128] = {};
 	char szPlayer2ModifierCharacter[128] = {};
 
+	bool bChangePlayerSpeed;
+	float fPlayer1Speed;
+	float fPlayer2Speed;
+
+
+	bool bChangePlayerScale;
+	FVector fPlayer1Scale;
+	FVector fPlayer2Scale;
 
 	bool bFocused;
-
+	bool bHookDispatch;
 	// cheats
 	bool bInfiniteHealthPlayer1;
 	bool bInfiniteHealthPlayer2;
@@ -92,12 +100,13 @@ public:
 	float fAdjustCamZ3;
 	float fAdjustCamX3;
 
-	bool  bForceMoveCamera;
+	// stage
+	bool bStageModifier;
+	char szStageModifierStage[128] = {};
 
-	int  iSlowMoRefreshDelay;
-
-
+	bool bForceMoveCamera;
 	bool bForceDisableHUD;
+	bool bAutoHideHUD;
 
 	void Initialize();
 	void Draw();

@@ -14,9 +14,6 @@
 
 #include "eDirectX11Hook.h"
 
-// timer 0x1442CFE7C
-// kill p2 0x1442CFF10
-
 using namespace Memory::VP;
 using namespace hook;
 
@@ -32,7 +29,6 @@ bool __fastcall SetFlagNull()
 	return 0;
 
 }
-
 
 void OnInitializeHook()
 {
@@ -51,12 +47,8 @@ void OnInitializeHook()
 	Trampoline* tramp = Trampoline::MakeTrampoline(GetModuleHandle(nullptr));
 
 
-	// 60 fps
 	if (SettingsMgr->bEnable60FPSFrontend)
-	{
-		//Patch<char>(_addr(0x145EDC870 + 1), 0);
 		InjectHook(_addr(0x14A449B00), tramp->Jump(SetFlagNull), PATCH_JUMP);
-	}
 
 
 	InjectHook(_addr(0x14646DBFF), tramp->Jump(DCF2Hooks::HookProcessStuff));
@@ -70,7 +62,7 @@ void OnInitializeHook()
 	InjectHook(_addr(0x14B294260), tramp->Jump(DCF2Hooks::HookReadPropertyValue), PATCH_JUMP);
 	InjectHook(_addr(0x1419C37E8), tramp->Jump(DCF2Hooks::HookSetProperty));
 
-
+	InjectHook(_addr(0x14ACA7225), tramp->Jump(DCF2Hooks::HookDispatch));
 }
 
 
