@@ -12,6 +12,7 @@ public:
 	bool bEnableConsoleWindow;
 	bool bEnable60FPSFrontend;
 
+	bool bEnableGamepadSupport;
 
 	int iHookMenuOpenKey;
 	// free camera keys

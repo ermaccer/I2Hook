@@ -7,9 +7,10 @@ MKCamera* TheCamera;
 void MKCamera::SetPosition(FVector * pos)
 {
 	TheCamera = this;
-	*(float*)(this + 0x584) = pos->X;
-	*(float*)(this + 0x584 + 4) = pos->Y;
-	*(float*)(this + 0x584 + 8) = pos->Z;
+	camPos = *pos;
+	//*(float*)(this + 0x584) = pos->X;
+	//*(float*)(this + 0x584 + 4) = pos->Y;
+	//*(float*)(this + 0x584 + 8) = pos->Z;
 
 	((void(__thiscall*)(MKCamera*, FVector*))_addr(0x14B0070A0))(this, pos);
 }
@@ -17,58 +18,60 @@ void MKCamera::SetPosition(FVector * pos)
 void MKCamera::SetRotation(FRotator * rot)
 {
 	TheCamera = this;
-	*(int*)(this + 0x584 + 12) = rot->Pitch;
-	*(int*)(this + 0x584 + 12 + 4) = rot->Yaw;
-	*(int*)(this + 0x584 + 12 + 8) = rot->Roll;
+	camRot = *rot;
+	//*(int*)(this + 0x584 + 12) = rot->Pitch;
+	//*(int*)(this + 0x584 + 12 + 4) = rot->Yaw;
+	//*(int*)(this + 0x584 + 12 + 8) = rot->Roll;
 
 	((void(__thiscall*)(MKCamera*, FRotator*))_addr(0x14B0080E0))(this, rot);
 }
 
 void MKCamera::SetFOV(float FOV)
 {
-	*(float*)(this + 0x584 + 24) = FOV;
+	camFov = FOV;
+	//*(float*)(this + 0x584 + 24) = FOV;
 }
 
 float MKCamera::GetFOV()
 {
-	return *(float*)(this + 0x584 + 24);
+	return camFov;
 }
 
 void MKCamera::HookedSetPosition(FVector * pos)
 {
-	if (TheMenu->bCustomFOV)
+	if (TheMenu->m_bCustomCameraFOV)
 		SetFOV(TheMenu->camFov);
 	else
 		TheMenu->camFov = GetFOV();
 
 	float oneTime = 0.0f;
-	if (!TheMenu->bYObtained)
+	if (!TheMenu->m_bYObtained)
 	{
 		oneTime = pos->Y;
-		TheMenu->bYObtained = true;
+		TheMenu->m_bYObtained = true;
 	}
 
-	if (TheMenu->bEnableCustomCameras)
+	if (TheMenu->m_bCustomCameras)
 	{
 		FVector plrPos;
 		FVector p2;
-		DCF2::GetCharacterPosition(&plrPos, PLAYER1);
-		DCF2::GetCharacterPosition(&p2, PLAYER2);
-		switch (TheMenu->iCurrentCustomCamera)
+		GetCharacterPosition(&plrPos, PLAYER1);
+		GetCharacterPosition(&p2, PLAYER2);
+		switch (TheMenu->m_nCurrentCustomCamera)
 		{
 		case CAMERA_3RDPERSON:
-			pos->X = 5 + TheMenu->fAdjustCamX3;
+			pos->X = 5 + TheMenu->m_fAdjustCustomCameraThirdPersonX;
 			pos->Y = oneTime - 330.0f;
 			pos->Y += plrPos.Y * 0.85f;
-			pos->Y += TheMenu->fAdjustCam3;
+			pos->Y += TheMenu->m_fAdjustCustomCameraThirdPersonY;
 			pos->Z = 210.0f + plrPos.Z;
-			pos->Z += TheMenu->fAdjustCamZ3;
+			pos->Z += TheMenu->m_fAdjustCustomCameraThirdPersonZ;
 
 			if (p2.Y < plrPos.Y)
 			{
 				pos->Y += 600.0f;
 				pos->Z = 210.0f + plrPos.Z;
-				pos->Z += TheMenu->fAdjustCamZ3;
+				pos->Z += TheMenu->m_fAdjustCustomCameraThirdPersonZ;
 			}
 
 
@@ -90,14 +93,14 @@ void MKCamera::HookedSetPosition(FVector * pos)
 			TheMenu->camPos = *pos;
 			break;
 		case CAMERA_1STPERSON:
-			pos->X = TheMenu->fAdjustCamX;
+			pos->X = TheMenu->m_fAdjustCustomCameraX;
 			pos->Y = -230;
 			pos->Y += plrPos.Y - pos->Y;
 			if (p2.Y < plrPos.Y)
-				pos->Y += TheMenu->fAdjustCam * -1;
+				pos->Y += TheMenu->m_fAdjustCustomCameraY * -1;
 			else
-				pos->Y += TheMenu->fAdjustCam;
-			pos->Z = TheMenu->fAdjustCamZ + plrPos.Z;
+				pos->Y += TheMenu->m_fAdjustCustomCameraY;
+			pos->Z = TheMenu->m_fAdjustCustomCameraZ + plrPos.Z;
 
 
 			TheMenu->camPos = *pos;
@@ -126,7 +129,7 @@ void MKCamera::HookedSetPosition(FVector * pos)
 	}
 	else
 	{
-		if (!TheMenu->bCustomCamera)
+		if (!TheMenu->m_bCustomCameraPos)
 		{
 			TheMenu->camPos = *pos;
 			SetPosition(pos);
@@ -141,18 +144,18 @@ void MKCamera::HookedSetPosition(FVector * pos)
 
 void MKCamera::HookedSetRotation(FRotator * rot)
 {
-	if (TheMenu->bEnableCustomCameras)
+	if (TheMenu->m_bCustomCameras)
 	{
 		FVector p1, p2;
-		switch (TheMenu->iCurrentCustomCamera)
+		switch (TheMenu->m_nCurrentCustomCamera)
 		{
 		case CAMERA_3RDPERSON:
 			rot->Pitch = -900;
 			rot->Yaw = 16000;
 			rot->Roll = 0;
 			TheMenu->camRot = *rot;
-			DCF2::GetCharacterPosition(&p1, PLAYER1);
-			DCF2::GetCharacterPosition(&p2, PLAYER2);
+			GetCharacterPosition(&p1, PLAYER1);
+			GetCharacterPosition(&p2, PLAYER2);
 
 			if (p2.Y < p1.Y)
 			{
@@ -167,8 +170,8 @@ void MKCamera::HookedSetRotation(FRotator * rot)
 			rot->Yaw = 16000;
 			rot->Roll = 0;
 			TheMenu->camRot = *rot;
-			DCF2::GetCharacterPosition(&p1, PLAYER1);
-			DCF2::GetCharacterPosition(&p2, PLAYER2);
+			GetCharacterPosition(&p1, PLAYER1);
+			GetCharacterPosition(&p2, PLAYER2);
 
 			if (p2.Y < p1.Y)
 			{
@@ -183,8 +186,8 @@ void MKCamera::HookedSetRotation(FRotator * rot)
 			rot->Yaw = 16000;
 			rot->Roll = 0;
 			TheMenu->camRot = *rot;
-			DCF2::GetCharacterPosition(&p1, PLAYER1);
-			DCF2::GetCharacterPosition(&p2, PLAYER2);
+			GetCharacterPosition(&p1, PLAYER1);
+			GetCharacterPosition(&p2, PLAYER2);
 
 			if (p2.Y < p1.Y)
 			{
@@ -198,8 +201,8 @@ void MKCamera::HookedSetRotation(FRotator * rot)
 			rot->Yaw = 16000;
 			rot->Roll = 0;
 			TheMenu->camRot = *rot;
-			DCF2::GetCharacterPosition(&p1, PLAYER1);
-			DCF2::GetCharacterPosition(&p2, PLAYER2);
+			GetCharacterPosition(&p1, PLAYER1);
+			GetCharacterPosition(&p2, PLAYER2);
 
 			if (p2.Y < p1.Y)
 			{
@@ -218,7 +221,7 @@ void MKCamera::HookedSetRotation(FRotator * rot)
 	}
 	else
 	{
-		if (!TheMenu->bCustomCameraRot)
+		if (!TheMenu->m_bCustomCameraRot)
 		{
 			TheMenu->camRot = *rot;
 			SetRotation(rot);

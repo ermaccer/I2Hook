@@ -24,7 +24,7 @@ void eNotificationManager::Draw()
 	if (m_bIsNotificationActive)
 	{
 		ImGui::SetNextWindowPos(ImVec2(5, 10));
-		ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x / 3, 0.0f));
+		ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x / 2, 0.0f));
 		ImGui::Begin("setup", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoInputs
 			| ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing);
 		ImGui::TextUnformatted(szMessageBuffer);
@@ -43,4 +43,5 @@ void eNotificationManager::PushNotification(const char * format, ...)
 	vsprintf(szMessageBuffer, format, args);
 	va_end(args);
 	m_bIsNotificationActive = true;
+	m_tTimer = GetTickCount64();
 }

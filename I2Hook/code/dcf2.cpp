@@ -6,89 +6,99 @@
 #include "eNotifManager.h"
 #include <Windows.h>
 #include "mkcamera.h"
+#include "MKCharacter.h"
 
 int64 hud_property = 0;
 
-static int64 gametimer = GetTickCount64();
-
-void __fastcall DCF2Hooks::HookProcessStuff()
+void __fastcall Hooks::HookProcessStuff()
 {
 	TheMenu->Process();
 	Notifications->Update();
 
-	if (TheMenu->bChangePlayerSpeed)
+
+	if (GetObj(PLAYER1))
 	{
-		if (DCF2::GetCharacterObject(PLAYER1))
-			DCF2::SetCharacterSpeed(DCF2::GetCharacterObject(PLAYER1), TheMenu->fPlayer1Speed);
-		if (DCF2::GetCharacterObject(PLAYER2))
-			DCF2::SetCharacterSpeed(DCF2::GetCharacterObject(PLAYER2), TheMenu->fPlayer2Speed);
+		if (TheMenu->m_bInfiniteBreakersP1)
+			SetCharacterBreakers(PLAYER1, 1);
+		if (TheMenu->m_bNoHealthP1)
+			GetObj(PLAYER1)->SetLife(0.0f);
+		if (TheMenu->m_bInfiniteHealthP1)
+			GetObj(PLAYER1)->SetLife(1.0f);
+		if (TheMenu->m_bInfiniteMeterP1)
+			SetCharacterMeter(GetInfo(PLAYER1), 1.0f);
+		if (TheMenu->m_bZeroMeterP1)
+			SetCharacterMeter(GetInfo(PLAYER1), 0.0f);
 	}
-	if (TheMenu->bChangePlayerScale)
+
+
+	if (GetObj(PLAYER2))
 	{
-		if (DCF2::GetCharacterObject(PLAYER1))
-			DCF2::SetCharacterScale(DCF2::GetCharacterObject(PLAYER1), &TheMenu->fPlayer1Scale);
-		if (DCF2::GetCharacterObject(PLAYER2))					
-			DCF2::SetCharacterScale(DCF2::GetCharacterObject(PLAYER2), &TheMenu->fPlayer2Scale);
+		if (TheMenu->m_bInfiniteBreakersP2)
+			SetCharacterBreakers(PLAYER2, 1);
+		if (TheMenu->m_bNoHealthP2)
+			GetObj(PLAYER2)->SetLife(0.0f);
+		if (TheMenu->m_bInfiniteHealthP2)
+			GetObj(PLAYER2)->SetLife(1.0f);
+		if (TheMenu->m_bInfiniteMeterP2)
+			SetCharacterMeter(GetInfo(PLAYER2), 1.0f);
+		if (TheMenu->m_bZeroMeterP2)
+			SetCharacterMeter(GetInfo(PLAYER2), 0.0f);
+	}
+
+
+	if (TheMenu->m_bChangePlayerSpeed)
+	{
+		if (GetObj(PLAYER1))
+			GetObj(PLAYER1)->SetSpeed(TheMenu->m_fP1Speed);
+		if (GetObj(PLAYER2))
+			GetObj(PLAYER2)->SetSpeed(TheMenu->m_fP2Speed);
+	}
+	if (TheMenu->m_bChangePlayerScale)
+	{
+		if (GetObj(PLAYER1))
+			GetObj(PLAYER1)->SetScale(&TheMenu->m_vP1Scale);
+		if (GetObj(PLAYER2))
+			GetObj(PLAYER2)->SetScale(&TheMenu->m_vP2Scale);
+	}
+
+
+	if (!(GetObj(PLAYER1)) || !(GetObj(PLAYER2)))
+	{
+		if (TheMenu->m_bCustomCameras)
+			TheMenu->m_bCustomCameras = false;
 	}
 
 
 
-	if (TheMenu->bNoHealthPlayer1)
-	{
-		if (DCF2::GetCharacterObject(PLAYER1))
-			DCF2::SetCharacterLife(DCF2::GetCharacterObject(PLAYER1), 0.0f);
-	}
-	if (TheMenu->bNoHealthPlayer2)
-	{
-		if (DCF2::GetCharacterObject(PLAYER2))
-			DCF2::SetCharacterLife(DCF2::GetCharacterObject(PLAYER2), 0.0f);
-	}
-	if (TheMenu->bInfiniteHealthPlayer1)
-	{
-		if (DCF2::GetCharacterObject(PLAYER1))
-			DCF2::SetCharacterLife(DCF2::GetCharacterObject(PLAYER1), 1.0f);
-	}
-	if (TheMenu->bInfiniteHealthPlayer2)
-	{
-		if (DCF2::GetCharacterObject(PLAYER2))
-			DCF2::SetCharacterLife(DCF2::GetCharacterObject(PLAYER2), 1.0f);
-	}
-
-	if (!(DCF2::GetCharacterObject(PLAYER1)) || !(DCF2::GetCharacterObject(PLAYER2)))
-	{
-		if (TheMenu->bEnableCustomCameras)
-			TheMenu->bEnableCustomCameras = false;
-	}
-
-	if (TheMenu->bFreeCameraMovement)
+	if (TheMenu->m_bFreeCam)
 	{
 		if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyXPlus))
-			TheMenu->camPos.X += TheMenu->fFreeCameraSpeed;
+			TheMenu->camPos.X += TheMenu->m_fFreeCameraSpeed;
 		if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyXMinus))
-			TheMenu->camPos.X -= TheMenu->fFreeCameraSpeed;
+			TheMenu->camPos.X -= TheMenu->m_fFreeCameraSpeed;
 		if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyYPlus))
-			TheMenu->camPos.Y += TheMenu->fFreeCameraSpeed;
+			TheMenu->camPos.Y += TheMenu->m_fFreeCameraSpeed;
 		if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyYMinus))
-			TheMenu->camPos.Y -= TheMenu->fFreeCameraSpeed;
+			TheMenu->camPos.Y -= TheMenu->m_fFreeCameraSpeed;
 		if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyZPlus))
-			TheMenu->camPos.Z += TheMenu->fFreeCameraSpeed;
+			TheMenu->camPos.Z += TheMenu->m_fFreeCameraSpeed;
 		if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyZMinus))
-			TheMenu->camPos.Z -= TheMenu->fFreeCameraSpeed;
+			TheMenu->camPos.Z -= TheMenu->m_fFreeCameraSpeed;
 
 		if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyYawMinus))
-			TheMenu->camRot.Yaw -= TheMenu->iFreeCameraRotSpeed;
+			TheMenu->camRot.Yaw -= TheMenu->m_nFreeCameraRotationSpeed;
 		if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyYawPlus))
-			TheMenu->camRot.Yaw += TheMenu->iFreeCameraRotSpeed;
+			TheMenu->camRot.Yaw += TheMenu->m_nFreeCameraRotationSpeed;
 
 		if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyRollMinus))
-			TheMenu->camRot.Roll -= TheMenu->iFreeCameraRotSpeed;
+			TheMenu->camRot.Roll -= TheMenu->m_nFreeCameraRotationSpeed;
 		if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyRollPlus))
-			TheMenu->camRot.Roll += TheMenu->iFreeCameraRotSpeed;
+			TheMenu->camRot.Roll += TheMenu->m_nFreeCameraRotationSpeed;
 
 		if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyPitchMinus))
-			TheMenu->camRot.Pitch -= TheMenu->iFreeCameraRotSpeed;
+			TheMenu->camRot.Pitch -= TheMenu->m_nFreeCameraRotationSpeed;
 		if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyPitchPlus))
-			TheMenu->camRot.Pitch += TheMenu->iFreeCameraRotSpeed;
+			TheMenu->camRot.Pitch += TheMenu->m_nFreeCameraRotationSpeed;
 
 		if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyFOVMinus))
 			TheMenu->camFov -= 1.0f;
@@ -97,7 +107,7 @@ void __fastcall DCF2Hooks::HookProcessStuff()
 	}
 
 
-	if (TheMenu->bForceMoveCamera)
+	if (TheMenu->m_bForceCameraUpdate)
 	{
 		if (TheCamera)
 		{
@@ -111,35 +121,35 @@ void __fastcall DCF2Hooks::HookProcessStuff()
 	((void(__fastcall*)())(0x149AD72E0))();
 }
 
-void __fastcall DCF2Hooks::HookStartupFightRecording(int64 eventID, int64 a2, int64 a3, int64 a4)
+void __fastcall Hooks::HookStartupFightRecording(int64 eventID, int64 a2, int64 a3, int64 a4)
 {
 	printf("I2Hook::Info() | Starting a new fight!\n");
-	TheMenu->bEnableCustomCameras = false;
-	TheMenu->bCustomCamera = false;
-	TheMenu->bCustomCameraRot = false;
-	TheMenu->bYObtained = false;
+	TheMenu->m_bCustomCameras = false;
+	TheMenu->m_bCustomCameraPos = false;
+	TheMenu->m_bCustomCameraRot = false;
+	TheMenu->m_bYObtained = false;
 
-	if (TheMenu->bStageModifier)
-		DCF2::SetStage(TheMenu->szStageModifierStage);
+	if (TheMenu->m_bStageModifier)
+		SetStage(TheMenu->szStageModifierStage);
 
-	if (TheMenu->bPlayer1ModifierEnabled)
-		DCF2::SetCharacterMKX(PLAYER1, TheMenu->szPlayer1ModifierCharacter);
-	if (TheMenu->bPlayer2ModifierEnabled)
-		DCF2::SetCharacterMKX(PLAYER2, TheMenu->szPlayer2ModifierCharacter);
+	if (TheMenu->m_bPlayer1Modifier)
+		SetCharacterMKX(PLAYER1, TheMenu->szPlayer1ModifierCharacter);
+	if (TheMenu->m_bPlayer2Modifier)
+		SetCharacterMKX(PLAYER2, TheMenu->szPlayer2ModifierCharacter);
 
-	printf("I2Hook::Info() | %s VS %s\n", DCF2::GetCharacterName(PLAYER1), DCF2::GetCharacterName(PLAYER2));
+	printf("I2Hook::Info() | %s VS %s\n", GetCharacterName(PLAYER1), GetCharacterName(PLAYER2));
 
 	((void(__fastcall*)(int64, int64, int64, int64))_addr(0x14172B4C0))(eventID, a2, a3, a4);
 }
 
 
-void DCF2Hooks::HookDispatch(int64 ptr, int a2)
+void Hooks::HookDispatch(int64 ptr, int a2)
 {
-	if (TheMenu->bHookDispatch)
+	if (TheMenu->m_bHookDispatch)
 	{
 		int64 arg = *(int64*)(ptr);
 
-		if (!TheMenu->bFreezeWorld)
+		if (!TheMenu->m_bFreezeWorld)
 			a2 = *(uint32_t*)(ptr + 0x18);
 
 		if (*(uint32_t*)(ptr + 0x14) == a2)
@@ -152,18 +162,18 @@ void DCF2Hooks::HookDispatch(int64 ptr, int a2)
 		((int64(__fastcall*)(int64, int))_addr(0x148BACCF0))(ptr, a2);
 }
 
-int64 DCF2Hooks::HookSetProperty(int64 ptr, char * name, int64 unk)
+int64 Hooks::HookSetProperty(int64 ptr, char * name, int64 unk)
 {
 	hud_property = ptr;
 	return ((int64(__fastcall*)(int64, char*, int64))_addr(0x1421DFCE0))(ptr, name, unk);
 }
 
-void DCF2Hooks::HookReadPropertyValue(int64 ptr, int* unk, int* value)
+void Hooks::HookReadPropertyValue(int64 ptr, int* unk, int* value)
 {
 	int input = *value;
 	if (ptr == hud_property)
 	{
-		if (TheMenu->bForceDisableHUD)
+		if (TheMenu->m_bDisableHUD)
 			input ^= 1;
 	}
 
@@ -172,79 +182,83 @@ void DCF2Hooks::HookReadPropertyValue(int64 ptr, int* unk, int* value)
 
 
 
-
-int64 DCF2::GetCharacterObject(PLAYER_NUM plr)
+MKCharacter * GetObj(PLAYER_NUM plr)
 {
-	int64 info = GetCharacterInfo(plr);
+	int64 info = GetInfo(plr);
 	if (info)
-		return ((int64(__fastcall*)(int64, int))_addr(0x1477E5E50))(info, 0);
+		return ((MKCharacter*(__fastcall*)(int64, int))_addr(0x1477E5E50))(info, 0);
+	else
+		return 0;
 }
 
-int64 DCF2::GetCharacterInfo(PLAYER_NUM plr)
+
+int64 GetInfo(PLAYER_NUM plr)
 {
 	int64 gameinfo = *(__int64*)_addr(GFG_GAME_INFO);
 	return ((int64(__fastcall*)(int64, PLAYER_NUM))_addr(0x1465018D0))(gameinfo, plr);
 }
 
-PLAYER_NUM DCF2::GetPlayerIDFromData(int64 data)
+void SetCharacterMKX(PLAYER_NUM plr, char * name)
 {
-	if (data == GetCharacterInfo(PLAYER2))
-		return PLAYER2;
-	else
-		return PLAYER1;
-}
-
-void DCF2::SetCharacterMKX(PLAYER_NUM plr, char * name)
-{
-	int64 ptr = GetCharacterInfo(plr);
+	int64 ptr = GetInfo(plr);
 	int64 chr = (ptr + 192);
-	DCF2::SetCharacter(chr, name, 0, 0);
+	SetCharacter(chr, name, 0, 0);
 }
 
-void DCF2::SetCharacter(int64 chr, char * name, int64 ptr, int64 unk)
+void SetCharacter(int64 chr, char * name, int64 ptr, int64 unk)
 {
 	((void(__fastcall*)(int64, const char*, int64, int64))_addr(0x147829EA0))(chr, name, ptr, unk);
 }
 
-void DCF2::SetStage(const char * stage)
+void SetCharacterMeter(int64 chr, float meter)
+{
+	((void(__fastcall*)(int64, float))_addr(0x147837380))(chr, meter);
+}
+
+void SetStage(const char * stage)
 {
 	__int64 gameinfo = *(__int64*)_addr(GFG_GAME_INFO);
 
 	((void(__fastcall*)(int64, const char*))_addr(0x148BA2BD0))(gameinfo, stage);
 }
 
-void DCF2::SlowGameTimeForXTicks(float speed, int ticks)
+void SlowGameTimeForXTicks(float speed, int ticks)
 {
 	((void(__fastcall*)(float, int, int))_addr(0x1473892D0))(speed, ticks, 0);
 }
 
-void DCF2::SetCharacterLife(int64 obj, float life)
+void SetCharacterLife(int64 obj, float life)
 {
 	((void(__fastcall*)(int64, float))_addr(0x1472C7DD0))(obj, life);
 }
 
-void DCF2::SetCharacterScale(int64 obj, FVector * scale)
+void SetCharacterScale(int64 obj, FVector * scale)
 {
 	((void(__fastcall*)(int64, FVector*))_addr(0x149AEC310))(obj, scale);
 }
 
-void DCF2::SetCharacterSpeed(int64 obj, float speed)
+void SetCharacterSpeed(int64 obj, float speed)
 {
 	((void(__fastcall*)(int64, float))_addr(0x1472BD780))(obj, speed);
 }
 
-
-
-char * DCF2::GetCharacterName(PLAYER_NUM plr)
+void SetCharacterBreakers(PLAYER_NUM plr, int amount)
 {
-	int64 info = GetCharacterInfo(plr);
+	((void(__fastcall*)(PLAYER_NUM, int))_addr(0x146DA4330))(plr, amount);
+}
+
+
+
+char * GetCharacterName(PLAYER_NUM plr)
+{
+	int64 info = GetInfo(plr);
 	character_info* chr = *(character_info**)(info + 192);
 
 	return chr->name;
 }
 
-void DCF2::GetCharacterPosition(FVector * vec,PLAYER_NUM plr)
+void GetCharacterPosition(FVector * vec, PLAYER_NUM plr)
 {
-	((void(__fastcall*)(int64, FVector*))_addr(0x14780CEA0))(GetCharacterInfo(plr), vec);
+	((void(__fastcall*)(int64, FVector*))_addr(0x14780CEA0))(GetInfo(plr), vec);
 }
 

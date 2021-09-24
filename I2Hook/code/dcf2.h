@@ -1,67 +1,30 @@
 #pragma once
 #include "mk10utils.h"
+#include "MKStructs.h"
+#include "MKCharacter.h"
+
 #define GFG_GAME_INFO 0x14417DF30
 
-#define I2HOOK_VERSION "0.4"
-
-enum  PLAYER_NUM
-{
-	INVALID_PLAYER_NUM = -1,
-	PLAYER1,
-	PLAYER2,
-	PLAYER3,
-	PLAYER4,
-	MAX_PLAYERS,
-	CPU_PLAYER,
-	NOT_CPU_PLAYER,
-	BACKGROUND_PLAYER
-};
+#define I2HOOK_VERSION "0.4.1"
 
 
-struct FVector
-{
-	float X;
-	float Y;
-	float Z;
-};
+MKCharacter* GetObj(PLAYER_NUM plr);
+int64		 GetInfo(PLAYER_NUM plr);
 
-struct FRotator
-{
-	int Pitch;
-	int Yaw;
-	int Roll;
-};
+void	SetCharacterMKX(PLAYER_NUM plr, char* name); // mkx recreation
+void	SetCharacter(int64 chr, char* name, int64 ptr, int64 unk);
+void	SetCharacterMeter(int64 chr, float meter);
+void	SetStage(const char* stage);
+void	SetCharacterBreakers(PLAYER_NUM plr, int amount);
 
-struct character_info {
-	char	name[16];
-};
+char*	GetCharacterName(PLAYER_NUM plr);
+void	GetCharacterPosition(FVector* vec,PLAYER_NUM plr);
 
-namespace DCF2 {
-
-	int64 GetCharacterObject(PLAYER_NUM plr);
-	int64 GetCharacterInfo(PLAYER_NUM plr);
-
-	PLAYER_NUM GetPlayerIDFromData(int64 data);
-
-	// mkx recreation
-	void SetCharacterMKX(PLAYER_NUM plr, char* name);
-	void SetCharacter(int64 chr, char* name, int64 ptr, int64 unk);
-	void SetStage(const char* stage);
-
-	void SlowGameTimeForXTicks(float speed, int ticks);
-
-	void SetCharacterLife(int64 obj, float life);
-
-	void SetCharacterScale(int64 obj, FVector* scale);
-	void SetCharacterSpeed(int64 obj, float speed);
-	char* GetCharacterName(PLAYER_NUM plr);
+void	SlowGameTimeForXTicks(float speed, int ticks);
 
 
-	void  GetCharacterPosition(FVector* vec,PLAYER_NUM plr);
 
-}
-
-namespace DCF2Hooks {
+namespace Hooks {
 	// hooks
 	void __fastcall HookProcessStuff();
 	void __fastcall HookStartupFightRecording(int64 eventID, int64 a2, int64 a3, int64 a4);

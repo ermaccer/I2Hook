@@ -2,6 +2,11 @@
 #include "dcf2.h"
 // generic layer for other plugins too
 class MKCamera {
+private:
+	char pad[0x584];
+	FVector  camPos;
+	FRotator camRot;
+	float	 camFov;
 public:
 	void SetPosition(FVector* pos);
 	void SetRotation(FRotator* rot);

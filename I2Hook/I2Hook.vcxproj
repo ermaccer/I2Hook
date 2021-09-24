@@ -114,6 +114,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -155,15 +156,19 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="code\dcf2.h" />
     <ClInclude Include="code\dcf2menu.h" />
+    <ClInclude Include="code\eGamepadManager.h" />
     <ClInclude Include="code\eNotifManager.h" />
     <ClInclude Include="code\eSettingsManager.h" />
     <ClInclude Include="code\mk10utils.h" />
     <ClInclude Include="code\mkcamera.h" />
+    <ClInclude Include="code\MKCharacter.h" />
+    <ClInclude Include="code\MKStructs.h" />
     <ClInclude Include="eDirectX11Hook.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="imgui\imconfig.h" />
@@ -185,19 +190,19 @@
     <ClInclude Include="kiero\minhook\src\trampoline.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="utils\DelimStringReader.h" />
-    <ClInclude Include="utils\LateStaticInit.h" />
+    <ClInclude Include="utils\HookInit.hpp" />
     <ClInclude Include="utils\MemoryMgr.h" />
-    <ClInclude Include="utils\Patterns.h" />
     <ClInclude Include="utils\Trampoline.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\dcf2.cpp" />
     <ClCompile Include="code\dcf2menu.cpp" />
+    <ClCompile Include="code\eGamepadManager.cpp" />
     <ClCompile Include="code\eNotifManager.cpp" />
     <ClCompile Include="code\eSettingsManager.cpp" />
     <ClCompile Include="code\mk10utils.cpp" />
     <ClCompile Include="code\mkcamera.cpp" />
+    <ClCompile Include="code\MKCharacter.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="eDirectX11Hook.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
@@ -220,7 +225,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="utils\Patterns.cpp" />
+    <ClCompile Include="utils\HookInit.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="utils\LICENSE" />

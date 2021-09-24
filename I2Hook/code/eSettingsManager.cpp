@@ -9,6 +9,7 @@ void eSettingsManager::Init()
 	bEnableConsoleWindow = ini.ReadBoolean("Settings", "bEnableConsoleWindow", true);
 	bEnable60FPSFrontend = ini.ReadBoolean("Settings", "bEnable60FPSPatch", false);
 	b60FPSModeOnly = ini.ReadBoolean("Settings", "b60FPSModeOnly", false);
+	bEnableGamepadSupport = ini.ReadBoolean("Settings", "bEnableGamepadSupport", true);
 
 	iHookMenuOpenKey = ini.ReadInteger("Settings", "iHookMenuOpenKey", VK_F1);
 

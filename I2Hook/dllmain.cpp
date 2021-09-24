@@ -2,7 +2,6 @@
 #include "pch.h"
 #include "utils/MemoryMgr.h"
 #include "utils/Trampoline.h"
-#include "utils/Patterns.h"
 #include "code/mk10utils.h"
 #include "code/dcf2menu.h"
 #include <iostream>
@@ -11,16 +10,18 @@
 #include "code/eSettingsManager.h"
 #include "code/eNotifManager.h"
 #include "code/mkcamera.h"
-
+#include "code/dcf2menu.h"
+#include "code/eGamepadManager.h"
 #include "eDirectX11Hook.h"
 
+
 using namespace Memory::VP;
-using namespace hook;
 
 
 int64 __fastcall GenericTrueReturn() { return 1; }
 int64 __fastcall GenericFalseReturn() { return 0; }
 void __fastcall  GenericDummy() {}
+
 
 
 bool __fastcall SetFlagNull()
@@ -51,18 +52,21 @@ void OnInitializeHook()
 		InjectHook(_addr(0x14A449B00), tramp->Jump(SetFlagNull), PATCH_JUMP);
 
 
-	InjectHook(_addr(0x14646DBFF), tramp->Jump(DCF2Hooks::HookProcessStuff));
-	InjectHook(_addr(0x145EFF3EE), tramp->Jump(DCF2Hooks::HookStartupFightRecording));
+	InjectHook(_addr(0x14646DBFF), tramp->Jump(Hooks::HookProcessStuff));
+	InjectHook(_addr(0x145EFF3EE), tramp->Jump(Hooks::HookStartupFightRecording));
 
 	Nop(_addr(0x14AE26B63), 7);
 	Nop(_addr(0x14AE26B73), 8);
 	InjectHook(_addr(0x14AE26B81), tramp->Jump(&MKCamera::HookedSetPosition));
 	InjectHook(_addr(0x14AE26B8E), tramp->Jump(&MKCamera::HookedSetRotation));
 
-	InjectHook(_addr(0x14B294260), tramp->Jump(DCF2Hooks::HookReadPropertyValue), PATCH_JUMP);
-	InjectHook(_addr(0x1419C37E8), tramp->Jump(DCF2Hooks::HookSetProperty));
+	InjectHook(_addr(0x14B294260), tramp->Jump(Hooks::HookReadPropertyValue), PATCH_JUMP);
+	InjectHook(_addr(0x1419C37E8), tramp->Jump(Hooks::HookSetProperty));
 
-	InjectHook(_addr(0x14ACA7225), tramp->Jump(DCF2Hooks::HookDispatch));
+	InjectHook(_addr(0x14ACA7225), tramp->Jump(Hooks::HookDispatch));
+
+	//gamepad
+	InjectHook(_addr(0x142CB351C), tramp->Jump(XInputGetState_Hook), PATCH_JUMP);
 }
 
 
@@ -83,8 +87,6 @@ bool ValidateGameVersion()
 }
 
 
-
-
 BOOL WINAPI DllMain(HMODULE hMod, DWORD dwReason, LPVOID lpReserved)
 {
 	switch (dwReason)
@@ -101,15 +103,12 @@ BOOL WINAPI DllMain(HMODULE hMod, DWORD dwReason, LPVOID lpReserved)
 			}
 			else
 			{
+				OnInitializeHook();
 				eDirectX11Hook::Init();
 				DisableThreadLibraryCalls(hMod);
 				CreateThread(nullptr, 0, DirectXHookThread, hMod, 0, nullptr);
-				OnInitializeHook();
 			}
 		}
-
-
-
 		break;
 	case DLL_PROCESS_DETACH:
 		kiero::shutdown();

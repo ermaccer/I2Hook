@@ -3,11 +3,6 @@
 #include <Windows.h>
 // as usual, based on mh2 debug menu
 
-enum eTabs {
-	TAB_SPEED,
-	TAB_CAMERA
-};
-
 enum eCustomCameras {
 	CAMERA_3RDPERSON,
 	CAMERA_3RDPERSON2,
@@ -18,95 +13,85 @@ enum eCustomCameras {
 };
 
 
-
-
 class DCF2Menu {
-private:
-	int  iCurrentTab;
 public:
-	bool bIsActive;
+	bool	 m_bIsActive;
+	bool	 m_bSlowMotion;
+	bool     m_bFreezeWorld;
+	bool	 m_bIsFocused;
+	bool	 m_bHookDispatch;
+	bool	 m_bForceCameraUpdate;
+	bool	 m_bCustomCameraPos;
+	bool	 m_bCustomCameraRot;
+	bool	 m_bCustomCameraFOV;
+	bool	 m_bFreeCamMouseControl;
+	bool	 m_bFreeCamMouseInvertY;
+	bool	 m_bFreeCam;
+	bool	 m_bCustomCameras;
+	bool	 m_bYObtained;
+	bool	 m_bStageModifier;
+	bool	 m_bDisableHUD;
+	bool	 m_bAutoHideHUD;
+	// cheats
+	bool	m_bInfiniteHealthP1;
+	bool	m_bInfiniteHealthP2;
+	bool	m_bNoHealthP1;
+	bool	m_bNoHealthP2;
+	bool	m_bInfiniteBreakersP1;
+	bool	m_bInfiniteBreakersP2;
+	bool	m_bInfiniteMeterP1;
+	bool	m_bInfiniteMeterP2;
+	bool	m_bZeroMeterP1;
+	bool	m_bZeroMeterP2;
 
-	bool	 bSlowMotionEnabled;
-	int      iSlowMotionTicks;
-	float	 fSlowMotionSpeed;
-	bool     bFreezeWorld;
-	// window data
-	
+	bool	m_bChangePlayerSpeed;
+	bool	m_bChangePlayerScale;
+	bool	m_bPlayer1Modifier;
+	bool	m_bPlayer2Modifier;
 
-	// characters
+	float	 m_fSlowMotionSpeed;
+	float	 m_fP1Speed;
+	float	 m_fP2Speed;
+	float	 m_fAdjustCustomCameraX;
+	float	 m_fAdjustCustomCameraY;
+	float	 m_fAdjustCustomCameraZ;
+	float	 m_fAdjustCustomCameraThirdPersonX;
+	float	 m_fAdjustCustomCameraThirdPersonY;
+	float	 m_fAdjustCustomCameraThirdPersonZ;
+	float	 m_fFreeCameraSpeed;
 
-	int  iCharacterModifierMode;
+	int  m_nFreeCameraRotationSpeed;
+	int  m_nCurrentCustomCamera;
+	int  m_nCurrentCharModifier;
+
+	FVector	 m_vP1Scale;
+	FVector	 m_vP2Scale;
+
+
 	char szCurrentModifier[128] = {};
-	bool bPlayer1ModifierEnabled;
-	bool bPlayer2ModifierEnabled;
 	char szPlayer1ModifierCharacter[128] = {};
 	char szPlayer2ModifierCharacter[128] = {};
+	char szCurrentCameraOption[64] = {};
+	char szStageModifierStage[128] = {};
 
-	bool bChangePlayerSpeed;
-	float fPlayer1Speed;
-	float fPlayer2Speed;
-
-
-	bool bChangePlayerScale;
-	FVector fPlayer1Scale;
-	FVector fPlayer2Scale;
-
-	bool bFocused;
-	bool bHookDispatch;
-	// cheats
-	bool bInfiniteHealthPlayer1;
-	bool bInfiniteHealthPlayer2;
-	bool bNoHealthPlayer1;
-	bool bNoHealthPlayer2;
 
 	// camera
 
-	bool bCustomCamera;
-	bool bCustomFOV;
-	bool bCustomCameraRot;
-	FVector camPos;
+	FVector  camPos;
 	FRotator camRot;
-	float camFov;
+	float	 camFov;
 
 	// player 
 	FVector plrPos;
 	FVector plrPos2;
 
-
 	// cam mouse
-	bool bEnableMouseControl;
-	bool bInvertMouseY;
-	POINT orgMouse;
-	POINT curMouse;
+
+	POINT	orgMouse;
+	POINT	curMouse;
 	int     mouseSpeedX;
 	int     mouseSpeedY;
 	int     mouseSens;
-
-
-	bool bFreeCameraMovement;
-	float fFreeCameraSpeed;
-	int  iFreeCameraRotSpeed;
-	bool bEnableCustomCameras;
-	int  iCurrentCustomCamera;
-	char szCurrentCameraOption[128];
-	bool bYObtained;
-
-
-	float fAdjustCam;
-	float fAdjustCamZ;
-	float fAdjustCamX;
-
-	float fAdjustCam3;
-	float fAdjustCamZ3;
-	float fAdjustCamX3;
-
-	// stage
-	bool bStageModifier;
-	char szStageModifierStage[128] = {};
-
-	bool bForceMoveCamera;
-	bool bForceDisableHUD;
-	bool bAutoHideHUD;
 
 	void Initialize();
 	void Draw();
@@ -114,8 +99,6 @@ public:
 	void UpdateControls();
 	void UpdateMouse();
 	bool GetActiveState();
-
-	void EditCharacter(PLAYER_NUM plr);
 };
 
 

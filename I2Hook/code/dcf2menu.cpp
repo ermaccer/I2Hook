@@ -7,6 +7,7 @@
 #include <windows.h>
 #include "eSettingsManager.h"
 #include "eNotifManager.h"
+#include "MKCharacter.h"
 
 static int64 timer = GetTickCount64();
 const char* szCharacters[] = {
@@ -153,7 +154,6 @@ const char* szStageNames[]{
   "BGND_Metropolis",
   "BGND_RedSunPrison",
   "BGND_SlaughterSwamp",
-  "BGND_WatchTower",
   "BGND_CharacterTest",
   "BGND_DCF2Physics",
   "BGND_EmptyMap",
@@ -192,72 +192,73 @@ static void ShowHelpMarker(const char* desc)
 
 void DCF2Menu::Initialize()
 {
-	bPlayer1ModifierEnabled = false;
-	bPlayer2ModifierEnabled = false;
-
-	bSlowMotionEnabled = false;
-	iSlowMotionTicks = 100;
-	fSlowMotionSpeed = 0.5f;
-	bCustomCamera = false;
-	bCustomCameraRot = false;
-	bCustomFOV = false;
-	iCurrentTab = 0;
-	bSlowMotionEnabled = 0;
-	fSlowMotionSpeed = 0.5f;
-	fFreeCameraSpeed = 5.25f;
-	iFreeCameraRotSpeed = 120;
-	bIsActive = false;
+	m_bPlayer1Modifier = false;
+	m_bPlayer2Modifier = false;
+	m_bSlowMotion = false;
+	m_fSlowMotionSpeed = 0.5f;
+	m_bCustomCameraPos = false;
+	m_bCustomCameraRot = false;
+	m_bCustomCameraFOV = false;
+	m_bSlowMotion = 0;
+	m_fSlowMotionSpeed = 0.5f;
+	m_fFreeCameraSpeed = 5.25f;
+	m_nFreeCameraRotationSpeed = 120;
+	m_bIsActive = false;
 
 	orgMouse.x = GetSystemMetrics(SM_CXSCREEN) / 2;
 	orgMouse.y = GetSystemMetrics(SM_CYSCREEN) / 2;
 	mouseSpeedX = 0;
 	mouseSpeedY = 0;
 	mouseSens = 5;
-	bInvertMouseY = true;
+	m_bFreeCamMouseInvertY = true;
 
-	bInfiniteHealthPlayer1 = false;
-	bInfiniteHealthPlayer2 = false;
-	bNoHealthPlayer1 = false;
-	bNoHealthPlayer2 = false;
+	m_bInfiniteHealthP1 = false;
+	m_bInfiniteHealthP2 = false;
+	m_bNoHealthP1 = false;
+	m_bNoHealthP2 = false;
 
-	bEnableCustomCameras = false;
-	iCurrentCustomCamera = -1;
-	bStageModifier = false;
+	m_bCustomCameras = false;
+	m_nCurrentCustomCamera = -1;
+	m_bStageModifier = false;
 	sprintf(szPlayer1ModifierCharacter, szCharacters[0]);
 	sprintf(szPlayer2ModifierCharacter, szCharacters[0]);
 	sprintf(szCurrentCameraOption, szCameraModes[0]);
 	sprintf(szStageModifierStage, szStageNames[0]);
-	fAdjustCamZ = 161.0f;
-	fAdjustCamX = -10.0f;
-	fAdjustCam3 = 0;
-	fAdjustCamX3 = 0;
-	fAdjustCamZ3 = 0;
-	bYObtained = false;
-	bFocused = false;
-	bForceMoveCamera = false;
-	bForceDisableHUD = false;
-	bAutoHideHUD = false;
-	bChangePlayerSpeed = false;
-	bChangePlayerScale = false;
-	fPlayer1Speed = 1.0f;
-	fPlayer2Speed = 1.0f;
-	fPlayer1Scale = { 1.0f,1.0f,1.0f };
-	fPlayer2Scale = { 1.0f,1.0f,1.0f };
-	bFreezeWorld = false;
-	bHookDispatch = false;
+	m_fAdjustCustomCameraZ = 161.0f;
+	m_fAdjustCustomCameraX = -10.0f;
+	m_fAdjustCustomCameraThirdPersonY = 0;
+	m_fAdjustCustomCameraThirdPersonX = 0;
+	m_fAdjustCustomCameraThirdPersonZ = 0;
+	m_bYObtained = false;
+	m_bIsFocused = false;
+	m_bForceCameraUpdate = false;
+	m_bDisableHUD = false;
+	m_bAutoHideHUD = false;
+	m_bChangePlayerSpeed = false;
+	m_bChangePlayerScale = false;
+	m_fP1Speed = 1.0f;
+	m_fP2Speed = 1.0f;
+	m_vP1Scale = { 1.0f,1.0f,1.0f };
+	m_vP2Scale = { 1.0f,1.0f,1.0f };
+	m_bFreezeWorld = false;
+	m_bHookDispatch = false;
+
+	m_bInfiniteBreakersP1 = false;
+	m_bInfiniteBreakersP2 = false;
+	m_bZeroMeterP1 = false;
+	m_bZeroMeterP2 = false;
 }
 
 void DCF2Menu::Draw()
 {
 	ImGui::GetIO().MouseDrawCursor = true;
-	ImGui::Begin(GetI2HookVersion());
-
+	ImGui::Begin(GetI2HookVersion(),&m_bIsActive);
 
 	if (ImGui::BeginTabBar("##tabs"))
 	{
 		if (ImGui::BeginTabItem("Character Modifier"))
 		{
-			ImGui::Checkbox("Enable Player 1 Modifier", &bPlayer1ModifierEnabled);
+			ImGui::Checkbox("Enable Player 1 Modifier", &m_bPlayer1Modifier);
 
 			if (ImGui::BeginCombo("Player 1 Character", szPlayer1ModifierCharacter))
 			{
@@ -274,7 +275,7 @@ void DCF2Menu::Draw()
 			}
 
 			ImGui::Separator();
-			ImGui::Checkbox("Enable Player 2 Modifier", &bPlayer2ModifierEnabled);
+			ImGui::Checkbox("Enable Player 2 Modifier", &m_bPlayer2Modifier);
 
 			if (ImGui::BeginCombo("Player 2 Character", szPlayer2ModifierCharacter))
 			{
@@ -294,7 +295,7 @@ void DCF2Menu::Draw()
 		}
 		if (ImGui::BeginTabItem("Stage Modifier"))
 		{
-			ImGui::Checkbox("Enable Stage Modifier", &bStageModifier);
+			ImGui::Checkbox("Enable Stage Modifier", &m_bStageModifier);
 
 			if (ImGui::BeginCombo("Stage", szStageModifierStage))
 			{
@@ -312,72 +313,78 @@ void DCF2Menu::Draw()
 			ImGui::EndTabItem();
 		}
 		if (ImGui::BeginTabItem("Speed Modifier"))
+		{
+			ImGui::Text("Gamespeed Control");
+			ImGui::SameLine(); ShowHelpMarker("Hotkey - F5");
+
+			ImGui::InputFloat("Speed", &m_fSlowMotionSpeed, 0.1f);
+			if (m_fSlowMotionSpeed > 2.0f) m_fSlowMotionSpeed = 2.0f;
+			if (m_fSlowMotionSpeed < 0.0f) m_fSlowMotionSpeed = 0.0f;
+			if (ImGui::Button("Apply"))
+				SlowGameTimeForXTicks(m_fSlowMotionSpeed, 0x7FFFFFFF);
+			ImGui::SameLine();
+			if (ImGui::Button("Reset"))
+				SlowGameTimeForXTicks(m_fSlowMotionSpeed, 1);
+
+			ImGui::Separator();
+			ImGui::Text("Tick this checkbox if you want to freeze game with a button, this might cause\nissues with pause menus and stuff so enable only when needed!");
+			ImGui::Checkbox("Hook Freeze World", &m_bHookDispatch);
+
+			if (m_bHookDispatch)
 			{
-				ImGui::Text("Gamespeed Control");
-				ImGui::SameLine(); ShowHelpMarker("Hotkey - F5");
-
-				ImGui::InputFloat("Speed", &fSlowMotionSpeed, 0.1f);
-				if (fSlowMotionSpeed > 2.0f) fSlowMotionSpeed = 2.0f;
-				if (fSlowMotionSpeed < 0.0f) fSlowMotionSpeed = 0.0f;
-				if (ImGui::Button("Apply"))
-					DCF2::SlowGameTimeForXTicks(fSlowMotionSpeed, 0x7FFFFFFF);
+				ImGui::Checkbox("Freeze World", &m_bFreezeWorld);
 				ImGui::SameLine();
-				if (ImGui::Button("Reset"))
-					DCF2::SlowGameTimeForXTicks(fSlowMotionSpeed, 1);
-
-				ImGui::Separator();
-				ImGui::Text("Tick this checkbox if you want to freeze game with a button, this might cause\nissues with pause menus and stuff so enable only when needed!");
-				ImGui::Checkbox("Hook Freeze World", &bHookDispatch);
-
-				if (bHookDispatch)
-				{
-					ImGui::Checkbox("Freeze World", &bFreezeWorld);
-					ImGui::SameLine();
-					ShowHelpMarker("Hotkey - F2");
-				}
-
-
-				ImGui::EndTabItem();
+				ShowHelpMarker("Hotkey - F2");
 			}
+
+
+			ImGui::EndTabItem();
+		}
 		if (ImGui::BeginTabItem("Camera Control"))
 		{
-			ImGui::Checkbox("Custom Camera Position", &bCustomCamera);
+			ImGui::Checkbox("Set Camera Position", &m_bCustomCameraPos);
 			ImGui::InputFloat3("X | Y | Z", &camPos.X);
-			ImGui::Checkbox("Custom Camera Rotation", &bCustomCameraRot);
+			ImGui::Checkbox("Set Camera Rotation", &m_bCustomCameraRot);
 			ImGui::InputInt3("Pitch | Yaw | Roll", &camRot.Pitch);
 
-			ImGui::Checkbox("Custom FOV", &bCustomFOV);
+			ImGui::Checkbox("Set FOV", &m_bCustomCameraFOV);
 			ImGui::InputFloat("FOV", &camFov);
 
 			ImGui::Separator();
-			ImGui::Checkbox("Enable Freecam", &bFreeCameraMovement);
-			ImGui::SameLine(); ShowHelpMarker("Requires all toggles enabled!\nYou can configure keys in .ini file.");
-			ImGui::InputFloat("Freecam Speed", &fFreeCameraSpeed);
-			ImGui::InputInt("Freecam Rotation Speed", &iFreeCameraRotSpeed);
+			ImGui::Checkbox("Enable Freecam", &m_bFreeCam);
+			ImGui::SameLine(); ShowHelpMarker("Allows to move camera with certain keys.\nRequires all toggles enabled!\nYou can configure keys in .ini file.");
 
-
-
-			ImGui::Separator();
-			ImGui::Text("Check this option if the game you can't move camera anymore win poses.");
-			ImGui::Checkbox("Force Camera To Move", &bForceMoveCamera);
-
-
-			if (bFreeCameraMovement)
+			if (m_bFreeCam)
 			{
-				ImGui::Separator();
-				ImGui::Checkbox("Mouse Control", &bEnableMouseControl);
+				if (!m_bCustomCameraPos || !m_bCustomCameraRot || !m_bCustomCameraFOV)
+					ImGui::TextColored(ImVec4(1.f, 0.3f, 0.3f, 1.f), "Check rest of the Set Camera options!");
 
-				if (bEnableMouseControl)
+				ImGui::InputFloat("Freecam Speed", &m_fFreeCameraSpeed);
+				ImGui::InputInt("Freecam Rotation Speed", &m_nFreeCameraRotationSpeed);
+
+				ImGui::Separator();
+				ImGui::Checkbox("Mouse Control", &m_bFreeCamMouseControl);
+
+				if (m_bFreeCamMouseControl)
 				{
-					ImGui::Checkbox("Invert Y", &bInvertMouseY);
+					ImGui::SameLine();  ImGui::TextColored(ImVec4(1.f, 0.3f, 0.3f, 1.f), "This feature is not yet finished!");
+					ImGui::Checkbox("Invert Y", &m_bFreeCamMouseInvertY);
 					ImGui::SliderInt("Mouse Smoothness", &mouseSens, 1, 15);
 				}
 			}
 
+
+
+
 			ImGui::Separator();
-			if (DCF2::GetCharacterObject(PLAYER1) && DCF2::GetCharacterObject(PLAYER2))
+			ImGui::Checkbox("Force Camera To Move", &m_bForceCameraUpdate);
+			ImGui::SameLine(); ShowHelpMarker("Check this option if the game you can't move camera anymore in win poses and some cinematics.");
+
+
+			ImGui::Separator();
+			if (GetObj(PLAYER1) && GetObj(PLAYER2))
 			{
-				ImGui::Checkbox("Custom Cameras", &bEnableCustomCameras);
+				ImGui::Checkbox("Custom Cameras", &m_bCustomCameras);
 
 				if (ImGui::BeginCombo("Mode", szCurrentCameraOption))
 				{
@@ -392,18 +399,18 @@ void DCF2Menu::Draw()
 					}
 					ImGui::EndCombo();
 				}
-				iCurrentCustomCamera = GetCamMode(szCurrentCameraOption);
-				if (iCurrentCustomCamera == CAMERA_1STPERSON || iCurrentCustomCamera == CAMERA_1STPERSON_MID)
+				m_nCurrentCustomCamera = GetCamMode(szCurrentCameraOption);
+				if (m_nCurrentCustomCamera == CAMERA_1STPERSON || m_nCurrentCustomCamera == CAMERA_1STPERSON_MID)
 				{
-					ImGui::InputFloat("FPS Camera Offset", &fAdjustCam);
-					ImGui::InputFloat("FPS Up/Down Offset", &fAdjustCamZ);
-					ImGui::InputFloat("FPS Left/Right Offset", &fAdjustCamX);
+					ImGui::InputFloat("FPS Camera Offset", &m_fAdjustCustomCameraY);
+					ImGui::InputFloat("FPS Up/Down Offset", &m_fAdjustCustomCameraZ);
+					ImGui::InputFloat("FPS Left/Right Offset", &m_fAdjustCustomCameraX);
 				}
-				else if (iCurrentCustomCamera == CAMERA_3RDPERSON)
+				else if (m_nCurrentCustomCamera == CAMERA_3RDPERSON)
 				{
-					ImGui::InputFloat("TPP Camera Offset", &fAdjustCam3);
-					ImGui::InputFloat("TPP Up/Down Offset", &fAdjustCamZ3);
-					ImGui::InputFloat("TPP Left/Right Offset", &fAdjustCamX3);
+					ImGui::InputFloat("TPP Camera Offset", &m_fAdjustCustomCameraThirdPersonY);
+					ImGui::InputFloat("TPP Up/Down Offset", &m_fAdjustCustomCameraThirdPersonZ);
+					ImGui::InputFloat("TPP Left/Right Offset", &m_fAdjustCustomCameraThirdPersonX);
 				}
 			}
 			else
@@ -412,96 +419,122 @@ void DCF2Menu::Draw()
 		}
 		if (ImGui::BeginTabItem("Player Control"))
 		{
-			if (DCF2::GetCharacterObject(PLAYER1) && DCF2::GetCharacterObject(PLAYER2))
+			if (GetObj(PLAYER1) && GetObj(PLAYER2))
 			{
-				ImGui::Checkbox("Change Player Speed", &bChangePlayerSpeed);
-				ImGui::SliderFloat("Player 1", &fPlayer1Speed, 0.0, 10.0f);
-				ImGui::SliderFloat("Player 2", &fPlayer2Speed, 0.0, 10.0f);
-
-				bool reset = ImGui::Button("Reset Speed");
-				if (reset)
+				ImGui::Checkbox("Change Player Speed", &m_bChangePlayerSpeed);
+				ImGui::SliderFloat("Player 1", &m_fP1Speed, 0.0, 10.0f);
+				ImGui::SliderFloat("Player 2", &m_fP2Speed, 0.0, 10.0f);
+				if (ImGui::Button("Reset Speed"))
 				{
-					fPlayer1Speed = 1.0f;
-					fPlayer2Speed = 1.0f;
-					if (DCF2::GetCharacterObject(PLAYER1))
-						DCF2::SetCharacterSpeed(DCF2::GetCharacterObject(PLAYER1), TheMenu->fPlayer1Speed);
-					if (DCF2::GetCharacterObject(PLAYER2))
-						DCF2::SetCharacterSpeed(DCF2::GetCharacterObject(PLAYER2), TheMenu->fPlayer2Speed);
+					m_fP1Speed = 1.0f;
+					m_fP2Speed = 1.0f;
+					if (GetObj(PLAYER1))
+						GetObj(PLAYER1)->SetSpeed(m_fP1Speed);
+					if (GetObj(PLAYER2))
+						GetObj(PLAYER2)->SetSpeed(m_fP1Speed);
 				}
 
-				ImGui::Checkbox("Change Player Scale", &bChangePlayerScale);
-				ImGui::InputFloat3("Player 1 ", &fPlayer1Scale.X);
-				ImGui::InputFloat3("Player 2 ", &fPlayer2Scale.X);
+				ImGui::Checkbox("Change Player Scale", &m_bChangePlayerScale);
+				ImGui::InputFloat3("Player 1 ", &m_vP1Scale.X);
+				ImGui::InputFloat3("Player 2 ", &m_vP2Scale.X);
 
-				bool scale_reset = ImGui::Button("Reset Scale");
-				if (scale_reset)
+				if (ImGui::Button("Reset Scale"))
 				{
-					fPlayer1Scale = { 1.0f,1.0f,1.0f };
-					fPlayer2Scale = { 1.0f,1.0f,1.0f };
-					if (DCF2::GetCharacterObject(PLAYER1))
-						DCF2::SetCharacterScale(DCF2::GetCharacterObject(PLAYER1), &fPlayer1Scale);
-					if (DCF2::GetCharacterObject(PLAYER2))
-						DCF2::SetCharacterScale(DCF2::GetCharacterObject(PLAYER2), &fPlayer2Scale);
+					m_vP1Scale = { 1.0f,1.0f,1.0f };
+					m_vP2Scale = { 1.0f,1.0f,1.0f };
+					if (GetObj(PLAYER1))
+						GetObj(PLAYER1)->SetScale(&m_vP1Scale);
+					if (GetObj(PLAYER2))
+						GetObj(PLAYER2)->SetScale(&m_vP2Scale);
 				}
 
 
 				ImGui::Separator();
 				ImGui::Text("Position");
-				ImGui::SameLine(); ShowHelpMarker("Preview only!");
-				if (DCF2::GetCharacterObject(PLAYER1))
+				ImGui::SameLine(); ShowHelpMarker("Read only!");
+				if (GetObj(PLAYER1))
 				{
-					DCF2::GetCharacterPosition(&plrPos, PLAYER1);
+					GetCharacterPosition(&plrPos, PLAYER1);
 					ImGui::InputFloat3("X | Y | Z", &plrPos.X);
 				}
-				if (DCF2::GetCharacterObject(PLAYER2))
+				if (GetObj(PLAYER2))
 				{
-					DCF2::GetCharacterPosition(&plrPos2, PLAYER2);
+					GetCharacterPosition(&plrPos2, PLAYER2);
 					ImGui::InputFloat3("X | Y | Z", &plrPos2.X);
 				}
 			}
 			else
 				ImGui::Text("Player options are only available in-game!");
-			
+
 			ImGui::EndTabItem();
 		}
 		if (ImGui::BeginTabItem("Cheats"))
 		{
-			ImGui::Text("Player 1");
 			ImGui::Separator();
-			ImGui::Checkbox("Infinite Health", &bInfiniteHealthPlayer1);
-			ImGui::Checkbox("Zero Health", &bNoHealthPlayer1);
+			ImGui::Columns(2);
+			ImGui::SetColumnWidth(0, 150);
 
+			ImGui::Text("Infinite Health");
+			ImGui::NextColumn();
+			ImGui::Checkbox("P1##infhealth", &m_bInfiniteHealthP1);
+			ImGui::SameLine();
+			ImGui::Checkbox("P2##infhealth", &m_bInfiniteHealthP2);
+			ImGui::NextColumn();
+
+
+			ImGui::Text("Zero Health\n");
+			ImGui::NextColumn();
+			ImGui::Checkbox("P1##0health", &m_bNoHealthP1);
+			ImGui::SameLine();
+			ImGui::Checkbox("P2##0health", &m_bNoHealthP2);
+			ImGui::NextColumn();
+
+
+
+			ImGui::Text("Infinite Meter\n");
+			ImGui::NextColumn();
+			ImGui::Checkbox("P1##super", &m_bInfiniteMeterP1);
+			ImGui::SameLine();
+			ImGui::Checkbox("P2##super", &m_bInfiniteMeterP2);
+			ImGui::NextColumn();
+
+			ImGui::Text("Zero Meter\n");
+			ImGui::NextColumn();
+			ImGui::Checkbox("P1##0super", &m_bZeroMeterP1);
+			ImGui::SameLine();				 
+			ImGui::Checkbox("P2##0super", &m_bZeroMeterP2);
+			ImGui::NextColumn();
+
+			ImGui::Text("Infinite Clashes\n");
+			ImGui::NextColumn();
+			ImGui::Checkbox("P1##breakers", &m_bInfiniteBreakersP1);
+			ImGui::SameLine();
+			ImGui::Checkbox("P2##breakers", &m_bInfiniteBreakersP2);
 			ImGui::Separator();
 
-			ImGui::Text("Player 2");
-			ImGui::Separator();
-			ImGui::Checkbox("Infinite Health ", &bInfiniteHealthPlayer2);
-			ImGui::Checkbox("Zero Health ", &bNoHealthPlayer2);
-
-			ImGui::Separator();
+			ImGui::Columns(1);
 
 			ImGui::EndTabItem();
-		}
 
+
+		}
 		if (ImGui::BeginTabItem("Misc."))
 		{
-			ImGui::Checkbox("Disable HUD Completely", &bForceDisableHUD);
+			ImGui::Checkbox("Disable HUD Completely", &m_bDisableHUD);
 			ImGui::SameLine();
 			ShowHelpMarker("You'll need to go in-game/back to menu for this option to take effect.");
-
-			//if (ImGui::Button("Get Player Stuff"))
-			//{
-			//	printf("P1 OBJ %x INFO %x\n", DCF2::GetCharacterObject(PLAYER1), DCF2::GetCharacterInfo(PLAYER1));
-			//}
 			ImGui::EndTabItem();
 		}
+
+
+		ImGui::EndTabBar();
 	}
 }
 
 void DCF2Menu::Process()
 {
 	UpdateControls();
-	if (bFocused && bEnableMouseControl)
+	if (m_bIsFocused && m_bFreeCamMouseControl)
 		UpdateMouse();
 }
 
@@ -511,20 +544,20 @@ void DCF2Menu::UpdateControls()
 	{
 		if (GetTickCount64() - timer <= 150) return;
 		timer = GetTickCount64();
-		TheMenu->bSlowMotionEnabled ^= 1;
-		if (TheMenu->bSlowMotionEnabled)
-			DCF2::SlowGameTimeForXTicks(fSlowMotionSpeed, 0x7FFFFFFF);
+		TheMenu->m_bSlowMotion ^= 1;
+		if (TheMenu->m_bSlowMotion)
+			SlowGameTimeForXTicks(m_fSlowMotionSpeed, 0x7FFFFFFF);
 		else
-			DCF2::SlowGameTimeForXTicks(1.0, 10);
+			SlowGameTimeForXTicks(1.0, 10);
 	}
 
 	if (GetAsyncKeyState(VK_F2))
 	{
-		if (bHookDispatch)
+		if (m_bHookDispatch)
 		{
 			if (GetTickCount64() - timer <= 150) return;
 			timer = GetTickCount64();
-			bFreezeWorld ^= 1;
+			m_bFreezeWorld ^= 1;
 		}
 	}
 
@@ -532,16 +565,16 @@ void DCF2Menu::UpdateControls()
 
 void DCF2Menu::UpdateMouse()
 {
-	if (bIsActive) return;
+	if (m_bIsActive) return;
 
 	GetCursorPos(&curMouse);
 	mouseSpeedX = curMouse.x - orgMouse.x;
 	mouseSpeedY = curMouse.y - orgMouse.y;
 
 
-	if (bFocused)
+	if (m_bIsFocused)
 	{
-		if (TheMenu->bFreeCameraMovement)
+		if (TheMenu->m_bFreeCam)
 		{
 			float newVal = (float)TheMenu->camRot.Yaw;
 			newVal += mouseSpeedX / mouseSens;
@@ -550,7 +583,7 @@ void DCF2Menu::UpdateMouse()
 
 			float newValY = (float)TheMenu->camRot.Pitch;
 
-			if (bInvertMouseY) mouseSpeedY *= -1;
+			if (m_bFreeCamMouseInvertY) mouseSpeedY *= -1;
 
 			newValY += mouseSpeedY / mouseSens;
 			TheMenu->camRot.Pitch = (int)newValY;
@@ -560,26 +593,12 @@ void DCF2Menu::UpdateMouse()
 
 bool DCF2Menu::GetActiveState()
 {
-	return bIsActive;
-}
-
-void DCF2Menu::EditCharacter(PLAYER_NUM plr)
-{
-	int64 info = DCF2::GetCharacterInfo(plr);
-	if (info)
-	{
-		ImGui::Text("Name:");
-		ImGui::SameLine();
-		ImGui::Text(DCF2::GetCharacterName(plr));
-		int& level = *(int*)(info + 324);
-
-		ImGui::InputInt("Level", &level);
-	}
+	return m_bIsActive;
 }
 
 char * GetI2HookVersion()
 {
 	char buffer[512];
-	sprintf(buffer, "I2Hook by ermaccer (%s)",I2HOOK_VERSION);
+	sprintf(buffer, "I2Hook by ermaccer (%s)", I2HOOK_VERSION);
 	return buffer;
 }
