@@ -77,7 +77,7 @@ bool ValidateGameVersion()
 {
 	char* gameName = (char*)_addr(0x1434B1F90);
 
-	if (strncmp(gameName, "Ingjustice", strlen("Injustice")) == 0)
+	if (strncmp(gameName, "Injustice", strlen("Injustice")) == 0)
 		return true;
 	else
 	{
