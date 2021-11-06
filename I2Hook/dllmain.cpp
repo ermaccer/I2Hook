@@ -26,7 +26,7 @@ void __fastcall  GenericDummy() {}
 
 bool __fastcall SetFlagNull()
 {
-	Patch<int>(_addr(0x1445404EC), 0);
+	Patch<int>(_addr(0x1445404BC), 0);
 	return 0;
 
 }
@@ -44,44 +44,45 @@ void OnInitializeHook()
 	printf("I2Hook::OnInitializeHook() | Begin!\n");
 	TheMenu->Initialize();
 	Notifications->Init();
-	printf("I2Hook::OnInitializeHook() | Game detected: %s\n", (char*)_addr(0x1434B1FC0));
+	printf("I2Hook::OnInitializeHook() | Game detected: %s\n", (char*)_addr(0x1434B1F90));
 	Trampoline* tramp = Trampoline::MakeTrampoline(GetModuleHandle(nullptr));
 
 
 	if (SettingsMgr->bEnable60FPSFrontend)
-		InjectHook(_addr(0x14A449B00), tramp->Jump(SetFlagNull), PATCH_JUMP);
+		InjectHook(_addr(0x141BCF2F0), tramp->Jump(SetFlagNull), PATCH_JUMP);
+
+	InjectHook(_addr(0x140559A88), tramp->Jump(Hooks::HookProcessStuff));
+	InjectHook(_addr(0x1403D8E0E), tramp->Jump(Hooks::HookStartupFightRecording));
 
 
-	InjectHook(_addr(0x14646DBFF), tramp->Jump(Hooks::HookProcessStuff));
-	InjectHook(_addr(0x145EFF3EE), tramp->Jump(Hooks::HookStartupFightRecording));
+	Nop(_addr(0x14206A373), 7);
+	Nop(_addr(0x14206A383), 8);
+	InjectHook(_addr(0x14206A391), tramp->Jump(&MKCamera::HookedSetPosition));
+	InjectHook(_addr(0x14206A39E), tramp->Jump(&MKCamera::HookedSetRotation));
 
-	Nop(_addr(0x14AE26B63), 7);
-	Nop(_addr(0x14AE26B73), 8);
-	InjectHook(_addr(0x14AE26B81), tramp->Jump(&MKCamera::HookedSetPosition));
-	InjectHook(_addr(0x14AE26B8E), tramp->Jump(&MKCamera::HookedSetRotation));
+	InjectHook(_addr(0x142218B00), tramp->Jump(Hooks::HookReadPropertyValue), PATCH_JUMP);
+	InjectHook(_addr(0x1419C373F), tramp->Jump(Hooks::HookSetProperty));
 
-	InjectHook(_addr(0x14B294260), tramp->Jump(Hooks::HookReadPropertyValue), PATCH_JUMP);
-	InjectHook(_addr(0x1419C37E8), tramp->Jump(Hooks::HookSetProperty));
-
-	InjectHook(_addr(0x14ACA7225), tramp->Jump(Hooks::HookDispatch));
+	InjectHook(_addr(0x141FD85E0), tramp->Jump(Hooks::HookDispatch));
 
 	//gamepad
-	InjectHook(_addr(0x142CB351C), tramp->Jump(XInputGetState_Hook), PATCH_JUMP);
+	if (SettingsMgr->bEnableGamepadSupport)
+		InjectHook(_addr(0x142CB34BC), tramp->Jump(XInputGetState_Hook), PATCH_JUMP);
+	
 }
 
 
 
 bool ValidateGameVersion()
 {
-	char* gameName = (char*)_addr(0x1434B1FC0);
+	char* gameName = (char*)_addr(0x1434B1F90);
 
-	if (strncmp(gameName, "Injustice", strlen("Injustice")) == 0)
-	{
+	if (strncmp(gameName, "Ingjustice", strlen("Injustice")) == 0)
 		return true;
-	}
 	else
 	{
-		MessageBoxA(0, "Invalid game version!\nI2Hook only supports latest (or it needs to be updated) Steam executable.", 0, MB_ICONINFORMATION);
+		MessageBoxA(0, "Invalid game version!\nI2Hook only supports latest Steam executable.\n\n"
+			"If you still cannot run the plugin and made sure that the game is updated, I2Hook needs to be updated.", 0, MB_ICONINFORMATION);
 		return false;
 	}
 }
@@ -94,20 +95,16 @@ BOOL WINAPI DllMain(HMODULE hMod, DWORD dwReason, LPVOID lpReserved)
 	case DLL_PROCESS_ATTACH:
 		if (ValidateGameVersion())
 		{
+#ifdef _60_ONLY
+			Trampoline* tramp = Trampoline::MakeTrampoline(GetModuleHandle(nullptr));
+			InjectHook(_addr(0x141BCF2F0), tramp->Jump(SetFlagNull), PATCH_JUMP);
+#else
 			SettingsMgr->Init();
-
-			if (SettingsMgr->b60FPSModeOnly)
-			{
-				Trampoline* tramp = Trampoline::MakeTrampoline(GetModuleHandle(nullptr));
-				InjectHook(_addr(0x14A449B00), tramp->Jump(SetFlagNull), PATCH_JUMP);
-			}
-			else
-			{
-				OnInitializeHook();
-				eDirectX11Hook::Init();
-				DisableThreadLibraryCalls(hMod);
-				CreateThread(nullptr, 0, DirectXHookThread, hMod, 0, nullptr);
-			}
+			OnInitializeHook();
+			eDirectX11Hook::Init();
+			DisableThreadLibraryCalls(hMod);
+			CreateThread(nullptr, 0, DirectXHookThread, hMod, 0, nullptr);
+#endif			
 		}
 		break;
 	case DLL_PROCESS_DETACH:

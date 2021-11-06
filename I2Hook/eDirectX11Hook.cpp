@@ -42,6 +42,7 @@ void eDirectX11Hook::InitImGui()
 	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 	ImGui_ImplWin32_Init(ms_hWindow);
 	ImGui_ImplDX11_Init(pDevice, pContext);
+	if (SettingsMgr->bEnableGamepadSupport)
 	CreateThread(nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(GamepadThread), nullptr, 0, nullptr);
 	SetImGuiStyle();
 }

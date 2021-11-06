@@ -17,6 +17,12 @@ Archive breakdown:
  - I2Hook.ini - configuration file
 
 
+## NOTE
+
+Since some people might use this plugin for 60 fps patch only, I've added an option in the .ini which activates FPS patch only and ignores all other features. Set **b60FPSModeOnly** in ini to true to enable.
+
+Alternatively, download the `_60only.zip` archive.
+
 # Controller Support
 Any XInput compatible gamepad should work.
 
@@ -55,10 +61,6 @@ and is ready to use. By default **F1** will open or close in-game menu.
 
 ## Features
 
-
-## NOTE
-
-Since some people might use this plugin for 60 fps patch only, I've added an option in the .ini which activates FPS patch only and ignores all other features. Set **b60FPSModeOnly** in ini to true to enable.
 
 ![Preview](https://raw.githubusercontent.com/ermaccer/ermaccer.github.io/gh-pages/assets/mods/dcf2/i2hook/4.jpg)
 ![Preview](https://raw.githubusercontent.com/ermaccer/ermaccer.github.io/gh-pages/assets/mods/dcf2/i2hook/5.jpg)

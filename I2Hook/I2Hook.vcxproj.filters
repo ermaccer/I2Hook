@@ -123,9 +123,6 @@
     <ClInclude Include="code\MKStructs.h">
       <Filter>Header Files\code</Filter>
     </ClInclude>
-    <ClInclude Include="utils\HookInit.hpp">
-      <Filter>Header Files\utils</Filter>
-    </ClInclude>
     <ClInclude Include="code\eGamepadManager.h">
       <Filter>Header Files\code</Filter>
     </ClInclude>
@@ -202,9 +199,6 @@
     </ClCompile>
     <ClCompile Include="code\MKCharacter.cpp">
       <Filter>Header Files\code</Filter>
-    </ClCompile>
-    <ClCompile Include="utils\HookInit.cpp">
-      <Filter>Header Files\utils</Filter>
     </ClCompile>
     <ClCompile Include="code\eGamepadManager.cpp">
       <Filter>Header Files\code</Filter>

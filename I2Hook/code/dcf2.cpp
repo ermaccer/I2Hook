@@ -118,7 +118,7 @@ void __fastcall Hooks::HookProcessStuff()
 
 	}
 
-	((void(__fastcall*)())(0x149AD72E0))();
+	((void(__fastcall*)())(_addr(0x141725320)))();
 }
 
 void __fastcall Hooks::HookStartupFightRecording(int64 eventID, int64 a2, int64 a3, int64 a4)
@@ -139,7 +139,7 @@ void __fastcall Hooks::HookStartupFightRecording(int64 eventID, int64 a2, int64 
 
 	printf("I2Hook::Info() | %s VS %s\n", GetCharacterName(PLAYER1), GetCharacterName(PLAYER2));
 
-	((void(__fastcall*)(int64, int64, int64, int64))_addr(0x14172B4C0))(eventID, a2, a3, a4);
+	((void(__fastcall*)(int64, int64, int64, int64))_addr(0x14172B460))(eventID, a2, a3, a4);
 }
 
 
@@ -159,13 +159,13 @@ void Hooks::HookDispatch(int64 ptr, int a2)
 		((void(*)(int64, int))*(int64*)(arg + 0xF8))(ptr, a2);
 	}
 	else
-		((int64(__fastcall*)(int64, int))_addr(0x148BACCF0))(ptr, a2);
+		((int64(__fastcall*)(int64, int))_addr(0x1411CC8C0))(ptr, a2);
 }
 
 int64 Hooks::HookSetProperty(int64 ptr, char * name, int64 unk)
 {
 	hud_property = ptr;
-	return ((int64(__fastcall*)(int64, char*, int64))_addr(0x1421DFCE0))(ptr, name, unk);
+	return ((int64(__fastcall*)(int64, char*, int64))_addr(0x1421D81E0))(ptr, name, unk);
 }
 
 void Hooks::HookReadPropertyValue(int64 ptr, int* unk, int* value)
@@ -186,7 +186,7 @@ MKCharacter * GetObj(PLAYER_NUM plr)
 {
 	int64 info = GetInfo(plr);
 	if (info)
-		return ((MKCharacter*(__fastcall*)(int64, int))_addr(0x1477E5E50))(info, 0);
+		return ((MKCharacter*(__fastcall*)(int64, int))_addr(0x140B53010))(info, 0);
 	else
 		return 0;
 }
@@ -195,7 +195,7 @@ MKCharacter * GetObj(PLAYER_NUM plr)
 int64 GetInfo(PLAYER_NUM plr)
 {
 	int64 gameinfo = *(__int64*)_addr(GFG_GAME_INFO);
-	return ((int64(__fastcall*)(int64, PLAYER_NUM))_addr(0x1465018D0))(gameinfo, plr);
+	return ((int64(__fastcall*)(int64, PLAYER_NUM))_addr(0x140595DA0))(gameinfo, plr);
 }
 
 void SetCharacterMKX(PLAYER_NUM plr, char * name)
@@ -207,29 +207,29 @@ void SetCharacterMKX(PLAYER_NUM plr, char * name)
 
 void SetCharacter(int64 chr, char * name, int64 ptr, int64 unk)
 {
-	((void(__fastcall*)(int64, const char*, int64, int64))_addr(0x147829EA0))(chr, name, ptr, unk);
+	((void(__fastcall*)(int64, const char*, int64, int64))_addr(0x140B6A420))(chr, name, ptr, unk);
 }
 
 void SetCharacterMeter(int64 chr, float meter)
 {
-	((void(__fastcall*)(int64, float))_addr(0x147837380))(chr, meter);
+	((void(__fastcall*)(int64, float))_addr(0x140B70C20))(chr, meter);
 }
 
 void SetStage(const char * stage)
 {
 	__int64 gameinfo = *(__int64*)_addr(GFG_GAME_INFO);
 
-	((void(__fastcall*)(int64, const char*))_addr(0x148BA2BD0))(gameinfo, stage);
+	((void(__fastcall*)(int64, const char*))_addr(0x1411C8C00))(gameinfo, stage);
 }
 
 void SlowGameTimeForXTicks(float speed, int ticks)
 {
-	((void(__fastcall*)(float, int, int))_addr(0x1473892D0))(speed, ticks, 0);
+	((void(__fastcall*)(float, int, int))_addr(0x1409C4630))(speed, ticks, 0);
 }
 
 void SetCharacterLife(int64 obj, float life)
 {
-	((void(__fastcall*)(int64, float))_addr(0x1472C7DD0))(obj, life);
+	((void(__fastcall*)(int64, float))_addr(0x1409725D0))(obj, life);
 }
 
 void SetCharacterScale(int64 obj, FVector * scale)
@@ -244,7 +244,7 @@ void SetCharacterSpeed(int64 obj, float speed)
 
 void SetCharacterBreakers(PLAYER_NUM plr, int amount)
 {
-	((void(__fastcall*)(PLAYER_NUM, int))_addr(0x146DA4330))(plr, amount);
+	((void(__fastcall*)(PLAYER_NUM, int))_addr(0x1407CA380))(plr, amount);
 }
 
 
@@ -259,6 +259,6 @@ char * GetCharacterName(PLAYER_NUM plr)
 
 void GetCharacterPosition(FVector * vec, PLAYER_NUM plr)
 {
-	((void(__fastcall*)(int64, FVector*))_addr(0x14780CEA0))(GetInfo(plr), vec);
+	((void(__fastcall*)(int64, FVector*))_addr(0x140B5BF00))(GetInfo(plr), vec);
 }
 

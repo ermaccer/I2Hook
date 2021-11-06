@@ -598,7 +598,7 @@ bool DCF2Menu::GetActiveState()
 
 char * GetI2HookVersion()
 {
-	char buffer[512];
+	static char buffer[512] = {};
 	sprintf(buffer, "I2Hook by ermaccer (%s)", I2HOOK_VERSION);
 	return buffer;
 }
