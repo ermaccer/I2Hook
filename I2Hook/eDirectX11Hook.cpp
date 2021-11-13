@@ -138,7 +138,7 @@ HRESULT __stdcall eDirectX11Hook::Present(IDXGISwapChain * pSwapChain, UINT Sync
 	if (ms_bFirstDraw)
 	{
 		Notifications->SetNotificationTime(7500);
-		Notifications->PushNotification("MK11Hook %s is running! Press F1 (or L3+R3 on a controller if controller support enabled) to open the menu. Build date: %s\n", I2HOOK_VERSION, __DATE__);
+		Notifications->PushNotification("I2Hook %s is running! Press F1 (or L3+R3 on a controller if controller support enabled) to open the menu. Build date: %s\n", I2HOOK_VERSION, __DATE__);
 		ms_bFirstDraw = false;
 	}
 
