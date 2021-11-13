@@ -21,13 +21,16 @@ public:
 	static ID3D11Device* pDevice;
 	static ID3D11DeviceContext* pContext;
 	static ID3D11RenderTargetView* mainRenderTargetView;
+	static ImGuiStyle	ms_localStyleCopy;
 
 	static bool ms_bInit;
 	static bool ms_bFirstDraw;
+	static bool ms_bShouldReloadFonts;
 
 	static void	   Init();
 	static void    SetImGuiStyle();
 	static void    InitImGui();
+	static void	   ReloadImGuiFont();
 	static HRESULT __stdcall Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
 	static LRESULT __stdcall WndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 

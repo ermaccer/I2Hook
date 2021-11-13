@@ -8,5 +8,11 @@ public:
 	void SetLife(float life);
 	void SetScale(FVector* scale);
 	void SetSpeed(float speed);
+	void SetAbility(unsigned int id);
+
+	int GetAbility();
+
+	void ClearAbility();
+
 };
 

@@ -28,8 +28,8 @@ CIniReader::CIniReader(char* szFileName)
 	strcat(dllPath, szFileName);
 	}
 
- memset(m_szFileName, 0x00, 255);
- memcpy(m_szFileName, dllPath, strlen(dllPath));
+	memset(m_szFileName, 0x00, 255);
+	memcpy(m_szFileName, dllPath, strlen(dllPath));
 }
 int CIniReader::ReadInteger(char* szSection, char* szKey, int iDefaultValue)
 {

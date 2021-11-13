@@ -59,10 +59,18 @@ public:
 	float	 m_fAdjustCustomCameraThirdPersonY;
 	float	 m_fAdjustCustomCameraThirdPersonZ;
 	float	 m_fFreeCameraSpeed;
+	float	 m_fMenuScale;
 
 	int  m_nFreeCameraRotationSpeed;
 	int  m_nCurrentCustomCamera;
 	int  m_nCurrentCharModifier;
+	int  m_nP1Abilities;
+	int  m_nP2Abilities;
+
+	bool m_bP1CustomAbilities;
+	bool m_P1Abilities[20] = {};
+	bool m_bP2CustomAbilities;
+	bool m_P2Abilities[20] = {};
 
 	FVector	 m_vP1Scale;
 	FVector	 m_vP2Scale;

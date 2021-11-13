@@ -17,7 +17,6 @@
 
 using namespace Memory::VP;
 
-
 int64 __fastcall GenericTrueReturn() { return 1; }
 int64 __fastcall GenericFalseReturn() { return 0; }
 void __fastcall  GenericDummy() {}
@@ -53,7 +52,6 @@ void OnInitializeHook()
 
 	InjectHook(_addr(0x140559A88), tramp->Jump(Hooks::HookProcessStuff));
 	InjectHook(_addr(0x1403D8E0E), tramp->Jump(Hooks::HookStartupFightRecording));
-
 
 	Nop(_addr(0x14206A373), 7);
 	Nop(_addr(0x14206A383), 8);

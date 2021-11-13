@@ -1,6 +1,5 @@
 #pragma once
 
-
 // as usual, pluginmh/mugenhook
 
 class eSettingsManager {
@@ -34,6 +33,9 @@ public:
 	int iFreeCameraKeyFOVMinus;
 
 
+	float fMenuScale;
+
+	void SaveSettings();
 
 };
 

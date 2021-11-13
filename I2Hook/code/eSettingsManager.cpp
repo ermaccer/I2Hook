@@ -37,4 +37,15 @@ void eSettingsManager::Init()
 	iFreeCameraKeyFOVPlus = ini.ReadInteger("Settings", "iFreeCameraKeyFOVPlus", 0);
 	iFreeCameraKeyFOVMinus = ini.ReadInteger("Settings", "iFreeCameraKeyFOVMinus", 0);
 
+	fMenuScale = ini.ReadFloat("MenuSettings", "fMenuScale", 1.0f);
+
+	if (fMenuScale < 1.0f)
+		fMenuScale = 1.0f;
+
+}
+
+void eSettingsManager::SaveSettings()
+{
+	CIniReader ini("");
+	ini.WriteFloat("MenuSettings", "fMenuScale", fMenuScale);
 }

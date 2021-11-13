@@ -8,8 +8,11 @@
 #include "eSettingsManager.h"
 #include "eNotifManager.h"
 #include "MKCharacter.h"
+#include "..\eDirectX11Hook.h"
+
 
 static int64 timer = GetTickCount64();
+char textBuffer[260] = {};
 const char* szCharacters[] = {
 	// npcs
 	"CHAR_Brainiac_BOSS",
@@ -141,6 +144,7 @@ const char* szCameraModes[TOTAL_CUSTOM_CAMERAS] = {
 	"First Person Mid",
 	"Mortal Kombat 11"
 };
+
 const char* szStageNames[]{
   "BGND_ArkhamAsylum",
   "BGND_Atlantis",
@@ -207,6 +211,8 @@ void DCF2Menu::Initialize()
 
 	orgMouse.x = GetSystemMetrics(SM_CXSCREEN) / 2;
 	orgMouse.y = GetSystemMetrics(SM_CYSCREEN) / 2;
+	m_nP1Abilities = 0;
+	m_nP2Abilities = 0;
 	mouseSpeedX = 0;
 	mouseSpeedY = 0;
 	mouseSens = 5;
@@ -242,6 +248,8 @@ void DCF2Menu::Initialize()
 	m_vP2Scale = { 1.0f,1.0f,1.0f };
 	m_bFreezeWorld = false;
 	m_bHookDispatch = false;
+	m_bP1CustomAbilities = false;
+	m_bP2CustomAbilities = false;
 
 	m_bInfiniteBreakersP1 = false;
 	m_bInfiniteBreakersP2 = false;
@@ -309,6 +317,87 @@ void DCF2Menu::Draw()
 
 				}
 				ImGui::EndCombo();
+			}
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem("Modifiers"))
+		{
+			if (ImGui::BeginTabBar("##modifiers"))
+			{
+		
+				if (ImGui::BeginTabItem("Abilities"))
+				{
+					ImGui::Checkbox("Player 1 Custom Abilities", &m_bP1CustomAbilities);
+					ImGui::SameLine(); ShowHelpMarker("Set these on select screen! Changing these in game might make moves locked. Hold L SHIFT to view numeric value.");
+					ImGui::Separator();
+
+
+					for (int i = 0; i < sizeof(m_P1Abilities) / sizeof(m_P1Abilities[0]); i++)
+					{
+						int val = pow(2, i);
+						if (GetAsyncKeyState(VK_LSHIFT))
+							sprintf(textBuffer, "Ability %d (%d)", i + 1, val);
+						else
+							sprintf(textBuffer, "Ability %d", i + 1);
+
+						ImGui::Checkbox(textBuffer, &m_P1Abilities[i]);
+
+						if (i % 2 == 0)
+							ImGui::SameLine();
+					}
+
+
+					if (GetObj(PLAYER1))
+					{
+						if (ImGui::Button("Get##p1"))
+						{
+							int abilities = GetObj(PLAYER1)->GetAbility();
+
+							for (int i = 0; i < sizeof(m_P1Abilities) / sizeof(m_P1Abilities[0]); i++)
+							{
+								int id = pow(2, i);
+								m_P1Abilities[i] = abilities & id;
+							}
+						}
+
+					}
+					ImGui::Separator();
+					ImGui::Checkbox("Player 2 Custom Abilities", &m_bP2CustomAbilities);
+					ImGui::Separator();
+
+					for (int i = 0; i < sizeof(m_P2Abilities) / sizeof(m_P2Abilities[0]); i++)
+					{
+						int val = pow(2, i);
+						if (GetAsyncKeyState(VK_LSHIFT))
+							sprintf(textBuffer, "Ability %d (%d)##p2", i + 1, val);
+						else
+							sprintf(textBuffer, "Ability %d##p2", i + 1);
+
+						ImGui::Checkbox(textBuffer, &m_P2Abilities[i]);
+
+						if (i % 2 == 0)
+							ImGui::SameLine();
+					}
+
+
+					if (GetObj(PLAYER2))
+					{
+						if (ImGui::Button("Get##p2"))
+						{
+							int abilities = GetObj(PLAYER2)->GetAbility();
+
+							for (int i = 0; i < sizeof(m_P2Abilities) / sizeof(m_P2Abilities[0]); i++)
+							{
+								int id = pow(2, i);
+								m_P2Abilities[i] = abilities & id;
+							}
+						}
+
+					}
+
+					ImGui::EndTabItem();
+				}
+				ImGui::EndTabBar();
 			}
 			ImGui::EndTabItem();
 		}
@@ -472,7 +561,7 @@ void DCF2Menu::Draw()
 		{
 			ImGui::Separator();
 			ImGui::Columns(2);
-			ImGui::SetColumnWidth(0, 150);
+			ImGui::SetColumnWidth(0, 11.5f * ImGui::GetFontSize());
 
 			ImGui::Text("Infinite Health");
 			ImGui::NextColumn();
@@ -525,10 +614,25 @@ void DCF2Menu::Draw()
 			ShowHelpMarker("You'll need to go in-game/back to menu for this option to take effect.");
 			ImGui::EndTabItem();
 		}
+		if (ImGui::BeginTabItem("Settings"))
+		{
+			ImGui::Text("Menu Scale");
+			ImGui::InputFloat("mscale##", &SettingsMgr->fMenuScale);
+			if (ImGui::Button("Save"))
+			{
+				Notifications->SetNotificationTime(2500);
+				Notifications->PushNotification("Settings saved to .ini!");
+				eDirectX11Hook::ms_bShouldReloadFonts = true;
+				SettingsMgr->SaveSettings();
 
+			}
+			ImGui::EndTabItem();
+		}
 
 		ImGui::EndTabBar();
 	}
+	ImGui::End();
+
 }
 
 void DCF2Menu::Process()

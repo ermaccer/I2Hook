@@ -7,7 +7,8 @@
 #include <Windows.h>
 #include "mkcamera.h"
 #include "MKCharacter.h"
-
+#include <math.h>
+#include "MKModifier.h"
 int64 hud_property = 0;
 
 void __fastcall Hooks::HookProcessStuff()
@@ -28,6 +29,19 @@ void __fastcall Hooks::HookProcessStuff()
 			SetCharacterMeter(GetInfo(PLAYER1), 1.0f);
 		if (TheMenu->m_bZeroMeterP1)
 			SetCharacterMeter(GetInfo(PLAYER1), 0.0f);
+
+		if (TheMenu->m_bP1CustomAbilities)
+		{
+			TheMenu->m_nP1Abilities = 0;
+			for (int i = 0; i < sizeof(TheMenu->m_P1Abilities) / sizeof(TheMenu->m_P1Abilities[0]); i++)
+			{
+				if (TheMenu->m_P1Abilities[i])
+				{
+					TheMenu->m_nP1Abilities += pow(2, i);
+				}
+			}
+			GetObj(PLAYER1)->SetAbility(TheMenu->m_nP1Abilities);
+		}
 	}
 
 
@@ -43,6 +57,19 @@ void __fastcall Hooks::HookProcessStuff()
 			SetCharacterMeter(GetInfo(PLAYER2), 1.0f);
 		if (TheMenu->m_bZeroMeterP2)
 			SetCharacterMeter(GetInfo(PLAYER2), 0.0f);
+
+		if (TheMenu->m_bP1CustomAbilities)
+		{
+			TheMenu->m_nP2Abilities = 0;
+			for (int i = 0; i < sizeof(TheMenu->m_P2Abilities) / sizeof(TheMenu->m_P2Abilities[0]); i++)
+			{
+				if (TheMenu->m_P2Abilities[i])
+				{
+					TheMenu->m_nP2Abilities += pow(2, i);
+				}
+			}
+			GetObj(PLAYER2)->SetAbility(TheMenu->m_nP2Abilities);
+		}
 	}
 
 
@@ -225,6 +252,18 @@ void SetStage(const char * stage)
 void SlowGameTimeForXTicks(float speed, int ticks)
 {
 	((void(__fastcall*)(float, int, int))_addr(0x1409C4630))(speed, ticks, 0);
+}
+
+void SetTagAssist(PLAYER_NUM plr, char * character)
+{
+	((void(__fastcall*)(int64, char*))_addr(0x140B70E50))(GetInfo(plr), character);
+
+}
+
+void LoadModifierAssets()
+{
+	int64 gameinfo = *(__int64*)_addr(GFG_GAME_INFO);
+	((void(__fastcall*)(int64, bool))_addr(0x1405A0C30))(gameinfo, 1);
 }
 
 void SetCharacterLife(int64 obj, float life)

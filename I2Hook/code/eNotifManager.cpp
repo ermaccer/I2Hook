@@ -24,10 +24,11 @@ void eNotificationManager::Draw()
 	if (m_bIsNotificationActive)
 	{
 		ImGui::SetNextWindowPos(ImVec2(5, 10));
-		ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x / 2, 0.0f));
-		ImGui::Begin("setup", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoInputs
+		ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x - 15.0f, 0.0f));
+		ImGui::Begin("notif", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoInputs
 			| ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing);
 		ImGui::TextUnformatted(szMessageBuffer);
+		ImGui::End();
 	}
 }
 

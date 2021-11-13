@@ -5,7 +5,7 @@
 
 #define GFG_GAME_INFO 0x14417DF30
 
-#define I2HOOK_VERSION "0.4.1"
+#define I2HOOK_VERSION "0.4.2"
 
 
 MKCharacter* GetObj(PLAYER_NUM plr);
@@ -21,6 +21,11 @@ char*	GetCharacterName(PLAYER_NUM plr);
 void	GetCharacterPosition(FVector* vec,PLAYER_NUM plr);
 
 void	SlowGameTimeForXTicks(float speed, int ticks);
+
+void	SetTagAssist(PLAYER_NUM plr, char* character);
+
+
+void		LoadModifierAssets();
 
 
 
