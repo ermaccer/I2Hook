@@ -19,9 +19,7 @@ Archive breakdown:
 
 ## NOTE
 
-Since some people might use this plugin for 60 fps patch only, I've added an option in the .ini which activates FPS patch only and ignores all other features. Set **b60FPSModeOnly** in ini to true to enable.
-
-Alternatively, download the `_60only.zip` archive.
+Since some people might use this plugin for 60 fps patch only, download the `_60only.zip` archive.
 
 # Controller Support
 Any XInput compatible gamepad should work.
