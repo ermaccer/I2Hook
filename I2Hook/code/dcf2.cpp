@@ -191,7 +191,7 @@ void Hooks::HookDispatch(int64 ptr, int a2)
 int64 Hooks::HookSetProperty(int64 ptr, char * name, int64 unk)
 {
 	hud_property = ptr;
-	return ((int64(__fastcall*)(int64, char*, int64))_addr(0x1421D81E0))(ptr, name, unk);
+	return ((int64(__fastcall*)(int64, char*, int64))_addr(0x1421DFC80))(ptr, name, unk);
 }
 
 void Hooks::HookReadPropertyValue(int64 ptr, int* unk, int* value)

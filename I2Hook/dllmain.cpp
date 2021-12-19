@@ -58,7 +58,7 @@ void OnInitializeHook()
 	InjectHook(_addr(0x14206A39E), tramp->Jump(&MKCamera::HookedSetRotation));
 
 	InjectHook(_addr(0x142218B00), tramp->Jump(Hooks::HookReadPropertyValue), PATCH_JUMP);
-	InjectHook(_addr(0x1419C373F), tramp->Jump(Hooks::HookSetProperty));
+	InjectHook(_addr(0x1419C3788), tramp->Jump(Hooks::HookSetProperty));
 
 	InjectHook(_addr(0x141FD85E0), tramp->Jump(Hooks::HookDispatch));
 
