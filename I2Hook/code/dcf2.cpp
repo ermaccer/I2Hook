@@ -151,7 +151,6 @@ void __fastcall Hooks::HookProcessStuff()
 void __fastcall Hooks::HookStartupFightRecording(int64 eventID, int64 a2, int64 a3, int64 a4)
 {
 	printf("I2Hook::Info() | Starting a new fight!\n");
-	TheMenu->m_bCustomCameras = false;
 	TheMenu->m_bCustomCameraPos = false;
 	TheMenu->m_bCustomCameraRot = false;
 	TheMenu->m_bYObtained = false;

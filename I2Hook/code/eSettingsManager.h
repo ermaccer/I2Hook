@@ -6,8 +6,6 @@ class eSettingsManager {
 public:
 	void Init();
 
-	bool b60FPSModeOnly;
-
 	bool bEnableConsoleWindow;
 	bool bEnable60FPSFrontend;
 

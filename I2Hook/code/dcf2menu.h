@@ -12,10 +12,16 @@ enum eCustomCameras {
 	TOTAL_CUSTOM_CAMERAS
 };
 
+enum eMenuSubMenus {
+	SUBMENU_SETTINGS,
+	TOTAL_SUBMENUS
+};
+
 
 class DCF2Menu {
 public:
 	bool	 m_bIsActive;
+	bool	 m_bSubmenuActive[TOTAL_SUBMENUS] = {};
 	bool	 m_bSlowMotion;
 	bool     m_bFreezeWorld;
 	bool	 m_bIsFocused;
@@ -59,7 +65,6 @@ public:
 	float	 m_fAdjustCustomCameraThirdPersonY;
 	float	 m_fAdjustCustomCameraThirdPersonZ;
 	float	 m_fFreeCameraSpeed;
-	float	 m_fMenuScale;
 
 	int  m_nFreeCameraRotationSpeed;
 	int  m_nCurrentCustomCamera;
@@ -106,6 +111,9 @@ public:
 	void Process();
 	void UpdateControls();
 	void UpdateMouse();
+
+	void DrawSettings();
+
 	bool GetActiveState();
 };
 

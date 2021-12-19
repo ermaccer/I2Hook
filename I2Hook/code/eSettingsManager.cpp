@@ -8,7 +8,6 @@ void eSettingsManager::Init()
 	CIniReader ini("");
 	bEnableConsoleWindow = ini.ReadBoolean("Settings", "bEnableConsoleWindow", true);
 	bEnable60FPSFrontend = ini.ReadBoolean("Settings", "bEnable60FPSPatch", false);
-	b60FPSModeOnly = ini.ReadBoolean("Settings", "b60FPSModeOnly", false);
 	bEnableGamepadSupport = ini.ReadBoolean("Settings", "bEnableGamepadSupport", true);
 
 	iHookMenuOpenKey = ini.ReadInteger("Settings", "iHookMenuOpenKey", VK_F1);
@@ -37,7 +36,8 @@ void eSettingsManager::Init()
 	iFreeCameraKeyFOVPlus = ini.ReadInteger("Settings", "iFreeCameraKeyFOVPlus", 0);
 	iFreeCameraKeyFOVMinus = ini.ReadInteger("Settings", "iFreeCameraKeyFOVMinus", 0);
 
-	fMenuScale = ini.ReadFloat("MenuSettings", "fMenuScale", 1.0f);
+	CIniReader user("i2hook_user.ini");
+	fMenuScale = user.ReadFloat("MenuSettings", "fMenuScale", 1.0f);
 
 	if (fMenuScale < 1.0f)
 		fMenuScale = 1.0f;
@@ -46,6 +46,11 @@ void eSettingsManager::Init()
 
 void eSettingsManager::SaveSettings()
 {
+	CIniReader user("i2hook_user.ini");
+	user.WriteFloat("MenuSettings", "fMenuScale", fMenuScale);
+
 	CIniReader ini("");
-	ini.WriteFloat("MenuSettings", "fMenuScale", fMenuScale);
+	ini.WriteBoolean("Settings", "bEnableGamepadSupport", bEnableGamepadSupport);
+	ini.WriteBoolean("Settings", "bEnableConsoleWindow", bEnableConsoleWindow);
+	ini.WriteBoolean("Settings", "bEnable60FPSPatch", bEnable60FPSFrontend);
 }

@@ -22,7 +22,6 @@ int64 __fastcall GenericFalseReturn() { return 0; }
 void __fastcall  GenericDummy() {}
 
 
-
 bool __fastcall SetFlagNull()
 {
 	Patch<int>(_addr(0x1445404BC), 0);
@@ -66,7 +65,6 @@ void OnInitializeHook()
 	//gamepad
 	if (SettingsMgr->bEnableGamepadSupport)
 		InjectHook(_addr(0x142CB34BC), tramp->Jump(XInputGetState_Hook), PATCH_JUMP);
-	
 }
 
 

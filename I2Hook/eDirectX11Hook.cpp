@@ -7,21 +7,22 @@
 #include <chrono>
 
 Present eDirectX11Hook::m_pPresent;
+ResizeBuffers eDirectX11Hook::m_pResizeBuffers;
 HWND eDirectX11Hook::ms_hWindow;
 WNDPROC eDirectX11Hook::ms_pWndProc;
 ID3D11Device* eDirectX11Hook::pDevice;
 ID3D11DeviceContext* eDirectX11Hook::pContext;
 ID3D11RenderTargetView* eDirectX11Hook::mainRenderTargetView;
 bool eDirectX11Hook::ms_bInit;
-bool eDirectX11Hook::ms_bFirstDraw;
 bool eDirectX11Hook::ms_bShouldReloadFonts;
 ImGuiStyle eDirectX11Hook::ms_localStyleCopy;
+
 void eDirectX11Hook::Init()
 {
 	m_pPresent = 0;
+	m_pResizeBuffers = 0;
 	pDevice = 0;
 	pContext = 0;
-	ms_bFirstDraw = true;
 	ms_bInit = false;
 	ms_bShouldReloadFonts = false;
 	ms_hWindow = 0;
@@ -50,7 +51,7 @@ void eDirectX11Hook::InitImGui()
 	ImGui_ImplWin32_Init(ms_hWindow);
 	ImGui_ImplDX11_Init(pDevice, pContext);
 	if (SettingsMgr->bEnableGamepadSupport)
-	CreateThread(nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(GamepadThread), nullptr, 0, nullptr);
+		CreateThread(nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(GamepadThread), nullptr, 0, nullptr);
 	SetImGuiStyle();
 }
 
@@ -125,29 +126,21 @@ HRESULT __stdcall eDirectX11Hook::Present(IDXGISwapChain * pSwapChain, UINT Sync
 
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
-
-
-
 	ImGui::NewFrame();
 	ImGui::GetIO().MouseDrawCursor = false;
-
-
-
-
-
-	if (ms_bFirstDraw)
+	
+	static bool draw = true;
+	if (draw)
 	{
-		Notifications->SetNotificationTime(7500);
+		Notifications->SetNotificationTime(3000);
 		Notifications->PushNotification("I2Hook %s is running! Press F1 (or L3+R3 on a controller if controller support enabled) to open the menu. Build date: %s\n", I2HOOK_VERSION, __DATE__);
-		ms_bFirstDraw = false;
+		draw = false;
 	}
 
 	Notifications->Draw();
 
 	if (TheMenu->GetActiveState())
-	{
 		TheMenu->Draw();
-	}
 
 	ImGui::EndFrame();
 	ImGui::Render();
@@ -184,14 +177,55 @@ LRESULT __stdcall eDirectX11Hook::WndProc(const HWND hWnd, UINT uMsg, WPARAM wPa
 	return CallWindowProc(ms_pWndProc, hWnd, uMsg, wParam, lParam);
 }
 
+HRESULT __stdcall eDirectX11Hook::ResizeBuffers(IDXGISwapChain * pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags)
+{
+	// somehow pdevice handle is missing in mk11 and i2? no idea
+	if (pDevice)
+	{
+		if (mainRenderTargetView)
+		{
+			pContext->OMSetRenderTargets(0, 0, 0);
+			mainRenderTargetView->Release();
+		}
+	}
+
+	HRESULT result = m_pResizeBuffers(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
+
+	if (pDevice)
+	{
+		ID3D11Texture2D* pBackBuffer;
+		pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)& pBackBuffer);
+		pDevice->CreateRenderTargetView(pBackBuffer, NULL, &mainRenderTargetView);
+		pBackBuffer->Release();
+
+		D3D11_VIEWPORT viewport;
+		viewport.MinDepth = 0.0f;
+		viewport.MaxDepth = 1.0f;
+		viewport.TopLeftX = 0;
+		viewport.TopLeftY = 0;
+		viewport.Width = Width;
+		viewport.Height = Height;
+
+
+		pContext->OMSetRenderTargets(1, &mainRenderTargetView, NULL);
+		pContext->RSSetViewports(1, &viewport);
+
+	}
+
+	return result;
+}
+
 DWORD __stdcall DirectXHookThread(LPVOID lpReserved)
 {
+	// fixes some init issue?
+	Sleep(2000);
 	bool init_hook = false;
 	do
 	{
 		if (kiero::init(kiero::RenderType::D3D11) == kiero::Status::Success)
 		{
 			kiero::bind(8, (void**)&eDirectX11Hook::m_pPresent, eDirectX11Hook::Present);
+			kiero::bind(13, (void**)&eDirectX11Hook::m_pResizeBuffers, eDirectX11Hook::ResizeBuffers);
 			init_hook = true;
 		}
 	} while (!init_hook);

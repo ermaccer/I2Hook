@@ -5,7 +5,7 @@
 
 #define GFG_GAME_INFO 0x14417DF30
 
-#define I2HOOK_VERSION "0.4.2"
+#define I2HOOK_VERSION "0.4.3"
 
 
 MKCharacter* GetObj(PLAYER_NUM plr);

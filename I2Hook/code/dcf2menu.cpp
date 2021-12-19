@@ -260,7 +260,18 @@ void DCF2Menu::Initialize()
 void DCF2Menu::Draw()
 {
 	ImGui::GetIO().MouseDrawCursor = true;
-	ImGui::Begin(GetI2HookVersion(),&m_bIsActive);
+	ImGui::Begin(GetI2HookVersion(), &m_bIsActive, ImGuiWindowFlags_MenuBar);
+
+
+	if (ImGui::BeginMenuBar())
+	{
+		if (ImGui::BeginMenu("Settings"))
+		{
+			m_bSubmenuActive[SUBMENU_SETTINGS] = true;
+			ImGui::EndMenu();
+		}
+	}
+	ImGui::EndMenuBar();
 
 	if (ImGui::BeginTabBar("##tabs"))
 	{
@@ -467,7 +478,7 @@ void DCF2Menu::Draw()
 
 			ImGui::Separator();
 			ImGui::Checkbox("Force Camera To Move", &m_bForceCameraUpdate);
-			ImGui::SameLine(); ShowHelpMarker("Check this option if the game you can't move camera anymore in win poses and some cinematics.");
+			ImGui::SameLine(); ShowHelpMarker("Check this option if you can't move camera anymore in win poses and some cinematics.");
 
 
 			ImGui::Separator();
@@ -614,25 +625,12 @@ void DCF2Menu::Draw()
 			ShowHelpMarker("You'll need to go in-game/back to menu for this option to take effect.");
 			ImGui::EndTabItem();
 		}
-		if (ImGui::BeginTabItem("Settings"))
-		{
-			ImGui::Text("Menu Scale");
-			ImGui::InputFloat("mscale##", &SettingsMgr->fMenuScale);
-			if (ImGui::Button("Save"))
-			{
-				Notifications->SetNotificationTime(2500);
-				Notifications->PushNotification("Settings saved to .ini!");
-				eDirectX11Hook::ms_bShouldReloadFonts = true;
-				SettingsMgr->SaveSettings();
-
-			}
-			ImGui::EndTabItem();
-		}
-
 		ImGui::EndTabBar();
 	}
 	ImGui::End();
 
+	if (m_bSubmenuActive[SUBMENU_SETTINGS])
+		DrawSettings();
 }
 
 void DCF2Menu::Process()
@@ -693,6 +691,71 @@ void DCF2Menu::UpdateMouse()
 			TheMenu->camRot.Pitch = (int)newValY;
 		}
 	}
+}
+
+void DCF2Menu::DrawSettings()
+{
+	ImGui::SetNextWindowPos({ ImGui::GetIO().DisplaySize.x / 2.0f, ImGui::GetIO().DisplaySize.y / 2.0f }, ImGuiCond_Once, { 0.5f, 0.5f });
+	ImGui::SetNextWindowSize({ 54 * ImGui::GetFontSize(), 54 * ImGui::GetFontSize() }, ImGuiCond_Once);
+	ImGui::Begin("Settings", &m_bSubmenuActive[SUBMENU_SETTINGS]);
+
+	static int settingID = 0;
+	static const char* settingNames[] = {
+		"Menu",
+		"INI"
+	};
+
+	enum eSettings {
+		MENU,
+		INI,
+	};
+
+	ImGui::BeginChild("##settings", { 12 * ImGui::GetFontSize(), 0 }, true);
+
+	for (int n = 0; n < IM_ARRAYSIZE(settingNames); n++)
+	{
+		bool is_selected = (settingID == n);
+		if (ImGui::Selectable(settingNames[n], is_selected))
+			settingID = n;
+		if (is_selected)
+			ImGui::SetItemDefaultFocus();
+	}
+
+	ImGui::EndChild();
+
+	ImGui::SameLine();
+	ImGui::BeginChild("##content", { 0, -ImGui::GetFrameHeightWithSpacing() });
+
+	switch (settingID)
+	{
+	case MENU:
+		ImGui::TextWrapped("All user settings are saved to i2hook_user.ini.");
+		ImGui::Text("Menu Scale");
+		ImGui::InputFloat("", &SettingsMgr->fMenuScale);
+		break;
+	case INI:
+		ImGui::TextWrapped("These settings control I2Hook.ini options. Any changes require game restart to take effect.");
+		ImGui::LabelText("", "Core");
+		ImGui::Separator();
+		ImGui::Checkbox("Debug Console", &SettingsMgr->bEnableConsoleWindow);
+		ImGui::Checkbox("Gamepad Support", &SettingsMgr->bEnableGamepadSupport);
+		ImGui::Checkbox("60 FPS Patch", &SettingsMgr->bEnable60FPSFrontend);
+		break;
+	default:
+		break;
+	}
+
+	if (ImGui::Button("Save", { -FLT_MIN, 0 }))
+	{
+		Notifications->SetNotificationTime(2500);
+		Notifications->PushNotification("Settings saved to I2Hook.ini and i2hook_user.ini!");
+		eDirectX11Hook::ms_bShouldReloadFonts = true;
+		SettingsMgr->SaveSettings();
+	}
+
+	ImGui::EndChild();
+
+	ImGui::End();
 }
 
 bool DCF2Menu::GetActiveState()
