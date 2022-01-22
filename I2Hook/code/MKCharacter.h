@@ -1,7 +1,7 @@
 #pragma once
 #include "MKStructs.h"
 #include "mk10utils.h"
-
+#include "unreal/FVector.h"
 
 class MKCharacter {
 public:
@@ -14,5 +14,12 @@ public:
 
 	void ClearAbility();
 
+	void ActivateHeadTracking();
+	void KillHeadTracking();
+
+	void SetBoneSize(const char* name, float size);
+
+	void GetBonePos(const char* name, FVector* pos);
+	void GetBoneRot(const char* name, FRotator* rot);
 };
 

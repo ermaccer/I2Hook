@@ -2,10 +2,11 @@
 #include "mk10utils.h"
 #include "MKStructs.h"
 #include "MKCharacter.h"
+#include "unreal/FVector.h"
 
 #define GFG_GAME_INFO 0x14417DF30
 
-#define I2HOOK_VERSION "0.4.3"
+#define I2HOOK_VERSION "0.4.4"
 
 
 MKCharacter* GetObj(PLAYER_NUM plr);
@@ -19,6 +20,10 @@ void	SetCharacterBreakers(PLAYER_NUM plr, int amount);
 
 char*	GetCharacterName(PLAYER_NUM plr);
 void	GetCharacterPosition(FVector* vec,PLAYER_NUM plr);
+
+void HideHUD();
+void ShowHUD();
+
 
 void	SlowGameTimeForXTicks(float speed, int ticks);
 

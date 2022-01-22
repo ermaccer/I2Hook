@@ -28,6 +28,9 @@
     <Filter Include="Header Files\imgui">
       <UniqueIdentifier>{175955e2-34e8-487e-91d7-570e3b1342db}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\code\unreal">
+      <UniqueIdentifier>{0af6796d-1a24-4afc-ad4f-498d01ed5e7b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -129,6 +132,12 @@
     <ClInclude Include="code\MKModifier.h">
       <Filter>Header Files\code</Filter>
     </ClInclude>
+    <ClInclude Include="code\unreal\FName.h">
+      <Filter>Header Files\code\unreal</Filter>
+    </ClInclude>
+    <ClInclude Include="code\unreal\FVector.h">
+      <Filter>Header Files\code\unreal</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -211,6 +220,9 @@
     </ClCompile>
     <ClCompile Include="font.h">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="code\unreal\FName.cpp">
+      <Filter>Header Files\code\unreal</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

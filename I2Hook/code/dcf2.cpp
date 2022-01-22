@@ -13,6 +13,8 @@ int64 hud_property = 0;
 
 void __fastcall Hooks::HookProcessStuff()
 {
+
+
 	TheMenu->Process();
 	Notifications->Update();
 
@@ -30,6 +32,10 @@ void __fastcall Hooks::HookProcessStuff()
 		if (TheMenu->m_bZeroMeterP1)
 			SetCharacterMeter(GetInfo(PLAYER1), 0.0f);
 
+		if (TheMenu->m_bDisableHeadTracking)
+			GetObj(PLAYER1)->KillHeadTracking();
+
+
 		if (TheMenu->m_bP1CustomAbilities)
 		{
 			TheMenu->m_nP1Abilities = 0;
@@ -42,6 +48,14 @@ void __fastcall Hooks::HookProcessStuff()
 			}
 			GetObj(PLAYER1)->SetAbility(TheMenu->m_nP1Abilities);
 		}
+
+		if (TheMenu->m_nCurrentCustomCamera == CAMERA_HEAD_TRACKING && TheMenu->m_bCustomCameras)
+		{
+			TheMenu->m_bDisableHeadTracking = true;
+			GetObj(PLAYER1)->SetBoneSize("Head", 0.01f);
+		}
+
+
 	}
 
 
@@ -57,7 +71,10 @@ void __fastcall Hooks::HookProcessStuff()
 			SetCharacterMeter(GetInfo(PLAYER2), 1.0f);
 		if (TheMenu->m_bZeroMeterP2)
 			SetCharacterMeter(GetInfo(PLAYER2), 0.0f);
-
+		if (TheMenu->m_bAutoHideHUD)
+			HideHUD();
+		if (TheMenu->m_bDisableHeadTracking)
+			GetObj(PLAYER2)->KillHeadTracking();
 		if (TheMenu->m_bP1CustomAbilities)
 		{
 			TheMenu->m_nP2Abilities = 0;
@@ -69,6 +86,12 @@ void __fastcall Hooks::HookProcessStuff()
 				}
 			}
 			GetObj(PLAYER2)->SetAbility(TheMenu->m_nP2Abilities);
+		}
+
+		if (TheMenu->m_nCurrentCustomCamera == CAMERA_HEAD_TRACKING && TheMenu->m_bCustomCameras && TheMenu->m_bUsePlayerTwoAsTracker)
+		{
+			TheMenu->m_bDisableHeadTracking = true;
+			GetObj(PLAYER2)->SetBoneSize("Head", 0.01f);
 		}
 	}
 
@@ -86,13 +109,6 @@ void __fastcall Hooks::HookProcessStuff()
 			GetObj(PLAYER1)->SetScale(&TheMenu->m_vP1Scale);
 		if (GetObj(PLAYER2))
 			GetObj(PLAYER2)->SetScale(&TheMenu->m_vP2Scale);
-	}
-
-
-	if (!(GetObj(PLAYER1)) || !(GetObj(PLAYER2)))
-	{
-		if (TheMenu->m_bCustomCameras)
-			TheMenu->m_bCustomCameras = false;
 	}
 
 
@@ -144,6 +160,8 @@ void __fastcall Hooks::HookProcessStuff()
 		}
 
 	}
+
+
 
 	((void(__fastcall*)())(_addr(0x141725320)))();
 }
@@ -298,5 +316,15 @@ char * GetCharacterName(PLAYER_NUM plr)
 void GetCharacterPosition(FVector * vec, PLAYER_NUM plr)
 {
 	((void(__fastcall*)(int64, FVector*))_addr(0x140B5BF00))(GetInfo(plr), vec);
+}
+
+void HideHUD()
+{
+	((void(__fastcall*)(int, int))_addr(0x14058E3D0))(8, 8);
+}
+
+void ShowHUD()
+{
+	((void(__fastcall*)(int, int))_addr(0x14058E9D0))(8, 8);
 }
 

@@ -9,6 +9,7 @@ enum eCustomCameras {
 	CAMERA_1STPERSON,
 	CAMERA_1STPERSON_MID,
 	CAMERA_MK11,
+	CAMERA_HEAD_TRACKING,
 	TOTAL_CUSTOM_CAMERAS
 };
 
@@ -20,65 +21,71 @@ enum eMenuSubMenus {
 
 class DCF2Menu {
 public:
-	bool	 m_bIsActive;
+	bool	 m_bIsActive = false;
 	bool	 m_bSubmenuActive[TOTAL_SUBMENUS] = {};
-	bool	 m_bSlowMotion;
-	bool     m_bFreezeWorld;
-	bool	 m_bIsFocused;
-	bool	 m_bHookDispatch;
-	bool	 m_bForceCameraUpdate;
-	bool	 m_bCustomCameraPos;
-	bool	 m_bCustomCameraRot;
-	bool	 m_bCustomCameraFOV;
-	bool	 m_bFreeCamMouseControl;
-	bool	 m_bFreeCamMouseInvertY;
-	bool	 m_bFreeCam;
-	bool	 m_bCustomCameras;
-	bool	 m_bYObtained;
-	bool	 m_bStageModifier;
-	bool	 m_bDisableHUD;
-	bool	 m_bAutoHideHUD;
+	bool	 m_bSlowMotion = false;
+	bool     m_bFreezeWorld = false;
+	bool	 m_bIsFocused = false;
+	bool	 m_bHookDispatch = false;
+	bool	 m_bForceCameraUpdate = false;
+	bool	 m_bCustomCameraPos = false;
+	bool	 m_bCustomCameraRot = false;
+	bool	 m_bCustomCameraFOV = false;
+	bool	 m_bFreeCamMouseControl = false;
+	bool	 m_bFreeCamMouseInvertY = true;
+	bool	 m_bFreeCam = false;
+	bool	 m_bCustomCameras = false;
+	bool	 m_bDontFlipCamera = false;
+	bool	 m_bDisableHeadTracking = false;
+	bool	 m_bUsePlayerTwoAsTracker = false;
+	bool	 m_bYObtained = false;
+	bool	 m_bStageModifier = false;
+	bool	 m_bDisableHUD = false;
+	bool	 m_bAutoHideHUD = false;
 	// cheats
-	bool	m_bInfiniteHealthP1;
-	bool	m_bInfiniteHealthP2;
-	bool	m_bNoHealthP1;
-	bool	m_bNoHealthP2;
-	bool	m_bInfiniteBreakersP1;
-	bool	m_bInfiniteBreakersP2;
-	bool	m_bInfiniteMeterP1;
-	bool	m_bInfiniteMeterP2;
-	bool	m_bZeroMeterP1;
-	bool	m_bZeroMeterP2;
+	bool	m_bInfiniteHealthP1 = false;
+	bool	m_bInfiniteHealthP2 = false;
+	bool	m_bNoHealthP1 = false;
+	bool	m_bNoHealthP2 = false;
+	bool	m_bInfiniteBreakersP1 = false;
+	bool	m_bInfiniteBreakersP2 = false;
+	bool	m_bInfiniteMeterP1 = false;
+	bool	m_bInfiniteMeterP2 = false;
+	bool	m_bZeroMeterP1 = false;
+	bool	m_bZeroMeterP2 = false;
 
-	bool	m_bChangePlayerSpeed;
-	bool	m_bChangePlayerScale;
-	bool	m_bPlayer1Modifier;
-	bool	m_bPlayer2Modifier;
+	bool	m_bChangePlayerSpeed = false;
+	bool	m_bChangePlayerScale = false;
+	bool	m_bPlayer1Modifier = false;
+	bool	m_bPlayer2Modifier = false;
 
-	float	 m_fSlowMotionSpeed;
-	float	 m_fP1Speed;
-	float	 m_fP2Speed;
-	float	 m_fAdjustCustomCameraX;
-	float	 m_fAdjustCustomCameraY;
-	float	 m_fAdjustCustomCameraZ;
-	float	 m_fAdjustCustomCameraThirdPersonX;
-	float	 m_fAdjustCustomCameraThirdPersonY;
-	float	 m_fAdjustCustomCameraThirdPersonZ;
-	float	 m_fFreeCameraSpeed;
+	float	 m_fSlowMotionSpeed = 0.5f;
+	float	 m_fP1Speed = 1.0f;
+	float	 m_fP2Speed = 1.0f;
+	float	 m_fAdjustCustomCameraX = -10.0f;
+	float	 m_fAdjustCustomCameraY = 0.0f;
+	float	 m_fAdjustCustomCameraZ = 161.0f;
+	float	 m_fAdjustCustomCameraThirdPersonX = 0.0f;
+	float	 m_fAdjustCustomCameraThirdPersonY = 0.0f;
+	float	 m_fAdjustCustomCameraThirdPersonZ = 0.0f;
+	float	 m_fAdjustCustomHeadCameraX = 0.0f;
+	float	 m_fAdjustCustomHeadCameraY = 1200.0f;
+	float	 m_fAdjustCustomHeadCameraZ = 0.0f;
+	float	 m_fFreeCameraSpeed = 5.25f;
 
-	int  m_nFreeCameraRotationSpeed;
-	int  m_nCurrentCustomCamera;
-	int  m_nCurrentCharModifier;
-	int  m_nP1Abilities;
-	int  m_nP2Abilities;
+	int  m_nFreeCameraRotationSpeed = 120;
+	int  m_nCurrentCustomCamera = -1;
+	int  m_nCurrentCharModifier = 0;
+	int  m_nP1Abilities = 0;
+	int  m_nP2Abilities = 0;
 
-	bool m_bP1CustomAbilities;
+	bool m_bP1CustomAbilities = false;
 	bool m_P1Abilities[20] = {};
-	bool m_bP2CustomAbilities;
+	bool m_bP2CustomAbilities = false;
 	bool m_P2Abilities[20] = {};
 
-	FVector	 m_vP1Scale;
-	FVector	 m_vP2Scale;
+	FVector	 m_vP1Scale = { 1.0f, 1.0f, 1.0f };
+	FVector	 m_vP2Scale = { 1.0f, 1.0f, 1.0f };
 
 
 	char szCurrentModifier[128] = {};
@@ -86,7 +93,8 @@ public:
 	char szPlayer2ModifierCharacter[128] = {};
 	char szCurrentCameraOption[64] = {};
 	char szStageModifierStage[128] = {};
-
+	char szPlayer1Bone[128] = {};
+	char szPlayer2Bone[128] = {};
 
 	// camera
 
@@ -102,9 +110,9 @@ public:
 
 	POINT	orgMouse;
 	POINT	curMouse;
-	int     mouseSpeedX;
-	int     mouseSpeedY;
-	int     mouseSens;
+	int     mouseSpeedX = 0;
+	int     mouseSpeedY = 0;
+	int     mouseSens = 5;
 
 	void Initialize();
 	void Draw();

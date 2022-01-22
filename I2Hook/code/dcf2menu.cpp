@@ -142,7 +142,8 @@ const char* szCameraModes[TOTAL_CUSTOM_CAMERAS] = {
 	"Third Person #2",
 	"First Person",
 	"First Person Mid",
-	"Mortal Kombat 11"
+	"Mortal Kombat 11",
+	"Head Perspective"
 };
 
 const char* szStageNames[]{
@@ -161,9 +162,34 @@ const char* szStageNames[]{
   "BGND_CharacterTest",
   "BGND_DCF2Physics",
   "BGND_EmptyMap",
-
-
 };
+
+
+const char* szBones[] = {
+	"Head",
+	"Hips",
+	"Jaw",
+	"LeftArm",
+	"LeftEye",
+	"LeftFoot",
+	"LeftForeArm",
+	"LeftHand",
+	"LeftLeg",
+	"Neck",
+	"Neck1",
+	"Reference",
+	"RightArm",
+	"RightEye",
+	"RightFoot",
+	"RightHand",
+	"RightLeg",
+	"Spine",
+	"Spine1",
+	"Spine2",
+	"Spine3",
+};
+
+
 int GetCamMode(const char* mode)
 {
 	for (int i = 0; i < TOTAL_CUSTOM_CAMERAS; i++)
@@ -196,65 +222,15 @@ static void ShowHelpMarker(const char* desc)
 
 void DCF2Menu::Initialize()
 {
-	m_bPlayer1Modifier = false;
-	m_bPlayer2Modifier = false;
-	m_bSlowMotion = false;
-	m_fSlowMotionSpeed = 0.5f;
-	m_bCustomCameraPos = false;
-	m_bCustomCameraRot = false;
-	m_bCustomCameraFOV = false;
-	m_bSlowMotion = 0;
-	m_fSlowMotionSpeed = 0.5f;
-	m_fFreeCameraSpeed = 5.25f;
-	m_nFreeCameraRotationSpeed = 120;
-	m_bIsActive = false;
-
 	orgMouse.x = GetSystemMetrics(SM_CXSCREEN) / 2;
 	orgMouse.y = GetSystemMetrics(SM_CYSCREEN) / 2;
-	m_nP1Abilities = 0;
-	m_nP2Abilities = 0;
-	mouseSpeedX = 0;
-	mouseSpeedY = 0;
-	mouseSens = 5;
-	m_bFreeCamMouseInvertY = true;
 
-	m_bInfiniteHealthP1 = false;
-	m_bInfiniteHealthP2 = false;
-	m_bNoHealthP1 = false;
-	m_bNoHealthP2 = false;
-
-	m_bCustomCameras = false;
-	m_nCurrentCustomCamera = -1;
-	m_bStageModifier = false;
 	sprintf(szPlayer1ModifierCharacter, szCharacters[0]);
 	sprintf(szPlayer2ModifierCharacter, szCharacters[0]);
 	sprintf(szCurrentCameraOption, szCameraModes[0]);
 	sprintf(szStageModifierStage, szStageNames[0]);
-	m_fAdjustCustomCameraZ = 161.0f;
-	m_fAdjustCustomCameraX = -10.0f;
-	m_fAdjustCustomCameraThirdPersonY = 0;
-	m_fAdjustCustomCameraThirdPersonX = 0;
-	m_fAdjustCustomCameraThirdPersonZ = 0;
-	m_bYObtained = false;
-	m_bIsFocused = false;
-	m_bForceCameraUpdate = false;
-	m_bDisableHUD = false;
-	m_bAutoHideHUD = false;
-	m_bChangePlayerSpeed = false;
-	m_bChangePlayerScale = false;
-	m_fP1Speed = 1.0f;
-	m_fP2Speed = 1.0f;
-	m_vP1Scale = { 1.0f,1.0f,1.0f };
-	m_vP2Scale = { 1.0f,1.0f,1.0f };
-	m_bFreezeWorld = false;
-	m_bHookDispatch = false;
-	m_bP1CustomAbilities = false;
-	m_bP2CustomAbilities = false;
-
-	m_bInfiniteBreakersP1 = false;
-	m_bInfiniteBreakersP2 = false;
-	m_bZeroMeterP1 = false;
-	m_bZeroMeterP2 = false;
+	sprintf(szPlayer1Bone, szBones[0]);
+	sprintf(szPlayer2Bone, szBones[0]);
 }
 
 void DCF2Menu::Draw()
@@ -408,6 +384,110 @@ void DCF2Menu::Draw()
 
 					ImGui::EndTabItem();
 				}
+				if (ImGui::BeginTabItem("Skeleton"))
+				{
+					if (GetObj(PLAYER1) && GetObj(PLAYER2))
+					{
+						ImGui::TextColored(ImVec4(1.f, 0.3f, 0.3f, 1.f), "Enable 'Disable Head Tracking' in Misc. section before editing head data! Restart match after enabling it.");
+						ImGui::TextWrapped("Player 1");
+						ImGui::Separator();
+						if (ImGui::BeginCombo("Bone##p1", szPlayer1Bone))
+						{
+							for (int n = 0; n < IM_ARRAYSIZE(szBones); n++)
+							{
+								bool is_selected = (szPlayer1Bone == szBones[n]);
+								if (ImGui::Selectable(szBones[n], is_selected))
+									sprintf(szPlayer1Bone, szBones[n]);
+								if (is_selected)
+									ImGui::SetItemDefaultFocus();
+
+							}
+							ImGui::EndCombo();
+						}
+						static float boneSizeP1 = 0.0f;
+						ImGui::InputFloat("Size##p1", &boneSizeP1);
+
+
+						if (ImGui::Button("Change Bone", { -FLT_MIN, 0 }))
+						{
+							Notifications->SetNotificationTime(2500);
+							Notifications->PushNotification("Changed %s", szPlayer1Bone);
+							GetObj(PLAYER1)->SetBoneSize(szPlayer1Bone, boneSizeP1);
+						}
+
+						ImGui::TextWrapped("Player 2");
+						ImGui::Separator();
+
+						if (ImGui::BeginCombo("Bone##p1", szPlayer1Bone))
+						{
+							for (int n = 0; n < IM_ARRAYSIZE(szBones); n++)
+							{
+								bool is_selected = (szPlayer2Bone == szBones[n]);
+								if (ImGui::Selectable(szBones[n], is_selected))
+									sprintf(szPlayer2Bone, szBones[n]);
+								if (is_selected)
+									ImGui::SetItemDefaultFocus();
+
+							}
+							ImGui::EndCombo();
+						}
+						static float boneSizeP2 = 0.0f;
+						ImGui::InputFloat("Size##p2", &boneSizeP2);
+
+
+						if (ImGui::Button("Change Bone##p2", { -FLT_MIN, 0 }))
+						{
+							Notifications->SetNotificationTime(2500);
+							Notifications->PushNotification("Changed %s", szPlayer1Bone);
+							GetObj(PLAYER2)->SetBoneSize(szPlayer2Bone, boneSizeP2);
+						}
+
+						ImGui::Separator();
+						ImGui::TextWrapped("Presets");
+						if (ImGui::Button("Big Heads", { -FLT_MIN, 0 }))
+						{
+							Notifications->SetNotificationTime(2500);
+							GetObj(PLAYER1)->SetBoneSize("Head", 1.5f);
+							GetObj(PLAYER2)->SetBoneSize("Head", 1.5f);
+							GetObj(PLAYER1)->SetBoneSize("Neck", 1.5f);
+							GetObj(PLAYER2)->SetBoneSize("Neck", 1.5f);
+						}
+						if (ImGui::Button("Big Fists", { -FLT_MIN, 0 }))
+						{
+							GetObj(PLAYER1)->SetBoneSize("LeftHand", 3.0f);
+							GetObj(PLAYER1)->SetBoneSize("RightHand", 3.0f);
+							GetObj(PLAYER2)->SetBoneSize("LeftHand", 3.0f);
+							GetObj(PLAYER2)->SetBoneSize("RightHand", 3.0f);
+						}
+						if (ImGui::Button("Googly Eyes", { -FLT_MIN, 0 }))
+						{
+							GetObj(PLAYER1)->SetBoneSize("LeftEye", 2.0f);
+							GetObj(PLAYER1)->SetBoneSize("RightEye", 2.0f);
+							GetObj(PLAYER2)->SetBoneSize("LeftEye", 2.0f);
+							GetObj(PLAYER2)->SetBoneSize("RightEye", 2.0f);
+						}
+						if (ImGui::Button("Large Feet", { -FLT_MIN, 0 }))
+						{
+							GetObj(PLAYER1)->SetBoneSize("LeftFoot", 2.0f);
+							GetObj(PLAYER1)->SetBoneSize("RightFoot", 2.0f);
+							GetObj(PLAYER2)->SetBoneSize("LeftFoot", 2.0f);
+							GetObj(PLAYER2)->SetBoneSize("RightFoot", 2.0f);
+						}
+						if (ImGui::Button("Reset All", { -FLT_MIN, 0 }))
+						{
+							for (int i = 0; i < sizeof(szBones) / sizeof(szBones[0]); i++)
+							{
+								GetObj(PLAYER1)->SetBoneSize(szBones[i], 1.0f);
+								GetObj(PLAYER2)->SetBoneSize(szBones[i], 1.0f);
+							}
+						}
+						ImGui::Separator();
+					}
+					else
+						ImGui::TextWrapped("Skeleton options are only available in-game!");
+
+					ImGui::EndTabItem();
+				}
 				ImGui::EndTabBar();
 			}
 			ImGui::EndTabItem();
@@ -482,9 +562,9 @@ void DCF2Menu::Draw()
 
 
 			ImGui::Separator();
+			ImGui::Checkbox("Custom Cameras", &m_bCustomCameras);
 			if (GetObj(PLAYER1) && GetObj(PLAYER2))
 			{
-				ImGui::Checkbox("Custom Cameras", &m_bCustomCameras);
 
 				if (ImGui::BeginCombo("Mode", szCurrentCameraOption))
 				{
@@ -511,6 +591,18 @@ void DCF2Menu::Draw()
 					ImGui::InputFloat("TPP Camera Offset", &m_fAdjustCustomCameraThirdPersonY);
 					ImGui::InputFloat("TPP Up/Down Offset", &m_fAdjustCustomCameraThirdPersonZ);
 					ImGui::InputFloat("TPP Left/Right Offset", &m_fAdjustCustomCameraThirdPersonX);
+				}
+				else if (m_nCurrentCustomCamera == CAMERA_HEAD_TRACKING)
+				{
+					ImGui::InputFloat("Up/Down Angle Offset", &m_fAdjustCustomHeadCameraY);
+					ImGui::InputFloat("Up/Down Offset", &m_fAdjustCustomHeadCameraZ);
+					ImGui::InputFloat("Left/Right Offset", &m_fAdjustCustomHeadCameraX);
+
+					ImGui::Checkbox("Don't Flip Camera", &m_bDontFlipCamera);
+					ImGui::SameLine(); ShowHelpMarker("Use this option for head tracked cinematics.");
+					ImGui::Checkbox("Use Player Two As Source", &m_bUsePlayerTwoAsTracker);
+					ImGui::TextWrapped("Toggle 'Disable Head Tracking' in Misc. section first to use this mode properly. Toggle it at select screen.");
+					ImGui::TextWrapped("Recommended to set FOV value to at least 110 to make this mode look right!");
 				}
 			}
 			else
@@ -620,9 +712,19 @@ void DCF2Menu::Draw()
 		}
 		if (ImGui::BeginTabItem("Misc."))
 		{
+			if (ImGui::Button("Hide FightHUD"))
+				HideHUD();
+			ImGui::SameLine();
+			if (ImGui::Button("Show FightHUD"))
+				ShowHUD();
+
+			ImGui::Checkbox("Hide FightHUD In Game", &m_bAutoHideHUD);
 			ImGui::Checkbox("Disable HUD Completely", &m_bDisableHUD);
 			ImGui::SameLine();
 			ShowHelpMarker("You'll need to go in-game/back to menu for this option to take effect.");
+			ImGui::Checkbox("Disable Head Tracking", &m_bDisableHeadTracking);
+			ImGui::SameLine();
+			ShowHelpMarker("Disables P1 head looking at P2. Automatically enabled with 'Head Perspective' custom camera.");
 			ImGui::EndTabItem();
 		}
 		ImGui::EndTabBar();

@@ -14,13 +14,6 @@ enum  PLAYER_NUM
 };
 
 
-struct FVector
-{
-	float X;
-	float Y;
-	float Z;
-};
-
 struct FRotator
 {
 	int Pitch;
