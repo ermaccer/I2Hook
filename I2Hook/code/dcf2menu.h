@@ -120,6 +120,15 @@ public:
 	void UpdateControls();
 	void UpdateMouse();
 
+	void DrawCharacterTab();
+	void DrawStageTab();
+	void DrawModifiersTab();
+	void DrawPlayerTab();
+	void DrawSpeedTab();
+	void DrawCameraTab();
+	void DrawCheatsTab();
+	void DrawMiscTab();
+
 	void DrawSettings();
 
 	bool GetActiveState();
