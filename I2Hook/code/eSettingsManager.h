@@ -1,4 +1,5 @@
 #pragma once
+#include <Windows.h>
 
 // as usual, pluginmh/mugenhook
 
