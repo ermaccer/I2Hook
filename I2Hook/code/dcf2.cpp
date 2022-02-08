@@ -34,6 +34,12 @@ void __fastcall Hooks::HookProcessStuff()
 		if (TheMenu->m_bZeroMeterP1)
 			p1_info->SetMeter(0.0f);
 
+		if (TheMenu->m_bDisableComboScaling)
+		{
+			if (p1_info)
+				p1_info->SetDamageMult(1.0f);
+		}
+
 		if (TheMenu->m_bDisableHeadTracking)
 			p1->KillHeadTracking();
 
@@ -77,6 +83,13 @@ void __fastcall Hooks::HookProcessStuff()
 			HideHUD();
 		if (TheMenu->m_bDisableHeadTracking)
 			p2->KillHeadTracking();
+
+		if (TheMenu->m_bDisableComboScaling)
+		{
+			if (p2_info)
+				p2_info->SetDamageMult(1.0f);
+		}
+
 		if (TheMenu->m_bP1CustomAbilities)
 		{
 			TheMenu->m_nP2Abilities = 0;

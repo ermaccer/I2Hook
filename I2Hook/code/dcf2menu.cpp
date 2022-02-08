@@ -338,7 +338,11 @@ void DCF2Menu::UpdateControls()
 	{
 		if (GetTickCount64() - timer <= 150) return;
 		timer = GetTickCount64();
-		m_bSlowMotion ^= 1;
+		TheMenu->m_bSlowMotion ^= 1;
+		if (TheMenu->m_bSlowMotion)
+			SlowGameTimeForXTicks(m_fSlowMotionSpeed, 0x7FFFFFFF);
+		else
+			SlowGameTimeForXTicks(1.0, 10);
 	}
 
 	if (GetAsyncKeyState(SettingsMgr->iToggleFreezeWorldKey))
@@ -852,6 +856,8 @@ void DCF2Menu::DrawMiscTab()
 	ImGui::Checkbox("Disable Head Tracking", &m_bDisableHeadTracking);
 	ImGui::SameLine();
 	ShowHelpMarker("Disables P1 head looking at P2. Automatically enabled with 'Head Perspective' custom camera.");
+
+	ImGui::Checkbox("Disable Combo Scaling", &m_bDisableComboScaling);
 }
 
 void DCF2Menu::DrawSettings()

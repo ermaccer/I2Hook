@@ -60,6 +60,8 @@ public:
 	bool	m_bPlayer1Modifier = false;
 	bool	m_bPlayer2Modifier = false;
 
+	bool    m_bDisableComboScaling = false;
+
 	float	 m_fSlowMotionSpeed = 0.5f;
 	float	 m_fP1Speed = 1.0f;
 	float	 m_fP2Speed = 1.0f;

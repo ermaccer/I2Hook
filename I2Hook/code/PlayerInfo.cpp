@@ -8,4 +8,6 @@ void PlayerInfo::SetMeter(float value)
 
 void PlayerInfo::SetDamageMult(float value)
 {
+	*(float*)(this + 0x338) = value;
+	*(float*)(this + 0x338 + 4) = value;
 }

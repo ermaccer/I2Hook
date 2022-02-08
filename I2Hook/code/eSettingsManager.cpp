@@ -86,8 +86,6 @@ void eSettingsManager::Init()
 	if (iFreeCameraKeyPitchMinus == 0xFF)
 		iFreeCameraKeyPitchMinus = ini.ReadInteger("Settings", "iFreeCameraKeyPitchMinus", 0);
 
-
-	CIniReader user("i2hook_user.ini");
 	fMenuScale = user.ReadFloat("MenuSettings", "fMenuScale", 1.0f);
 
 	if (fMenuScale < 1.0f)
