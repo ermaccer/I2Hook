@@ -1,21 +1,23 @@
 #pragma once
+
 #include "mk10utils.h"
 #include "MKStructs.h"
 #include "MKCharacter.h"
 #include "unreal/FVector.h"
+#include "GameInfo.h"
+#include "PlayerInfo.h"
+#include "CharacterDefinition.h"
 
 #define GFG_GAME_INFO 0x14417DF30
 
-#define I2HOOK_VERSION "0.4.4"
+#define I2HOOK_VERSION "0.4.5"
 
 
-MKCharacter* GetObj(PLAYER_NUM plr);
-int64		 GetInfo(PLAYER_NUM plr);
+MKCharacter*	 GetObj(PLAYER_NUM plr);
+PlayerInfo*		 GetInfo(PLAYER_NUM plr);
 
 void	SetCharacterMKX(PLAYER_NUM plr, char* name); // mkx recreation
-void	SetCharacter(int64 chr, char* name, int64 ptr, int64 unk);
-void	SetCharacterMeter(int64 chr, float meter);
-void	SetStage(const char* stage);
+
 void	SetCharacterBreakers(PLAYER_NUM plr, int amount);
 
 char*	GetCharacterName(PLAYER_NUM plr);
@@ -26,8 +28,6 @@ void ShowHUD();
 
 
 void	SlowGameTimeForXTicks(float speed, int ticks);
-
-void	SetTagAssist(PLAYER_NUM plr, char* character);
 
 
 void		LoadModifierAssets();

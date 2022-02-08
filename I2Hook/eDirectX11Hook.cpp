@@ -142,6 +142,10 @@ HRESULT __stdcall eDirectX11Hook::Present(IDXGISwapChain * pSwapChain, UINT Sync
 	if (TheMenu->GetActiveState())
 		TheMenu->Draw();
 
+#ifdef _DEBUG
+	DCF2Menu::DrawDebug();
+#endif // _DEBUG
+
 	ImGui::EndFrame();
 	ImGui::Render();
 
@@ -203,8 +207,8 @@ HRESULT __stdcall eDirectX11Hook::ResizeBuffers(IDXGISwapChain * pSwapChain, UIN
 		viewport.MaxDepth = 1.0f;
 		viewport.TopLeftX = 0;
 		viewport.TopLeftY = 0;
-		viewport.Width = Width;
-		viewport.Height = Height;
+		viewport.Width = (float)Width;
+		viewport.Height = (float)Height;
 
 
 		pContext->OMSetRenderTargets(1, &mainRenderTargetView, NULL);

@@ -234,7 +234,7 @@ void MKCamera::HookedSetRotation(FRotator * rot)
 					GetObj(PLAYER2)->GetBoneRot("Head", &headRot);
 				else
 					GetObj(PLAYER1)->GetBoneRot("Head", &headRot);
-				rot->Pitch = headRot.Pitch + TheMenu->m_fAdjustCustomHeadCameraY;
+				rot->Pitch = headRot.Pitch + (int)TheMenu->m_fAdjustCustomHeadCameraY;
 				rot->Yaw = 16000 + headRot.Yaw;
 				rot->Roll = headRot.Roll / 100;
 				TheMenu->camRot = *rot;

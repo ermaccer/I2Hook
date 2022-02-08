@@ -23,6 +23,7 @@ class DCF2Menu {
 public:
 	bool	 m_bIsActive = false;
 	bool	 m_bSubmenuActive[TOTAL_SUBMENUS] = {};
+	bool     m_bPressingKey = false;
 	bool	 m_bSlowMotion = false;
 	bool     m_bFreezeWorld = false;
 	bool	 m_bIsFocused = false;
@@ -74,10 +75,12 @@ public:
 	float	 m_fFreeCameraSpeed = 5.25f;
 
 	int  m_nFreeCameraRotationSpeed = 120;
-	int  m_nCurrentCustomCamera = -1;
+	int  m_nCurrentCustomCamera = CAMERA_3RDPERSON;
 	int  m_nCurrentCharModifier = 0;
 	int  m_nP1Abilities = 0;
 	int  m_nP2Abilities = 0;
+
+	int* m_pCurrentVarToChange = nullptr;
 
 	bool m_bP1CustomAbilities = false;
 	bool m_P1Abilities[20] = {};
@@ -130,6 +133,16 @@ public:
 	void DrawMiscTab();
 
 	void DrawSettings();
+
+
+	void DrawKeyBind(char* name, int* var);
+	void KeyBind(int* var, char* bindName, char* name);
+
+#ifdef _DEBUG
+	static void DrawDebug();
+#endif
+
+
 
 	bool GetActiveState();
 };

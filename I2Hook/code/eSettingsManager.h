@@ -11,7 +11,12 @@ public:
 
 	bool bEnableGamepadSupport;
 
+	// generic
 	int iHookMenuOpenKey;
+	int iToggleCustomCamKey;
+	int iToggleSlowMoKey = VK_F5;
+	int iToggleFreezeWorldKey = VK_F2;
+	int iResetStageInteractablesKey;
 	// free camera keys
 	int iFreeCameraKeyXPlus;
 	int iFreeCameraKeyXMinus;
@@ -34,6 +39,7 @@ public:
 	float fMenuScale;
 
 	void SaveSettings();
+	void ResetKeys();
 
 };
 

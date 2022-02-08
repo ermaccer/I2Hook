@@ -13,27 +13,29 @@ int64 hud_property = 0;
 
 void __fastcall Hooks::HookProcessStuff()
 {
-
-
 	TheMenu->Process();
 	Notifications->Update();
 
+	MKCharacter* p1 = GetObj(PLAYER1);
+	MKCharacter* p2 = GetObj(PLAYER2);
+	PlayerInfo* p1_info = GetInfo(PLAYER1);
+	PlayerInfo* p2_info = GetInfo(PLAYER2);
 
-	if (GetObj(PLAYER1))
+	if (p1)
 	{
 		if (TheMenu->m_bInfiniteBreakersP1)
 			SetCharacterBreakers(PLAYER1, 1);
 		if (TheMenu->m_bNoHealthP1)
-			GetObj(PLAYER1)->SetLife(0.0f);
+			p1->SetLife(0.0f);
 		if (TheMenu->m_bInfiniteHealthP1)
-			GetObj(PLAYER1)->SetLife(1.0f);
+			p1->SetLife(1.0f);
 		if (TheMenu->m_bInfiniteMeterP1)
-			SetCharacterMeter(GetInfo(PLAYER1), 1.0f);
+			p1_info->SetMeter(1.0f);
 		if (TheMenu->m_bZeroMeterP1)
-			SetCharacterMeter(GetInfo(PLAYER1), 0.0f);
+			p1_info->SetMeter(0.0f);
 
 		if (TheMenu->m_bDisableHeadTracking)
-			GetObj(PLAYER1)->KillHeadTracking();
+			p1->KillHeadTracking();
 
 
 		if (TheMenu->m_bP1CustomAbilities)
@@ -43,38 +45,38 @@ void __fastcall Hooks::HookProcessStuff()
 			{
 				if (TheMenu->m_P1Abilities[i])
 				{
-					TheMenu->m_nP1Abilities += pow(2, i);
+					TheMenu->m_nP1Abilities += (int)pow(2, i);
 				}
 			}
-			GetObj(PLAYER1)->SetAbility(TheMenu->m_nP1Abilities);
+			p1->SetAbility(TheMenu->m_nP1Abilities);
 		}
 
 		if (TheMenu->m_nCurrentCustomCamera == CAMERA_HEAD_TRACKING && TheMenu->m_bCustomCameras)
 		{
 			TheMenu->m_bDisableHeadTracking = true;
-			GetObj(PLAYER1)->SetBoneSize("Head", 0.01f);
+			p1->SetBoneSize("Head", 0.01f);
 		}
 
 
 	}
 
 
-	if (GetObj(PLAYER2))
+	if (p2)
 	{
 		if (TheMenu->m_bInfiniteBreakersP2)
 			SetCharacterBreakers(PLAYER2, 1);
 		if (TheMenu->m_bNoHealthP2)
-			GetObj(PLAYER2)->SetLife(0.0f);
+			p2->SetLife(0.0f);
 		if (TheMenu->m_bInfiniteHealthP2)
-			GetObj(PLAYER2)->SetLife(1.0f);
+			p2->SetLife(1.0f);
 		if (TheMenu->m_bInfiniteMeterP2)
-			SetCharacterMeter(GetInfo(PLAYER2), 1.0f);
+			p2_info->SetMeter(1.0f);
 		if (TheMenu->m_bZeroMeterP2)
-			SetCharacterMeter(GetInfo(PLAYER2), 0.0f);
+			p2_info->SetMeter(0.0f);
 		if (TheMenu->m_bAutoHideHUD)
 			HideHUD();
 		if (TheMenu->m_bDisableHeadTracking)
-			GetObj(PLAYER2)->KillHeadTracking();
+			p2->KillHeadTracking();
 		if (TheMenu->m_bP1CustomAbilities)
 		{
 			TheMenu->m_nP2Abilities = 0;
@@ -82,33 +84,33 @@ void __fastcall Hooks::HookProcessStuff()
 			{
 				if (TheMenu->m_P2Abilities[i])
 				{
-					TheMenu->m_nP2Abilities += pow(2, i);
+					TheMenu->m_nP2Abilities += (int)pow(2, i);
 				}
 			}
-			GetObj(PLAYER2)->SetAbility(TheMenu->m_nP2Abilities);
+			p2->SetAbility(TheMenu->m_nP2Abilities);
 		}
 
 		if (TheMenu->m_nCurrentCustomCamera == CAMERA_HEAD_TRACKING && TheMenu->m_bCustomCameras && TheMenu->m_bUsePlayerTwoAsTracker)
 		{
 			TheMenu->m_bDisableHeadTracking = true;
-			GetObj(PLAYER2)->SetBoneSize("Head", 0.01f);
+			p2->SetBoneSize("Head", 0.01f);
 		}
 	}
 
 
 	if (TheMenu->m_bChangePlayerSpeed)
 	{
-		if (GetObj(PLAYER1))
-			GetObj(PLAYER1)->SetSpeed(TheMenu->m_fP1Speed);
-		if (GetObj(PLAYER2))
-			GetObj(PLAYER2)->SetSpeed(TheMenu->m_fP2Speed);
+		if (p1)
+			p1->SetSpeed(TheMenu->m_fP1Speed);
+		if (p2)
+			p2->SetSpeed(TheMenu->m_fP2Speed);
 	}
 	if (TheMenu->m_bChangePlayerScale)
 	{
-		if (GetObj(PLAYER1))
-			GetObj(PLAYER1)->SetScale(&TheMenu->m_vP1Scale);
-		if (GetObj(PLAYER2))
-			GetObj(PLAYER2)->SetScale(&TheMenu->m_vP2Scale);
+		if (p1)
+			p1->SetScale(&TheMenu->m_vP1Scale);
+		if (p2)
+			p2->SetScale(&TheMenu->m_vP2Scale);
 	}
 
 
@@ -174,7 +176,7 @@ void __fastcall Hooks::HookStartupFightRecording(int64 eventID, int64 a2, int64 
 	TheMenu->m_bYObtained = false;
 
 	if (TheMenu->m_bStageModifier)
-		SetStage(TheMenu->szStageModifierStage);
+		GetGameInfo()->SetStage(TheMenu->szStageModifierStage);
 
 	if (TheMenu->m_bPlayer1Modifier)
 		SetCharacterMKX(PLAYER1, TheMenu->szPlayer1ModifierCharacter);
@@ -228,7 +230,7 @@ void Hooks::HookReadPropertyValue(int64 ptr, int* unk, int* value)
 
 MKCharacter * GetObj(PLAYER_NUM plr)
 {
-	int64 info = GetInfo(plr);
+	int64 info = (int64)GetInfo(plr);
 	if (info)
 		return ((MKCharacter*(__fastcall*)(int64, int))_addr(0x140B53010))(info, 0);
 	else
@@ -236,46 +238,25 @@ MKCharacter * GetObj(PLAYER_NUM plr)
 }
 
 
-int64 GetInfo(PLAYER_NUM plr)
+PlayerInfo* GetInfo(PLAYER_NUM plr)
 {
-	int64 gameinfo = *(__int64*)_addr(GFG_GAME_INFO);
-	return ((int64(__fastcall*)(int64, PLAYER_NUM))_addr(0x140595DA0))(gameinfo, plr);
+	return GetGameInfo()->GetInfo(plr);
 }
 
 void SetCharacterMKX(PLAYER_NUM plr, char * name)
 {
-	int64 ptr = GetInfo(plr);
-	int64 chr = (ptr + 192);
-	SetCharacter(chr, name, 0, 0);
+	int64 ptr = (int64)GetInfo(plr);
+	CharacterDefinition* chr = (CharacterDefinition*)(ptr + 216);
+	chr->Set(name, 0, 0);
 }
 
-void SetCharacter(int64 chr, char * name, int64 ptr, int64 unk)
-{
-	((void(__fastcall*)(int64, const char*, int64, int64))_addr(0x140B6A420))(chr, name, ptr, unk);
-}
-
-void SetCharacterMeter(int64 chr, float meter)
-{
-	((void(__fastcall*)(int64, float))_addr(0x140B70C20))(chr, meter);
-}
-
-void SetStage(const char * stage)
-{
-	__int64 gameinfo = *(__int64*)_addr(GFG_GAME_INFO);
-
-	((void(__fastcall*)(int64, const char*))_addr(0x1411C8C00))(gameinfo, stage);
-}
 
 void SlowGameTimeForXTicks(float speed, int ticks)
 {
 	((void(__fastcall*)(float, int, int))_addr(0x1409C4630))(speed, ticks, 0);
 }
 
-void SetTagAssist(PLAYER_NUM plr, char * character)
-{
-	((void(__fastcall*)(int64, char*))_addr(0x140B70E50))(GetInfo(plr), character);
 
-}
 
 void LoadModifierAssets()
 {
@@ -307,7 +288,7 @@ void SetCharacterBreakers(PLAYER_NUM plr, int amount)
 
 char * GetCharacterName(PLAYER_NUM plr)
 {
-	int64 info = GetInfo(plr);
+	int64 info = (int64)GetInfo(plr);
 	character_info* chr = *(character_info**)(info + 192);
 
 	return chr->name;
@@ -315,7 +296,7 @@ char * GetCharacterName(PLAYER_NUM plr)
 
 void GetCharacterPosition(FVector * vec, PLAYER_NUM plr)
 {
-	((void(__fastcall*)(int64, FVector*))_addr(0x140B5BF00))(GetInfo(plr), vec);
+	((void(__fastcall*)(int64, FVector*))_addr(0x140B5BF00))((int64)GetInfo(plr), vec);
 }
 
 void HideHUD()

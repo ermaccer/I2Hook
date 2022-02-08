@@ -1,19 +1,5 @@
 #pragma once
 
-enum  PLAYER_NUM
-{
-	INVALID_PLAYER_NUM = -1,
-	PLAYER1,
-	PLAYER2,
-	PLAYER3,
-	PLAYER4,
-	MAX_PLAYERS,
-	CPU_PLAYER,
-	NOT_CPU_PLAYER,
-	BACKGROUND_PLAYER
-};
-
-
 struct FRotator
 {
 	int Pitch;

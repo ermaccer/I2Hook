@@ -8,6 +8,7 @@
 #include "eSettingsManager.h"
 #include "eNotifManager.h"
 #include "MKCharacter.h"
+#include "helper/eKeyboardMan.h"
 #include "..\eDirectX11Hook.h"
 
 
@@ -308,18 +309,39 @@ void DCF2Menu::Process()
 
 void DCF2Menu::UpdateControls()
 {
-	if (GetAsyncKeyState(VK_F5))
+	if (GetAsyncKeyState(SettingsMgr->iToggleCustomCamKey))
 	{
 		if (GetTickCount64() - timer <= 150) return;
 		timer = GetTickCount64();
-		TheMenu->m_bSlowMotion ^= 1;
-		if (TheMenu->m_bSlowMotion)
-			SlowGameTimeForXTicks(m_fSlowMotionSpeed, 0x7FFFFFFF);
+		if (GetObj(PLAYER1) && GetObj(PLAYER2))
+			m_bCustomCameras ^= 1;
 		else
-			SlowGameTimeForXTicks(1.0, 10);
+		{
+			Notifications->SetNotificationTime(2500);
+			Notifications->PushNotification("Custom cameras can only be activated in game!");
+		}
+	}
+	if (GetAsyncKeyState(SettingsMgr->iResetStageInteractablesKey))
+	{
+		if (GetTickCount64() - timer <= 150) return;
+		timer = GetTickCount64();
+		if (GetObj(PLAYER1) && GetObj(PLAYER2))
+			GetGameInfo()->ResetStageInteractables();
+		else
+		{
+			Notifications->SetNotificationTime(2500);
+			Notifications->PushNotification("Stage objects can only be reset in game!");
+		}
 	}
 
-	if (GetAsyncKeyState(VK_F2))
+	if (GetAsyncKeyState(SettingsMgr->iToggleSlowMoKey))
+	{
+		if (GetTickCount64() - timer <= 150) return;
+		timer = GetTickCount64();
+		m_bSlowMotion ^= 1;
+	}
+
+	if (GetAsyncKeyState(SettingsMgr->iToggleFreezeWorldKey))
 	{
 		if (m_bHookDispatch)
 		{
@@ -327,6 +349,7 @@ void DCF2Menu::UpdateControls()
 			timer = GetTickCount64();
 			m_bFreezeWorld ^= 1;
 		}
+
 	}
 
 }
@@ -429,7 +452,7 @@ void DCF2Menu::DrawModifiersTab()
 
 			for (int i = 0; i < sizeof(m_P1Abilities) / sizeof(m_P1Abilities[0]); i++)
 			{
-				int val = pow(2, i);
+				int val = (int)pow(2, i);
 				if (GetAsyncKeyState(VK_LSHIFT))
 					sprintf(textBuffer, "Ability %d (%d)", i + 1, val);
 				else
@@ -450,7 +473,7 @@ void DCF2Menu::DrawModifiersTab()
 
 					for (int i = 0; i < sizeof(m_P1Abilities) / sizeof(m_P1Abilities[0]); i++)
 					{
-						int id = pow(2, i);
+						int id = (int)pow(2, i);
 						m_P1Abilities[i] = abilities & id;
 					}
 				}
@@ -462,7 +485,7 @@ void DCF2Menu::DrawModifiersTab()
 
 			for (int i = 0; i < sizeof(m_P2Abilities) / sizeof(m_P2Abilities[0]); i++)
 			{
-				int val = pow(2, i);
+				int val = (int)pow(2, i);
 				if (GetAsyncKeyState(VK_LSHIFT))
 					sprintf(textBuffer, "Ability %d (%d)##p2", i + 1, val);
 				else
@@ -483,7 +506,7 @@ void DCF2Menu::DrawModifiersTab()
 
 					for (int i = 0; i < sizeof(m_P2Abilities) / sizeof(m_P2Abilities[0]); i++)
 					{
-						int id = pow(2, i);
+						int id = (int)pow(2, i);
 						m_P2Abilities[i] = abilities & id;
 					}
 				}
@@ -840,12 +863,14 @@ void DCF2Menu::DrawSettings()
 	static int settingID = 0;
 	static const char* settingNames[] = {
 		"Menu",
-		"INI"
+		"INI",
+		"Keys"
 	};
 
 	enum eSettings {
 		MENU,
 		INI,
+		KEYS,
 	};
 
 	ImGui::BeginChild("##settings", { 12 * ImGui::GetFontSize(), 0 }, true);
@@ -879,6 +904,64 @@ void DCF2Menu::DrawSettings()
 		ImGui::Checkbox("Gamepad Support", &SettingsMgr->bEnableGamepadSupport);
 		ImGui::Checkbox("60 FPS Patch", &SettingsMgr->bEnable60FPSFrontend);
 		break;
+	case KEYS:
+		if (m_bPressingKey)
+			ImGui::TextColored(ImVec4(0.f, 1.f, 0.3f, 1.f), "Press a key!");
+
+		if (ImGui::Button("Reset Keys", { -FLT_MIN, 0 }))
+		{
+			SettingsMgr->ResetKeys();
+			Notifications->SetNotificationTime(2500);
+			Notifications->PushNotification("Keys reset! Remember to save.");
+
+		}
+		ImGui::Separator();
+		ImGui::LabelText("", "Core");
+		ImGui::Separator();
+		KeyBind(&SettingsMgr->iHookMenuOpenKey, "Open/Close Menu", "menu");
+		KeyBind(&SettingsMgr->iToggleSlowMoKey, "Toggle Gamespeed/Slow Motion", "slomo");
+		KeyBind(&SettingsMgr->iToggleFreezeWorldKey, "Freeze World", "freeze");
+		ImGui::Separator();
+		ImGui::LabelText("", "Camera");
+		ImGui::Separator();
+
+		KeyBind(&SettingsMgr->iFreeCameraKeyFOVPlus, "FOV+", "fov_plus");
+		KeyBind(&SettingsMgr->iFreeCameraKeyFOVMinus, "FOV-", "fov_minus");
+
+		KeyBind(&SettingsMgr->iFreeCameraKeyYawPlus, "Yaw+", "ya_plus");
+		KeyBind(&SettingsMgr->iFreeCameraKeyYawMinus, "Yaw-", "ya_minus");
+		KeyBind(&SettingsMgr->iFreeCameraKeyPitchPlus, "Pitch+", "pi_plus");
+		KeyBind(&SettingsMgr->iFreeCameraKeyPitchMinus, "Pitch-", "pi_minus");
+		KeyBind(&SettingsMgr->iFreeCameraKeyRollPlus, "Roll+", "r_plus");
+		KeyBind(&SettingsMgr->iFreeCameraKeyRollMinus, "Roll-", "r_minus");
+
+		KeyBind(&SettingsMgr->iFreeCameraKeyXPlus, "X+", "x_plus");
+		KeyBind(&SettingsMgr->iFreeCameraKeyXMinus, "X-", "x_minus");
+		KeyBind(&SettingsMgr->iFreeCameraKeyYPlus, "Y+", "y_plus");
+		KeyBind(&SettingsMgr->iFreeCameraKeyYMinus, "Y-", "y_minus");
+		KeyBind(&SettingsMgr->iFreeCameraKeyZPlus, "Z+", "z_plus");
+		KeyBind(&SettingsMgr->iFreeCameraKeyZMinus, "Z-", "z_minus");
+
+
+		ImGui::Separator();
+		ImGui::LabelText("", "Misc");
+		ImGui::Separator();
+		KeyBind(&SettingsMgr->iToggleCustomCamKey, "Toggle Custom Cameras", "ccam");
+		KeyBind(&SettingsMgr->iResetStageInteractablesKey, "Reset Stage Objects", "r_stage");
+		ImGui::Separator();
+
+		if (m_bPressingKey)
+		{
+			eVKKeyCode result = eKeyboardMan::GetLastKey();
+
+			if (result >= VK_BACKSPACE && result < VK_KEY_NONE)
+			{
+				*m_pCurrentVarToChange = result;
+				m_bPressingKey = false;
+			}
+
+		}
+		break;
 	default:
 		break;
 	}
@@ -895,6 +978,44 @@ void DCF2Menu::DrawSettings()
 
 	ImGui::End();
 }
+
+void DCF2Menu::DrawKeyBind(char* name, int* var)
+{
+	ImGui::SameLine();
+
+	static char butName[256] = {};
+	sprintf(butName, "%s##key%s", eKeyboardMan::KeyToString(*var), name);
+	if (ImGui::Button(butName))
+	{
+		m_bPressingKey = true;
+		m_pCurrentVarToChange = var;
+	}
+}
+
+void DCF2Menu::KeyBind(int* var, char* bindName, char* name)
+{
+	ImGui::LabelText("", bindName);
+	DrawKeyBind(name, var);
+}
+
+#ifdef _DEBUG
+void DCF2Menu::DrawDebug()
+{
+	ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.95f);
+	ImGui::SetNextWindowPos(ImVec2(10, 5));
+	ImGui::Begin("devtext", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_AlwaysAutoResize);
+
+	ImGui::PopStyleVar(1);
+	ImGui::Text("I2Hook %s Debug (%.2f FPS)", I2HOOK_VERSION, ImGui::GetIO().Framerate);
+	ImGui::Text("");
+	ImGui::Text("Player 1 Object: 0x%X Info: 0x%X", GetObj(PLAYER1), GetInfo(PLAYER1));
+	ImGui::Text("Player 2 Object: 0x%X Info: 0x%X", GetObj(PLAYER2), GetInfo(PLAYER2));
+	ImGui::Text("P1: %s", GetCharacterName(PLAYER1));
+	ImGui::Text("P2: %s", GetCharacterName(PLAYER2));
+	ImGui::End();
+}
+#endif
 
 bool DCF2Menu::GetActiveState()
 {
