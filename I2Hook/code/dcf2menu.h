@@ -1,6 +1,9 @@
 #pragma once
 #include "dcf2.h"
 #include <Windows.h>
+#include "GameInfo.h"
+#include <vector>
+#include "helper/eKeyboardMan.h"
 // as usual, based on mh2 debug menu
 
 enum eCustomCameras {
@@ -17,6 +20,20 @@ enum eMenuSubMenus {
 	SUBMENU_SETTINGS,
 	TOTAL_SUBMENUS
 };
+
+enum eScriptExecuteType {
+	SCRIPT_P1,
+	SCRIPT_P2,
+	SCRIPT_GLOBAL
+};
+
+struct eScriptKeyBind {
+	eScriptExecuteType type;
+	eVKKeyCode key;
+	char scriptName[128] = {};
+	unsigned int functionHash;
+};
+
 
 
 class DCF2Menu {
@@ -89,6 +106,10 @@ public:
 	bool m_bP2CustomAbilities = false;
 	bool m_P2Abilities[20] = {};
 
+	int  m_nScriptExecuteType = 0;
+	unsigned int m_nHash = 0;
+	MKScript* m_pScript;
+
 	FVector	 m_vP1Scale = { 1.0f, 1.0f, 1.0f };
 	FVector	 m_vP2Scale = { 1.0f, 1.0f, 1.0f };
 
@@ -119,6 +140,8 @@ public:
 	int     mouseSpeedY = 0;
 	int     mouseSens = 5;
 
+	std::vector<eScriptKeyBind> m_vKeyBinds;
+
 	void Initialize();
 	void Draw();
 	void Process();
@@ -133,6 +156,7 @@ public:
 	void DrawCameraTab();
 	void DrawCheatsTab();
 	void DrawMiscTab();
+	void DrawScriptTab();
 
 	void DrawSettings();
 
@@ -144,9 +168,11 @@ public:
 	static void DrawDebug();
 #endif
 
-
-
 	bool GetActiveState();
+
+	void RunLastScript();
+
+	void ProcessScriptHotkeys();
 };
 
 

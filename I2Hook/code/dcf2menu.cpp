@@ -287,6 +287,11 @@ void DCF2Menu::Draw()
 			DrawCheatsTab();
 			ImGui::EndTabItem();
 		}
+		if (ImGui::BeginTabItem("Script"))
+		{
+			DrawScriptTab();
+			ImGui::EndTabItem();
+		}
 		if (ImGui::BeginTabItem("Misc."))
 		{
 			DrawMiscTab();
@@ -309,51 +314,54 @@ void DCF2Menu::Process()
 
 void DCF2Menu::UpdateControls()
 {
-	if (GetAsyncKeyState(SettingsMgr->iToggleCustomCamKey))
+	if (!m_bIsActive)
 	{
-		if (GetTickCount64() - timer <= 150) return;
-		timer = GetTickCount64();
-		if (GetObj(PLAYER1) && GetObj(PLAYER2))
-			m_bCustomCameras ^= 1;
-		else
-		{
-			Notifications->SetNotificationTime(2500);
-			Notifications->PushNotification("Custom cameras can only be activated in game!");
-		}
-	}
-	if (GetAsyncKeyState(SettingsMgr->iResetStageInteractablesKey))
-	{
-		if (GetTickCount64() - timer <= 150) return;
-		timer = GetTickCount64();
-		if (GetObj(PLAYER1) && GetObj(PLAYER2))
-			GetGameInfo()->ResetStageInteractables();
-		else
-		{
-			Notifications->SetNotificationTime(2500);
-			Notifications->PushNotification("Stage objects can only be reset in game!");
-		}
-	}
-
-	if (GetAsyncKeyState(SettingsMgr->iToggleSlowMoKey))
-	{
-		if (GetTickCount64() - timer <= 150) return;
-		timer = GetTickCount64();
-		TheMenu->m_bSlowMotion ^= 1;
-		if (TheMenu->m_bSlowMotion)
-			SlowGameTimeForXTicks(m_fSlowMotionSpeed, 0x7FFFFFFF);
-		else
-			SlowGameTimeForXTicks(1.0, 10);
-	}
-
-	if (GetAsyncKeyState(SettingsMgr->iToggleFreezeWorldKey))
-	{
-		if (m_bHookDispatch)
+		if (GetAsyncKeyState(SettingsMgr->iToggleCustomCamKey))
 		{
 			if (GetTickCount64() - timer <= 150) return;
 			timer = GetTickCount64();
-			m_bFreezeWorld ^= 1;
+			if (GetObj(PLAYER1) && GetObj(PLAYER2))
+				m_bCustomCameras ^= 1;
+			else
+			{
+				Notifications->SetNotificationTime(2500);
+				Notifications->PushNotification("Custom cameras can only be activated in game!");
+			}
+		}
+		if (GetAsyncKeyState(SettingsMgr->iResetStageInteractablesKey))
+		{
+			if (GetTickCount64() - timer <= 150) return;
+			timer = GetTickCount64();
+			if (GetObj(PLAYER1) && GetObj(PLAYER2))
+				GetGameInfo()->ResetStageInteractables();
+			else
+			{
+				Notifications->SetNotificationTime(2500);
+				Notifications->PushNotification("Stage objects can only be reset in game!");
+			}
 		}
 
+		if (GetAsyncKeyState(SettingsMgr->iToggleSlowMoKey))
+		{
+			if (GetTickCount64() - timer <= 150) return;
+			timer = GetTickCount64();
+			TheMenu->m_bSlowMotion ^= 1;
+			if (TheMenu->m_bSlowMotion)
+				SlowGameTimeForXTicks(m_fSlowMotionSpeed, 0x7FFFFFFF);
+			else
+				SlowGameTimeForXTicks(1.0, 10);
+		}
+
+		if (GetAsyncKeyState(SettingsMgr->iToggleFreezeWorldKey))
+		{
+			if (m_bHookDispatch)
+			{
+				if (GetTickCount64() - timer <= 150) return;
+				timer = GetTickCount64();
+				m_bFreezeWorld ^= 1;
+			}
+		}
+		ProcessScriptHotkeys();
 	}
 
 }
@@ -860,6 +868,83 @@ void DCF2Menu::DrawMiscTab()
 	ImGui::Checkbox("Disable Combo Scaling", &m_bDisableComboScaling);
 }
 
+void DCF2Menu::DrawScriptTab()
+{
+	ImGui::RadioButton("On Player1", &m_nScriptExecuteType, SCRIPT_P1); ImGui::SameLine();
+	ImGui::RadioButton("On Player2", &m_nScriptExecuteType, SCRIPT_P2);
+
+	static char szScriptSource[256] = {};
+	ImGui::InputText("Script Source", szScriptSource, sizeof(szScriptSource));
+	ImGui::Separator();
+
+	m_pScript = GetScript(szScriptSource);
+	if (m_pScript)
+	{
+		static int functionIndex = 0;
+		static char szFunction[256] = {};
+
+		static int hash = 0;
+		ImGui::TextWrapped("Functions with params are not supported!");
+
+		ImGui::InputText("Function Name", szFunction, sizeof(szFunction));
+		ImGui::InputInt("Function Index", &functionIndex, 1, 100, ImGuiInputTextFlags_ReadOnly);
+		ImGui::SameLine(); ShowHelpMarker("Read only.");
+
+		static eScriptKeyBind bind;
+		if (ImGui::Button("Add Hotkey"))
+		{
+			m_nHash = HashString(szFunction);
+			functionIndex = m_pScript->GetFunctionID(m_nHash);
+
+			bind.functionHash = m_nHash;
+			sprintf(bind.scriptName, "%s", szScriptSource);
+			bind.type = (eScriptExecuteType)m_nScriptExecuteType;
+
+			m_bPressingKey = true;
+		}
+
+		if (m_bPressingKey)
+		{
+			ImGui::TextColored(ImVec4(0.f, 1.f, 0.3f, 1.f), "Press a key!");
+			eVKKeyCode result = eKeyboardMan::GetLastKey();
+
+			if (result >= VK_BACKSPACE && result < VK_KEY_NONE)
+			{
+				bind.key = result;
+				m_vKeyBinds.push_back(bind);
+				m_bPressingKey = false;
+			}
+
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Run"))
+		{
+			m_nHash = HashString(szFunction);
+			functionIndex = m_pScript->GetFunctionID(m_nHash);
+
+			RunLastScript();
+		}
+
+	}
+	else
+	{
+		if (strlen(szScriptSource) > 0)
+			ImGui::TextWrapped("%s not available!", szScriptSource);
+	}
+
+
+	ImGui::Separator();
+	ImGui::TextWrapped("Registered hotkeys:");
+	for (unsigned int i = 0; i < m_vKeyBinds.size(); i++)
+	{
+		ImGui::TextWrapped("%s - Run [0x%X] from %s", eKeyboardMan::KeyToString(m_vKeyBinds[i].key), m_vKeyBinds[i].functionHash, m_vKeyBinds[i].scriptName);
+	}
+
+	if (ImGui::Button("Clear All"))
+		m_vKeyBinds.clear();
+
+}
+
 void DCF2Menu::DrawSettings()
 {
 	ImGui::SetNextWindowPos({ ImGui::GetIO().DisplaySize.x / 2.0f, ImGui::GetIO().DisplaySize.y / 2.0f }, ImGuiCond_Once, { 0.5f, 0.5f });
@@ -1026,6 +1111,59 @@ void DCF2Menu::DrawDebug()
 bool DCF2Menu::GetActiveState()
 {
 	return m_bIsActive;
+}
+
+void DCF2Menu::RunLastScript()
+{
+	if (m_pScript->GetFunctionID(m_nHash))
+	{
+		switch (m_nScriptExecuteType)
+		{
+		case SCRIPT_P1:
+			GetObj(PLAYER1)->ExecuteScript(m_pScript, m_nHash);
+			break;
+		case SCRIPT_P2:
+			GetObj(PLAYER2)->ExecuteScript(m_pScript, m_nHash);
+			break;
+		default:
+			break;
+		}
+	}
+	else
+	{
+		Notifications->SetNotificationTime(3500);
+		Notifications->PushNotification("Function %x does not exist!", m_nHash);
+	}
+}
+
+void DCF2Menu::ProcessScriptHotkeys()
+{
+	for (int i = 0; i < m_vKeyBinds.size(); i++)
+	{
+		if (GetAsyncKeyState(m_vKeyBinds[i].key) & 0x1)
+		{
+			MKScript* script = GetScript(m_vKeyBinds[i].scriptName);
+			if (script->GetFunctionID(m_vKeyBinds[i].functionHash))
+			{
+				switch (m_vKeyBinds[i].type)
+				{
+				case SCRIPT_P1:
+					GetObj(PLAYER1)->ExecuteScript(script, m_vKeyBinds[i].functionHash);
+					break;
+				case SCRIPT_P2:
+					GetObj(PLAYER2)->ExecuteScript(script, m_vKeyBinds[i].functionHash);
+					break;
+				default:
+					break;
+				}
+			}
+			else
+			{
+				Notifications->SetNotificationTime(3500);
+				Notifications->PushNotification("Function %x does not exist!", m_vKeyBinds[i].functionHash);
+			}
+		}
+	}
 }
 
 char * GetI2HookVersion()

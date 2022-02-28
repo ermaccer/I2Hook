@@ -14,6 +14,10 @@ enum  PLAYER_NUM
 	BACKGROUND_PLAYER
 };
 
+class MKScript {
+public:
+	int GetFunctionID(int hash);
+};
 
 class FGGameInfo {
 public:
@@ -21,5 +25,7 @@ public:
 	void ResetStageInteractables();
 	PlayerInfo* GetInfo(PLAYER_NUM plr);
 };
+
+MKScript* GetScript(const char* name);
 
 FGGameInfo* GetGameInfo();

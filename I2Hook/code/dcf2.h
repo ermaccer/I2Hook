@@ -10,7 +10,7 @@
 
 #define GFG_GAME_INFO 0x14417DF30
 
-#define I2HOOK_VERSION "0.4.5"
+#define I2HOOK_VERSION "0.4.6"
 
 
 MKCharacter*	 GetObj(PLAYER_NUM plr);
@@ -32,7 +32,7 @@ void	SlowGameTimeForXTicks(float speed, int ticks);
 
 void		LoadModifierAssets();
 
-
+unsigned int HashString(const char* input);
 
 namespace Hooks {
 	// hooks

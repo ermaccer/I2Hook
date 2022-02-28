@@ -2,6 +2,7 @@
 #include "MKStructs.h"
 #include "mk10utils.h"
 #include "unreal/FVector.h"
+#include "GameInfo.h"
 
 class MKCharacter {
 public:
@@ -21,5 +22,8 @@ public:
 
 	void GetBonePos(const char* name, FVector* pos);
 	void GetBoneRot(const char* name, FRotator* rot);
+
+
+	void ExecuteScript(MKScript* script, int function);
 };
 

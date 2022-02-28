@@ -277,6 +277,28 @@ void LoadModifierAssets()
 	((void(__fastcall*)(int64, bool))_addr(0x1405A0C30))(gameinfo, 1);
 }
 
+unsigned int HashString(const char* input)
+{
+	unsigned int result;
+	int stringLength;
+	int character;
+
+	if (!input)
+		return 0;
+	stringLength = -1;
+
+	do
+		++stringLength;
+	while (input[stringLength]);
+
+	for (result = 0x811C9DC5; stringLength; --stringLength)
+	{
+		character = *(unsigned char*)input++;
+		result = character ^ (unsigned int)(0x1000193 * result);
+	}
+	return result;
+}
+
 void SetCharacterLife(int64 obj, float life)
 {
 	((void(__fastcall*)(int64, float))_addr(0x1409725D0))(obj, life);

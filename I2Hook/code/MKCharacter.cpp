@@ -60,3 +60,8 @@ void MKCharacter::GetBoneRot(const char * name, FRotator * rot)
 	FName fname(name, FNAME_Add, 1);
 	((void(__fastcall*)(MKCharacter*, FName, FRotator*))_addr(0x14094D570))(this, fname, rot);
 }
+
+void MKCharacter::ExecuteScript(MKScript* script, int function)
+{
+	((void(__thiscall*)(MKCharacter*, MKScript*, int, int))_addr(0x14097A140))(this, script, function, 1);
+}
