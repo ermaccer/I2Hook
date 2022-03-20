@@ -1,7 +1,5 @@
 #include "MKCharacter.h"
 #include "dcf2.h"
-#include "unreal/FName.h"
-
 
 void MKCharacter::SetLife(float life)
 {
@@ -64,4 +62,9 @@ void MKCharacter::GetBoneRot(const char * name, FRotator * rot)
 void MKCharacter::ExecuteScript(MKScript* script, int function)
 {
 	((void(__thiscall*)(MKCharacter*, MKScript*, int, int))_addr(0x14097A140))(this, script, function, 1);
+}
+
+void MKCharacter::BloodEffect(int type, FName name, float x, float y, float z, float unk, float size, float speed, bool attach)
+{
+	((void(__thiscall*)(MKCharacter*, int, FName, float, float, float, float, float, float, int))_addr(0x1409BDEA0))(this, type, name, x, y, z, unk, size, speed, attach);
 }

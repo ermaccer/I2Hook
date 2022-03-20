@@ -129,10 +129,10 @@ void eSettingsManager::SaveSettings()
 void eSettingsManager::ResetKeys()
 {
 	iHookMenuOpenKey = VK_F1;
-	iToggleCustomCamKey = 255;
+	iToggleCustomCamKey = 0;
 	iToggleSlowMoKey = VK_F5;
 	iToggleFreezeWorldKey = VK_F2;
-	iResetStageInteractablesKey = 255;
+	iResetStageInteractablesKey = 0;
 	iFreeCameraKeyXPlus = 104;
 	iFreeCameraKeyXMinus = 98;
 	iFreeCameraKeyYPlus = 102;

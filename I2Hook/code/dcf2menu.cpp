@@ -463,7 +463,6 @@ void DCF2Menu::DrawModifiersTab()
 {
 	if (ImGui::BeginTabBar("##modifiers"))
 	{
-
 		if (ImGui::BeginTabItem("Abilities"))
 		{
 			ImGui::Checkbox("Player 1 Custom Abilities", &m_bP1CustomAbilities);
@@ -540,7 +539,8 @@ void DCF2Menu::DrawModifiersTab()
 		{
 			if (GetObj(PLAYER1) && GetObj(PLAYER2))
 			{
-				ImGui::TextColored(ImVec4(1.f, 0.3f, 0.3f, 1.f), "Enable 'Disable Head Tracking' in Misc. section before editing head data! Restart match after enabling it.");
+				if (!m_bDisableHeadTracking)
+					ImGui::TextColored(ImVec4(1.f, 0.3f, 0.3f, 1.f), "Enable 'Disable Head Tracking' in Misc. section before editing head data!\nRestart match after enabling it.");
 				ImGui::TextWrapped("Player 1");
 				ImGui::Separator();
 				if (ImGui::BeginCombo("Bone##p1", szPlayer1Bone))
@@ -570,7 +570,7 @@ void DCF2Menu::DrawModifiersTab()
 				ImGui::TextWrapped("Player 2");
 				ImGui::Separator();
 
-				if (ImGui::BeginCombo("Bone##p1", szPlayer1Bone))
+				if (ImGui::BeginCombo("Bone##p2", szPlayer2Bone))
 				{
 					for (int n = 0; n < IM_ARRAYSIZE(szBones); n++)
 					{
@@ -640,6 +640,45 @@ void DCF2Menu::DrawModifiersTab()
 
 			ImGui::EndTabItem();
 		}
+		/*if (ImGui::BeginTabItem("Blood"))
+		{
+			if (GetObj(PLAYER1) && GetObj(PLAYER2))
+			{
+				static int bloodType = 0;
+				static FVector bloodPos = {};
+				static bool bloodBoneAttach = false;
+				static float bloodAngle = 0, bloodSize = 0, bloodSpeed = 0;
+				ImGui::TextWrapped("Blood FX Params");
+				ImGui::InputInt("Type", &bloodType);
+				ImGui::InputFloat3("Position", &bloodPos.X);
+				ImGui::InputFloat("Angle", &bloodAngle);
+				ImGui::InputFloat("Size", &bloodSize);
+				ImGui::InputFloat("Speed", &bloodSpeed);
+				static char bloodName[64] = {};
+				ImGui::InputText("Bone Name", bloodName, sizeof(bloodName));
+				ImGui::Checkbox("Bone Attach", &bloodBoneAttach);
+
+				static int bloodForWho = 0;
+				ImGui::RadioButton("Player1", &bloodForWho, 0); ImGui::SameLine();
+				ImGui::RadioButton("Player2", &bloodForWho, 1);
+
+				if (ImGui::Button("Spawn"))
+				{
+					FName bone(bloodName, FNAME_Add, 1);
+					if (bloodForWho)
+						GetObj(PLAYER2)->BloodEffect(bloodType, bone, bloodPos.X, bloodPos.Y,bloodPos.Z, bloodAngle, bloodSize, bloodSpeed, bloodBoneAttach);
+					else
+						GetObj(PLAYER1)->BloodEffect(bloodType, bone, bloodPos.X, bloodPos.Y, bloodPos.Z, bloodAngle, bloodSize, bloodSpeed, bloodBoneAttach);
+				}
+
+
+			} 
+			else
+				ImGui::TextWrapped("Blood options are only available in-game!");
+
+			ImGui::EndTabItem();
+		}
+		*/
 		ImGui::EndTabBar();
 	}
 }
