@@ -1,5 +1,6 @@
 #pragma once
 #include "PlayerInfo.h"
+#include "mk10utils.h"
 
 enum  PLAYER_NUM
 {
@@ -27,5 +28,7 @@ public:
 };
 
 MKScript* GetScript(const char* name);
+
+int64 GetScriptVar(MKScript* script, const char* name);
 
 FGGameInfo* GetGameInfo();

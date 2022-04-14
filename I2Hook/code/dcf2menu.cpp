@@ -973,6 +973,15 @@ void DCF2Menu::DrawScriptTab()
 			RunLastScript();
 		}
 
+		/*static char szScriptVariable[256] = {};
+		static int64 test;
+		ImGui::InputText("Script Variable", szScriptVariable, sizeof(szScriptVariable));
+		if (ImGui::Button("Get Var Ptr"))
+		{
+			test = GetScriptVar(m_pScript, szScriptVariable);
+			std::cout << std::hex << test << std::endl;
+		}
+		*/
 	}
 	else
 	{

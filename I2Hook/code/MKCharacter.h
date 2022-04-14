@@ -28,5 +28,8 @@ public:
 	void ExecuteScript(MKScript* script, int function);
 
 	void BloodEffect(int type, FName name, float x, float y, float z, float unk, float size, float speed, bool attach);
+
+	// custom
+	void ExplodeHead();
 };
 

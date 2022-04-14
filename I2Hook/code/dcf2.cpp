@@ -259,7 +259,7 @@ PlayerInfo* GetInfo(PLAYER_NUM plr)
 void SetCharacterMKX(PLAYER_NUM plr, char * name)
 {
 	int64 ptr = (int64)GetInfo(plr);
-	CharacterDefinition* chr = (CharacterDefinition*)(ptr + 216);
+	CharacterDefinition* chr = (CharacterDefinition*)(ptr + 192);
 	chr->Set(name, 0, 0);
 }
 

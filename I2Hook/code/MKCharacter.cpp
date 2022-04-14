@@ -68,3 +68,10 @@ void MKCharacter::BloodEffect(int type, FName name, float x, float y, float z, f
 {
 	((void(__thiscall*)(MKCharacter*, int, FName, float, float, float, float, float, float, int))_addr(0x1409BDEA0))(this, type, name, x, y, z, unk, size, speed, attach);
 }
+
+void MKCharacter::ExplodeHead()
+{
+	SetBoneSize("Head", 0.0);
+	FName head("Head", FNAME_Add, -1);
+	BloodEffect(4, head, 0, 0, 0, 40, 2.0, 0.7, false);
+}

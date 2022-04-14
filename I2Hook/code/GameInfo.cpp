@@ -14,6 +14,11 @@ MKScript* GetScript(const char* name)
 	return nullptr;
 }
 
+int64 GetScriptVar(MKScript* script, const char* name)
+{
+	return ((int64(__fastcall*)(MKScript*, const char*, int))_addr(0x141721BB0))(script, name, 1);
+}
+
 FGGameInfo* GetGameInfo()
 {
 	return *(FGGameInfo**)_addr(GFG_GAME_INFO);
