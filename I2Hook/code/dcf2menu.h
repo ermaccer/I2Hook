@@ -44,14 +44,12 @@ public:
 	bool     m_bPressingKey = false;
 	bool	 m_bSlowMotion = false;
 	bool     m_bFreezeWorld = false;
-	bool	 m_bIsFocused = false;
+	bool	 m_bIsFocused = true;
 	bool	 m_bHookDispatch = false;
 	bool	 m_bForceCameraUpdate = false;
 	bool	 m_bCustomCameraPos = false;
 	bool	 m_bCustomCameraRot = false;
 	bool	 m_bCustomCameraFOV = false;
-	bool	 m_bFreeCamMouseControl = false;
-	bool	 m_bFreeCamMouseInvertY = true;
 	bool	 m_bFreeCam = false;
 	bool	 m_bCustomCameras = false;
 	bool	 m_bDontFlipCamera = false;
@@ -61,6 +59,9 @@ public:
 	bool	 m_bStageModifier = false;
 	bool	 m_bDisableHUD = false;
 	bool	 m_bAutoHideHUD = false;
+	bool	 m_bMouseControl = false;
+
+
 	// cheats
 	bool	m_bInfiniteHealthP1 = false;
 	bool	m_bInfiniteHealthP2 = false;
@@ -133,21 +134,13 @@ public:
 	FVector plrPos;
 	FVector plrPos2;
 
-	// cam mouse
-
-	POINT	orgMouse;
-	POINT	curMouse;
-	int     mouseSpeedX = 0;
-	int     mouseSpeedY = 0;
-	int     mouseSens = 5;
-
 	std::vector<eScriptKeyBind> m_vKeyBinds;
 
 	void Initialize();
 	void Draw();
 	void Process();
 	void UpdateControls();
-	void UpdateMouse();
+	void UpdateFreecam();
 
 	void DrawCharacterTab();
 	void DrawStageTab();

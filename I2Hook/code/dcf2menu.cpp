@@ -10,7 +10,8 @@
 #include "MKCharacter.h"
 #include "helper/eKeyboardMan.h"
 #include "..\eDirectX11Hook.h"
-
+#include "..\code\mkcamera.h"
+#include "helper/eMouse.h"
 
 static int64 timer = GetTickCount64();
 char textBuffer[260] = {};
@@ -223,9 +224,6 @@ static void ShowHelpMarker(const char* desc)
 
 void DCF2Menu::Initialize()
 {
-	orgMouse.x = GetSystemMetrics(SM_CXSCREEN) / 2;
-	orgMouse.y = GetSystemMetrics(SM_CYSCREEN) / 2;
-
 	sprintf(szPlayer1ModifierCharacter, szCharacters[0]);
 	sprintf(szPlayer2ModifierCharacter, szCharacters[0]);
 	sprintf(szCurrentCameraOption, szCameraModes[0]);
@@ -317,8 +315,6 @@ void DCF2Menu::Draw()
 void DCF2Menu::Process()
 {
 	UpdateControls();
-	if (m_bIsFocused && m_bFreeCamMouseControl)
-		UpdateMouse();
 }
 
 void DCF2Menu::UpdateControls()
@@ -375,30 +371,68 @@ void DCF2Menu::UpdateControls()
 
 }
 
-void DCF2Menu::UpdateMouse()
+void DCF2Menu::UpdateFreecam()
 {
-	if (m_bIsActive) return;
-
-	GetCursorPos(&curMouse);
-	mouseSpeedX = curMouse.x - orgMouse.x;
-	mouseSpeedY = curMouse.y - orgMouse.y;
-
-
-	if (m_bIsFocused)
+	if (TheMenu->m_bFreeCam)
 	{
-		if (TheMenu->m_bFreeCam)
+		if (TheCamera)
 		{
-			float newVal = (float)TheMenu->camRot.Yaw;
-			newVal += mouseSpeedX / mouseSens;
-			TheMenu->camRot.Yaw = (int)newVal;
+			FVector fwd = TheCamera->GetMatrix().GetForward();
+			FVector strafe = TheCamera->GetMatrix().GetRight();
+			FVector up = TheCamera->GetMatrix().GetUp();
+
+			// forward
+
+			if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyXPlus))
+				TheMenu->camPos += fwd * TheMenu->m_fFreeCameraSpeed * 1;
 
 
-			float newValY = (float)TheMenu->camRot.Pitch;
+			if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyXMinus))
+				TheMenu->camPos += fwd * TheMenu->m_fFreeCameraSpeed * -1;
 
-			if (m_bFreeCamMouseInvertY) mouseSpeedY *= -1;
+			// strafe
 
-			newValY += mouseSpeedY / mouseSens;
-			TheMenu->camRot.Pitch = (int)newValY;
+			if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyYPlus))
+				TheMenu->camPos += strafe * TheMenu->m_fFreeCameraSpeed * 1;
+			if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyYMinus))
+				TheMenu->camPos += strafe * TheMenu->m_fFreeCameraSpeed * -1;
+
+			// up
+
+			if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyZPlus))
+				TheMenu->camPos += up * TheMenu->m_fFreeCameraSpeed * 1;
+			if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyZMinus))
+				TheMenu->camPos += up * TheMenu->m_fFreeCameraSpeed * -1;
+
+
+			if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyYawMinus))
+				TheMenu->camRot.Yaw -= TheMenu->m_nFreeCameraRotationSpeed;
+			if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyYawPlus))
+				TheMenu->camRot.Yaw += TheMenu->m_nFreeCameraRotationSpeed;
+
+			if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyRollMinus))
+				TheMenu->camRot.Roll -= TheMenu->m_nFreeCameraRotationSpeed;
+			if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyRollPlus))
+				TheMenu->camRot.Roll += TheMenu->m_nFreeCameraRotationSpeed;
+
+			if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyPitchMinus))
+				TheMenu->camRot.Pitch -= TheMenu->m_nFreeCameraRotationSpeed;
+			if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyPitchPlus))
+				TheMenu->camRot.Pitch += TheMenu->m_nFreeCameraRotationSpeed;
+
+			if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyFOVMinus))
+				TheMenu->camFov -= 1.0f;
+			if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyFOVPlus))
+				TheMenu->camFov += 1.0f;
+
+			// mouse
+			{
+				if (!TheMenu->m_bIsActive && TheMenu->m_bMouseControl)
+				{
+					TheMenu->camRot.Pitch += eMouse::GetDeltaY();
+					TheMenu->camRot.Yaw += eMouse::GetDeltaX();
+				}
+			}
 		}
 	}
 }
@@ -782,16 +816,7 @@ void DCF2Menu::DrawCameraTab()
 
 		ImGui::InputFloat("Freecam Speed", &m_fFreeCameraSpeed);
 		ImGui::InputInt("Freecam Rotation Speed", &m_nFreeCameraRotationSpeed);
-
-		ImGui::Separator();
-		ImGui::Checkbox("Mouse Control", &m_bFreeCamMouseControl);
-
-		if (m_bFreeCamMouseControl)
-		{
-			ImGui::SameLine();  ImGui::TextColored(ImVec4(1.f, 0.3f, 0.3f, 1.f), "This feature is not yet finished!");
-			ImGui::Checkbox("Invert Y", &m_bFreeCamMouseInvertY);
-			ImGui::SliderInt("Mouse Smoothness", &mouseSens, 1, 15);
-		}
+		ImGui::Checkbox("Mouse Control", &m_bMouseControl);
 	}
 
 
@@ -1012,13 +1037,15 @@ void DCF2Menu::DrawSettings()
 	static const char* settingNames[] = {
 		"Menu",
 		"INI",
-		"Keys"
+		"Keys",
+		"Mouse"
 	};
 
 	enum eSettings {
 		MENU,
 		INI,
 		KEYS,
+		MOUSE
 	};
 
 	ImGui::BeginChild("##settings", { 12 * ImGui::GetFontSize(), 0 }, true);
@@ -1083,12 +1110,12 @@ void DCF2Menu::DrawSettings()
 		KeyBind(&SettingsMgr->iFreeCameraKeyRollPlus, "Roll+", "r_plus");
 		KeyBind(&SettingsMgr->iFreeCameraKeyRollMinus, "Roll-", "r_minus");
 
-		KeyBind(&SettingsMgr->iFreeCameraKeyXPlus, "X+", "x_plus");
-		KeyBind(&SettingsMgr->iFreeCameraKeyXMinus, "X-", "x_minus");
-		KeyBind(&SettingsMgr->iFreeCameraKeyYPlus, "Y+", "y_plus");
-		KeyBind(&SettingsMgr->iFreeCameraKeyYMinus, "Y-", "y_minus");
-		KeyBind(&SettingsMgr->iFreeCameraKeyZPlus, "Z+", "z_plus");
-		KeyBind(&SettingsMgr->iFreeCameraKeyZMinus, "Z-", "z_minus");
+		KeyBind(&SettingsMgr->iFreeCameraKeyXPlus, "Forward", "x_plus");
+		KeyBind(&SettingsMgr->iFreeCameraKeyXMinus, "Back", "x_minus");
+		KeyBind(&SettingsMgr->iFreeCameraKeyYPlus, "Left", "y_plus");
+		KeyBind(&SettingsMgr->iFreeCameraKeyYMinus, "Right", "y_minus");
+		KeyBind(&SettingsMgr->iFreeCameraKeyZPlus, "Up", "z_plus");
+		KeyBind(&SettingsMgr->iFreeCameraKeyZMinus, "Down", "z_minus");
 
 
 		ImGui::Separator();
@@ -1109,6 +1136,15 @@ void DCF2Menu::DrawSettings()
 			}
 
 		}
+		break;
+	case MOUSE:
+		ImGui::TextWrapped("All user settings are saved to i2hook_user.ini.");
+		ImGui::Text("Sensitivity");
+		ImGui::PushItemWidth(-FLT_MIN);
+		ImGui::SliderInt("", &SettingsMgr->mouse.sens, 1, 50);
+		ImGui::PopItemWidth();
+		ImGui::Checkbox("Invert X", &SettingsMgr->mouse.invert_x);
+		ImGui::Checkbox("Invert Y", &SettingsMgr->mouse.invert_y);
 		break;
 	default:
 		break;
@@ -1217,8 +1253,8 @@ void DCF2Menu::DrawDebug()
 	ImGui::PopStyleVar(1);
 	ImGui::Text("I2Hook %s Debug (%.2f FPS)", I2HOOK_VERSION, ImGui::GetIO().Framerate);
 	ImGui::Text("");
-	ImGui::Text("Player 1 Object: 0x%X Info: 0x%X", GetObj(PLAYER1), GetInfo(PLAYER1));
-	ImGui::Text("Player 2 Object: 0x%X Info: 0x%X", GetObj(PLAYER2), GetInfo(PLAYER2));
+	ImGui::Text("Player 1 Object: 0x%p Info: 0x%p", GetObj(PLAYER1), GetInfo(PLAYER1));
+	ImGui::Text("Player 2 Object: 0x%p Info: 0x%p", GetObj(PLAYER2), GetInfo(PLAYER2));
 	ImGui::Text("P1: %s", GetCharacterName(PLAYER1));
 	ImGui::Text("P2: %s", GetCharacterName(PLAYER2));
 	ImGui::End();

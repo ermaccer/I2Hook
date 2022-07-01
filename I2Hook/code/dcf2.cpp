@@ -9,12 +9,15 @@
 #include "MKCharacter.h"
 #include <math.h>
 #include "MKModifier.h"
+#include "helper/eMouse.h"
 int64 hud_property = 0;
 
 void __fastcall Hooks::HookProcessStuff()
 {
 	TheMenu->Process();
 	Notifications->Update();
+	eMouse::UpdateMouse();
+
 
 	MKCharacter* p1 = GetObj(PLAYER1);
 	MKCharacter* p2 = GetObj(PLAYER2);
@@ -126,44 +129,7 @@ void __fastcall Hooks::HookProcessStuff()
 			p2->SetScale(&TheMenu->m_vP2Scale);
 	}
 
-
-
-	if (TheMenu->m_bFreeCam)
-	{
-		if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyXPlus))
-			TheMenu->camPos.X += TheMenu->m_fFreeCameraSpeed;
-		if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyXMinus))
-			TheMenu->camPos.X -= TheMenu->m_fFreeCameraSpeed;
-		if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyYPlus))
-			TheMenu->camPos.Y += TheMenu->m_fFreeCameraSpeed;
-		if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyYMinus))
-			TheMenu->camPos.Y -= TheMenu->m_fFreeCameraSpeed;
-		if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyZPlus))
-			TheMenu->camPos.Z += TheMenu->m_fFreeCameraSpeed;
-		if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyZMinus))
-			TheMenu->camPos.Z -= TheMenu->m_fFreeCameraSpeed;
-
-		if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyYawMinus))
-			TheMenu->camRot.Yaw -= TheMenu->m_nFreeCameraRotationSpeed;
-		if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyYawPlus))
-			TheMenu->camRot.Yaw += TheMenu->m_nFreeCameraRotationSpeed;
-
-		if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyRollMinus))
-			TheMenu->camRot.Roll -= TheMenu->m_nFreeCameraRotationSpeed;
-		if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyRollPlus))
-			TheMenu->camRot.Roll += TheMenu->m_nFreeCameraRotationSpeed;
-
-		if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyPitchMinus))
-			TheMenu->camRot.Pitch -= TheMenu->m_nFreeCameraRotationSpeed;
-		if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyPitchPlus))
-			TheMenu->camRot.Pitch += TheMenu->m_nFreeCameraRotationSpeed;
-
-		if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyFOVMinus))
-			TheMenu->camFov -= 1.0f;
-		if (GetAsyncKeyState(SettingsMgr->iFreeCameraKeyFOVPlus))
-			TheMenu->camFov += 1.0f;
-	}
-
+	TheMenu->UpdateFreecam();
 
 	if (TheMenu->m_bForceCameraUpdate)
 	{
