@@ -25,20 +25,20 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-60|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -134,6 +134,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="code\AnimationTool.h" />
     <ClInclude Include="code\CharacterDefinition.h" />
     <ClInclude Include="code\dcf2.h" />
     <ClInclude Include="code\dcf2menu.h" />
@@ -157,6 +158,8 @@
     <ClInclude Include="code\unreal\FQuat.h" />
     <ClInclude Include="code\unreal\FRotator.h" />
     <ClInclude Include="code\unreal\FVector.h" />
+    <ClInclude Include="code\unreal\SkeletalMesh.h" />
+    <ClInclude Include="code\unreal\TArray.h" />
     <ClInclude Include="eDirectX11Hook.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="imgui\imconfig.h" />
@@ -182,6 +185,7 @@
     <ClInclude Include="utils\Trampoline.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="code\AnimationTool.cpp" />
     <ClCompile Include="code\CharacterDefinition.cpp" />
     <ClCompile Include="code\dcf2.cpp" />
     <ClCompile Include="code\dcf2menu.cpp" />
@@ -201,6 +205,7 @@
     <ClCompile Include="code\unreal\FMath.cpp" />
     <ClCompile Include="code\unreal\FMatrix.cpp" />
     <ClCompile Include="code\unreal\FName.cpp" />
+    <ClCompile Include="code\unreal\SkeletalMesh.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="eDirectX11Hook.cpp" />
     <ClCompile Include="font.h" />

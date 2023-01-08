@@ -13,7 +13,7 @@ void eSettingsManager::Init()
 	bEnableConsoleWindow = ini.ReadBoolean("Settings", "bEnableConsoleWindow", true);
 	bEnable60FPSFrontend = ini.ReadBoolean("Settings", "bEnable60FPSPatch", false);
 	bEnableGamepadSupport = ini.ReadBoolean("Settings", "bEnableGamepadSupport", true);
-
+	bDisableAnimationTool = ini.ReadBoolean("Settings", "bDisableAnimationTool", false);
 	iHookMenuOpenKey = user.ReadInteger("Settings", "iHookMenuOpenKey", 0xFF);
 
 	if (iHookMenuOpenKey == 0xFF)
@@ -110,6 +110,7 @@ void eSettingsManager::SaveSettings()
 	user.WriteInteger("Settings", "iHookMenuOpenKey", iHookMenuOpenKey);
 	user.WriteInteger("Settings", "iToggleFreezeWorldKey", iToggleFreezeWorldKey);
 	user.WriteInteger("Settings", "iToggleCustomCamKey", iToggleCustomCamKey);
+	user.WriteInteger("Settings", "iFreeCameraKeyXPlus", iFreeCameraKeyXPlus);
 	user.WriteInteger("Settings", "iFreeCameraKeyXMinus", iFreeCameraKeyXMinus);
 	user.WriteInteger("Settings", "iFreeCameraKeyYPlus", iFreeCameraKeyYPlus);
 	user.WriteInteger("Settings", "iFreeCameraKeyYMinus", iFreeCameraKeyYMinus);

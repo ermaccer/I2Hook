@@ -10,7 +10,7 @@
 
 #define GFG_GAME_INFO 0x14417DF30
 
-#define I2HOOK_VERSION "0.4.8"
+#define I2HOOK_VERSION "0.4.9"
 
 
 MKCharacter*	 GetObj(PLAYER_NUM plr);
@@ -28,7 +28,7 @@ void ShowHUD();
 
 
 void	SlowGameTimeForXTicks(float speed, int ticks);
-
+void	world_to_screen(FVector* pos, float* x, float* y);
 
 void		LoadModifierAssets();
 

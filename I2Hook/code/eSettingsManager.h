@@ -18,6 +18,8 @@ public:
 
 	bool bEnableGamepadSupport;
 
+	bool bDisableAnimationTool;
+
 	// generic
 	int iHookMenuOpenKey;
 	int iToggleCustomCamKey;

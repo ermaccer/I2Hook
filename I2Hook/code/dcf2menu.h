@@ -4,7 +4,7 @@
 #include "GameInfo.h"
 #include <vector>
 #include "helper/eKeyboardMan.h"
-// as usual, based on mh2 debug menu
+#include "AnimationTool.h"
 
 enum eCustomCameras {
 	CAMERA_3RDPERSON,
@@ -19,6 +19,7 @@ enum eCustomCameras {
 enum eMenuSubMenus {
 	SUBMENU_SETTINGS,
 	SUBMENU_SCRIPT,
+	SUBMENU_ANIMATIONTOOL,
 	TOTAL_SUBMENUS
 };
 
@@ -154,6 +155,7 @@ public:
 
 	void DrawSettings();
 	void DrawScriptReference();
+	void DrawAnimationTool();
 
 	void DrawKeyBind(char* name, int* var);
 	void KeyBind(int* var, char* bindName, char* name);

@@ -14,7 +14,6 @@
 #include "code/eGamepadManager.h"
 #include "eDirectX11Hook.h"
 
-
 using namespace Memory::VP;
 
 int64 __fastcall GenericTrueReturn() { return 1; }
@@ -65,6 +64,8 @@ void OnInitializeHook()
 	//gamepad
 	if (SettingsMgr->bEnableGamepadSupport)
 		InjectHook(_addr(0x142CB34BC), tramp->Jump(XInputGetState_Hook), PATCH_JUMP);
+
+
 }
 
 

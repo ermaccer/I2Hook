@@ -68,3 +68,8 @@ void MKCharacter::BloodEffect(int type, FName name, float x, float y, float z, f
 {
 	((void(__thiscall*)(MKCharacter*, int, FName, float, float, float, float, float, float, int))_addr(0x1409BDEA0))(this, type, name, x, y, z, unk, size, speed, attach);
 }
+
+USkeletalMeshComponent* MKCharacter::GetSkeleton()
+{
+	return *(USkeletalMeshComponent**)((int64)this + 0x328);
+}

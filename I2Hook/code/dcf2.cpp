@@ -65,8 +65,6 @@ void __fastcall Hooks::HookProcessStuff()
 			TheMenu->m_bDisableHeadTracking = true;
 			p1->SetBoneSize("Head", 0.01f);
 		}
-
-
 	}
 
 
@@ -233,6 +231,11 @@ void SetCharacterMKX(PLAYER_NUM plr, char * name)
 void SlowGameTimeForXTicks(float speed, int ticks)
 {
 	((void(__fastcall*)(float, int, int))_addr(0x1409C4630))(speed, ticks, 0);
+}
+
+void world_to_screen(FVector* pos, float* x, float* y)
+{
+	((void(__fastcall*)(FVector*, float*, float*))_addr(0x1411CEE90))(pos, x, y);
 }
 
 

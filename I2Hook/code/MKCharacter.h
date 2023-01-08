@@ -5,6 +5,7 @@
 #include "unreal/FName.h"
 #include "unreal/FRotator.h"
 #include "GameInfo.h"
+#include "unreal/SkeletalMesh.h"
 
 class MKCharacter {
 public:
@@ -29,5 +30,7 @@ public:
 	void ExecuteScript(MKScript* script, int function);
 
 	void BloodEffect(int type, FName name, float x, float y, float z, float unk, float size, float speed, bool attach);
+
+	USkeletalMeshComponent* GetSkeleton();
 };
 

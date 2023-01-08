@@ -12,6 +12,9 @@
 #include "..\eDirectX11Hook.h"
 #include "..\code\mkcamera.h"
 #include "helper/eMouse.h"
+#include "../utils/MemoryMgr.h"
+
+using namespace Memory::VP;
 
 static int64 timer = GetTickCount64();
 char textBuffer[260] = {};
@@ -251,17 +254,26 @@ void DCF2Menu::Draw()
 				m_bSubmenuActive[SUBMENU_SCRIPT] = true;
 			ImGui::EndMenu();
 		}
+		if (!SettingsMgr->bDisableAnimationTool)
+		{
+			if (ImGui::BeginMenu("Posing"))
+			{
+				m_bSubmenuActive[SUBMENU_ANIMATIONTOOL] = true;
+				ImGui::EndMenu();
+			}
+		}
+
 	}
 	ImGui::EndMenuBar();
 
 	if (ImGui::BeginTabBar("##tabs"))
 	{
-		if (ImGui::BeginTabItem("Character Modifier"))
+		if (ImGui::BeginTabItem("Character"))
 		{
 			DrawCharacterTab();
 			ImGui::EndTabItem();
 		}
-		if (ImGui::BeginTabItem("Stage Modifier"))
+		if (ImGui::BeginTabItem("Stage"))
 		{
 			DrawStageTab();
 			ImGui::EndTabItem();
@@ -271,21 +283,22 @@ void DCF2Menu::Draw()
 			DrawModifiersTab();
 			ImGui::EndTabItem();
 		}
-		if (ImGui::BeginTabItem("Speed Modifier"))
-		{
-			DrawSpeedTab();
-			ImGui::EndTabItem();
-		}
-		if (ImGui::BeginTabItem("Camera Control"))
-		{
-			DrawCameraTab();
-			ImGui::EndTabItem();
-		}
-		if (ImGui::BeginTabItem("Player Control"))
+		if (ImGui::BeginTabItem("Player"))
 		{
 			DrawPlayerTab();
 			ImGui::EndTabItem();
 		}
+		if (ImGui::BeginTabItem("Speed"))
+		{
+			DrawSpeedTab();
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem("Camera"))
+		{
+			DrawCameraTab();
+			ImGui::EndTabItem();
+		}
+
 		if (ImGui::BeginTabItem("Cheats"))
 		{
 			DrawCheatsTab();
@@ -310,11 +323,38 @@ void DCF2Menu::Draw()
 
 	if (m_bSubmenuActive[SUBMENU_SETTINGS])
 		DrawSettings();
+
+	if (m_bSubmenuActive[SUBMENU_ANIMATIONTOOL])
+		DrawAnimationTool();
 }
 
 void DCF2Menu::Process()
 {
 	UpdateControls();
+	if (!SettingsMgr->bDisableAnimationTool)
+	{
+		if (AnimationTool::ms_bActive)
+		{
+			Nop(_addr(0x14101AF85), 3);
+		}
+		else
+		{
+			Patch<char>(_addr(0x14101AF85), 0x48);
+			Patch<char>(_addr(0x14101AF85) + 1, 0x8B);
+			Patch<char>(_addr(0x14101AF85) + 2, 0x08);
+		}
+		AnimationTool::ProcessPosing();
+
+		if (!GetObj(PLAYER1))
+		{
+			Patch<char>(_addr(0x14101AF85), 0x48);
+			Patch<char>(_addr(0x14101AF85) + 1, 0x8B);
+			Patch<char>(_addr(0x14101AF85) + 2, 0x08);
+		}
+	}
+
+
+
 }
 
 void DCF2Menu::UpdateControls()
@@ -1030,7 +1070,7 @@ void DCF2Menu::DrawScriptTab()
 void DCF2Menu::DrawSettings()
 {
 	ImGui::SetNextWindowPos({ ImGui::GetIO().DisplaySize.x / 2.0f, ImGui::GetIO().DisplaySize.y / 2.0f }, ImGuiCond_Once, { 0.5f, 0.5f });
-	ImGui::SetNextWindowSize({ 54 * ImGui::GetFontSize(), 54 * ImGui::GetFontSize() }, ImGuiCond_Once);
+	ImGui::SetNextWindowSize({ 50 * ImGui::GetFontSize(), 50 * ImGui::GetFontSize() }, ImGuiCond_Once);
 	ImGui::Begin("Settings", &m_bSubmenuActive[SUBMENU_SETTINGS]);
 
 	static int settingID = 0;
@@ -1223,6 +1263,11 @@ void DCF2Menu::DrawScriptReference()
 	ImGui::End();
 }
 
+void DCF2Menu::DrawAnimationTool()
+{
+	AnimationTool::Draw();
+}
+
 void DCF2Menu::DrawKeyBind(char* name, int* var)
 {
 	ImGui::SameLine();
@@ -1255,6 +1300,8 @@ void DCF2Menu::DrawDebug()
 	ImGui::Text("");
 	ImGui::Text("Player 1 Object: 0x%p Info: 0x%p", GetObj(PLAYER1), GetInfo(PLAYER1));
 	ImGui::Text("Player 2 Object: 0x%p Info: 0x%p", GetObj(PLAYER2), GetInfo(PLAYER2));
+	if (GetObj(PLAYER1))
+	ImGui::Text("Player 1 Skeleton: 0x%p", GetObj(PLAYER1)->GetSkeleton());
 	ImGui::Text("P1: %s", GetCharacterName(PLAYER1));
 	ImGui::Text("P2: %s", GetCharacterName(PLAYER2));
 	ImGui::End();
