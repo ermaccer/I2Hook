@@ -1,31 +1,61 @@
-//i2 hook
+// dllmain.cpp : Defines the entry point for the DLL application.
 #include "pch.h"
+#include <iostream>
+
+#include "gui/dx11hook.h"
+#include "gui/log.h"
+#include "gui/notifications.h"
+
+#include "plugin/Menu.h"
+#include "plugin/Settings.h"
+#include "plugin/Hooks.h"
+#include "plugin/PatternSolver.h"
+#include "plugin/PluginInterface.h"
+
 #include "utils/MemoryMgr.h"
 #include "utils/Trampoline.h"
-#include "code/mk10utils.h"
-#include "code/dcf2menu.h"
+#include "utils/Patterns.h"
+
+#include "mk/GameInfo.h"
+#include "mk/Scaleform.h"
+
+#include "helper/eGamepadManager.h"
+
 #include <iostream>
-#include "includes.h"
-#include "code/dcf2.h"
-#include "code/eSettingsManager.h"
-#include "code/eNotifManager.h"
-#include "code/mkcamera.h"
-#include "code/dcf2menu.h"
-#include "code/eGamepadManager.h"
-#include "eDirectX11Hook.h"
+#include <Commctrl.h>
+
+#pragma comment(linker, "/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#pragma comment(lib, "Comctl32.lib")
 
 using namespace Memory::VP;
-
 int64 __fastcall GenericTrueReturn() { return 1; }
 int64 __fastcall GenericFalseReturn() { return 0; }
-void __fastcall  GenericDummy() {}
+void __fastcall  GenericDummy() { }
 
+int64 pat_frameSkip = 0;
 
-bool __fastcall SetFlagNull()
+bool SetFrameskip_Hook()
 {
-	Patch<int>(_addr(0x1445404BC), 0);
+	Patch<int>(pat_frameSkip, 0);
 	return 0;
+}
 
+int64 SetFrameSkip_GetPattern()
+{
+	int64 pat = PatternSolver::GetPattern("E8 ? ? ? ? 85 C0 74 0C BA ? ? ? ? 33 C9 E8", 1);
+	if (pat)
+	{
+		int64 pat2 = PatternSolver::GetPattern("8B 1D ? ? ? ? 8B FB 81 E7 ? ? ? ? 33 C0 44 8B C0 85 DB 41 0F 95 C0", 2);
+		if (!pat2)
+			return 0;
+
+		unsigned int offset = *(unsigned int*)(pat);
+		unsigned int offset2 = *(unsigned int*)(pat2);
+		pat_frameSkip = (pat2 + offset2 + 4);
+
+		return (pat + offset + 4);
+	}
+	return 0;
 }
 
 void OnInitializeHook()
@@ -35,53 +65,137 @@ void OnInitializeHook()
 		AllocConsole();
 		freopen("CONOUT$", "w", stdout);
 		freopen("CONOUT$", "w", stderr);
-		freopen("CONIN$", "r", stdin);
 	}
 
-	printf("I2Hook::OnInitializeHook() | Begin!\n");
-	TheMenu->Initialize();
+	eLog::Message(__FUNCTION__, "INFO: I2Hook Begin!");
+
 	Notifications->Init();
-	printf("I2Hook::OnInitializeHook() | Game detected: %s\n", (char*)_addr(0x1434B1F90));
+	FGGameInfo::FindGameInfo();
+	Scaleform::FindData();
+
+	if (SettingsMgr->bEnableGamepadSupport)
+		eGamepadManager::Initialize();
+
 	Trampoline* tramp = Trampoline::MakeTrampoline(GetModuleHandle(nullptr));
 
-
 	if (SettingsMgr->bEnable60FPSFrontend)
-		InjectHook(_addr(0x141BCF2F0), tramp->Jump(SetFlagNull), PATCH_JUMP);
+	{
+		if (int64 fs_pat = SetFrameSkip_GetPattern())
+			InjectHook(fs_pat, tramp->Jump(SetFrameskip_Hook), PATCH_JUMP);
+	}
 
-	InjectHook(_addr(0x140559A88), tramp->Jump(Hooks::HookProcessStuff));
-	InjectHook(_addr(0x1403D8E0E), tramp->Jump(Hooks::HookStartupFightRecording));
+	if (SettingsMgr->bDisableTOCChecks)
+		InjectHook(_pattern(PATID_TocCheck), tramp->Jump(GenericTrueReturn), PATCH_JUMP);
 
-	Nop(_addr(0x14206A373), 7);
-	Nop(_addr(0x14206A383), 8);
-	InjectHook(_addr(0x14206A391), tramp->Jump(&MKCamera::HookedSetPosition));
-	InjectHook(_addr(0x14206A39E), tramp->Jump(&MKCamera::HookedSetRotation));
 
-	InjectHook(_addr(0x142218B00), tramp->Jump(Hooks::HookReadPropertyValue), PATCH_JUMP);
-	InjectHook(_addr(0x1419C3788), tramp->Jump(Hooks::HookSetProperty));
 
-	InjectHook(_addr(0x141FD85E0), tramp->Jump(Hooks::HookDispatch));
+	InjectHook(_pattern(PATID_MKProcDispatch_Hook), tramp->Jump(MKProcDispatch_Hook));
+	InjectHook(_pattern(PATID_RecordEvent_Hook), tramp->Jump(RecordEvent_Hook));
+
+	Nop(_pattern(PATID_CameraPositionNOP), 7);
+	Nop(_pattern(PATID_CameraRotationNOP), 8);
+
+	InjectHook(_pattern(PATID_CameraPositionHook), tramp->Jump(&MKCamera::HookedSetPosition));
+	InjectHook(_pattern(PATID_CameraRotationHook), tramp->Jump(&MKCamera::HookedSetRotation));
+
+
+	InjectHook(_pattern(PATID_Dispatch_Hook), tramp->Jump(Dispatch_Hook));
 
 	//gamepad
 	if (SettingsMgr->bEnableGamepadSupport)
-		InjectHook(_addr(0x142CB34BC), tramp->Jump(XInputGetState_Hook), PATCH_JUMP);
+	{
+		// only hook if xinputgetstate was loaded
+		if (eGamepadManager::hXInputDLL && eGamepadManager::pXInputGetStateFunc)
+		{
+			uintptr_t xinput_addr = _pattern(PATID_XInputGetState_Hook);
+			xinput_addr += *(unsigned int*)(xinput_addr)+4;
+
+			InjectHook(xinput_addr, tramp->Jump(XInputGetState_Hook), PATCH_JUMP);
+		}
+
+	}
 
 
+	HANDLE h = CreateThread(NULL, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(DX11Hook_Thread), 0, NULL, 0);
+
+	if (!(h == nullptr)) CloseHandle(h);
 }
 
 
 
 bool ValidateGameVersion()
 {
-	char* gameName = (char*)_addr(0x1434B1F90);
+	PatternSolver::Initialize();
 
-	if (strncmp(gameName, "Injustice", strlen("Injustice")) == 0)
-		return true;
-	else
+	if (PatternSolver::CheckMissingPatterns())
 	{
-		MessageBoxA(0, "Invalid game version!\nI2Hook only supports latest Steam executable.\n\n"
-			"If you still cannot run the plugin and made sure that the game is updated, I2Hook needs to be updated.", 0, MB_ICONINFORMATION);
-		return false;
+		int nButtonPressed = 0;
+		TASKDIALOGCONFIG config;
+		ZeroMemory(&config, sizeof(TASKDIALOGCONFIG));
+
+		const TASKDIALOG_BUTTON buttons[] = {
+			{ IDOK, L"Launch anyway\nThe game might crash or have missing features!" },
+			{ IDNO, L"Exit" }
+		};
+		config.cbSize = sizeof(config);
+
+		config.dwFlags = TDF_ENABLE_HYPERLINKS | TDF_CAN_BE_MINIMIZED | TDF_USE_COMMAND_LINKS;
+		config.pszMainIcon = TD_WARNING_ICON;
+
+		config.pszWindowTitle = L"Warning";
+		config.pszMainInstruction = L"I2Hook";
+		config.pszContent = L"Could not start I2Hook!\n\n"
+			L"One or more code patterns could not be found, this might indicate"
+			L" that game version is not supported or the plugin has not been updated.\n\n"
+			L"I2Hook officially is only tested with latest Steam version.\n"
+			L"Check log for more details.\n";
+
+
+		config.pButtons = buttons;
+		config.cButtons = ARRAYSIZE(buttons);
+
+		if (SUCCEEDED(TaskDialogIndirect(&config, &nButtonPressed, NULL, NULL)))
+		{
+			switch (nButtonPressed)
+			{
+			case IDOK:
+				return true;
+				break;
+			case IDNO:
+				exit(0);
+				break;
+			default:
+				break;
+			}
+		}
+
 	}
+
+	return true;
+
+}
+
+extern "C"
+{
+	__declspec(dllexport) void InitializeASI()
+	{
+#ifdef _60_ONLY
+		Trampoline* tramp = Trampoline::MakeTrampoline(GetModuleHandle(nullptr));
+
+		if (int64 fs_pat = SetFrameSkip_GetPattern())
+			InjectHook(fs_pat, tramp->Jump(SetFrameskip_Hook), PATCH_JUMP);
+		else
+			MessageBoxA(0, "Could not find required patterns!", "I2Hook_60only", MB_ICONERROR);
+#else
+		eLog::Initialize();
+
+		if (ValidateGameVersion())
+		{
+			OnInitializeHook();
+		}
+#endif
+	}
+
 }
 
 
@@ -90,22 +204,13 @@ BOOL WINAPI DllMain(HMODULE hMod, DWORD dwReason, LPVOID lpReserved)
 	switch (dwReason)
 	{
 	case DLL_PROCESS_ATTACH:
-		if (ValidateGameVersion())
-		{
-#ifdef _60_ONLY
-			Trampoline* tramp = Trampoline::MakeTrampoline(GetModuleHandle(nullptr));
-			InjectHook(_addr(0x141BCF2F0), tramp->Jump(SetFlagNull), PATCH_JUMP);
-#else
-			SettingsMgr->Init();
-			OnInitializeHook();
-			eDirectX11Hook::Init();
-			DisableThreadLibraryCalls(hMod);
-			CreateThread(nullptr, 0, DirectXHookThread, hMod, 0, nullptr);
-#endif			
-		}
 		break;
 	case DLL_PROCESS_DETACH:
-		kiero::shutdown();
+#ifndef _60_ONLY
+		eGamepadManager::Shutdown();
+		GUIImplementation::Shutdown();
+		PluginInterface::UnloadPlugins();
+#endif
 		break;
 	}
 	return TRUE;
