@@ -1,6 +1,6 @@
 #pragma once
 #include "..\mk\Engine.h"
-
+#ifndef _60_ONLY
 extern "C" {
 	__declspec(dllexport) bool I2HOOK_GetMenuActive();
 	__declspec(dllexport) MKCharacter* I2HOOK_GetCharacterObject(PLAYER_NUM id);
@@ -19,3 +19,4 @@ extern "C" {
 	__declspec(dllexport) void I2HOOK_ImGui_Separator();
 	__declspec(dllexport) bool I2HOOK_ImGui_CollapsingHeader(const char* label);
 }
+#endif

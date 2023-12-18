@@ -3,6 +3,8 @@
 #include "..\gui\imgui\imgui.h"
 #include "..\mk\PlayerInfo.h"
 
+#ifndef _60_ONLY
+
 bool I2HOOK_GetMenuActive()
 {
     return TheMenu->m_bIsActive;
@@ -83,3 +85,5 @@ bool I2HOOK_ImGui_CollapsingHeader(const char* label)
     return ImGui::CollapsingHeader(label);
 }
 
+
+#endif
