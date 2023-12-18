@@ -622,7 +622,7 @@ void AnimationTool::SavePose(char* path)
 		sprintf(hdr.charName, GetCharacterName(PLAYER1));
 
 	hdr.hdr = 'EPOS';
-	hdr.game = 'MK11';
+	hdr.game = 'DCF2';
 
 	int numBones = (int)plr1_pose.size();
 
