@@ -9,7 +9,7 @@
 #include "../utils.h"
 
 
-#define I2HOOK_VERSION "0.5"
+#define I2HOOK_VERSION "0.5.1"
 
 
 enum eCustomCameras {
@@ -67,7 +67,7 @@ public:
 	bool	 m_bHideHUD = false;
 	bool	 m_bAutoHideHUD = false;
 	bool	 m_bMouseControl = false;
-
+	bool	 m_bDisableDOF = false;
 
 	// cheats
 	bool	m_bInfiniteHealthP1 = false;

@@ -101,6 +101,10 @@ void OnInitializeHook()
 
 	InjectHook(_pattern(PATID_Dispatch_Hook), tramp->Jump(Dispatch_Hook));
 
+
+	ReadCall(_pattern(PATID_ProcessDOFSettings), pProcessDOFSettings);
+	InjectHook(_pattern(PATID_ProcessDOFSettings), tramp->Jump(ProcessDOFSettings), PATCH_CALL);
+
 	//gamepad
 	if (SettingsMgr->bEnableGamepadSupport)
 	{

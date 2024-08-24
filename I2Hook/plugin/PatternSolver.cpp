@@ -86,7 +86,7 @@ void PatternSolver::Initialize()
     
     ms_patterns[PATID_XInputGetState_Hook] = GetPattern("48 8D 54 24 ? E8 ? ? ? ? 85 C0 74 1F 41 B9", 6);
     ms_patterns[PATID_GetScaleform] = GetPattern("83 3D ? ? ? ? ? 0F 84 ? ? ? ? E8 ? ? ? ? 85 C0 75 09", 2);
-
+    ms_patterns[PATID_ProcessDOFSettings] = GetPattern("48 8D 4B 48 E8 ? ? ? ? 3C 02 75 20 F3 0F 10 5C 24 ? 4D 8D 46 481", 4);
     ms_patterns[PATID_TocCheck] = GetPattern("48 89 54 24 ? 53 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 48 48 C7 44 24 ? ? ? ? ? 4D 8B E1 49 8B E8 48 8B FA 4C 8B F9 48 8D 99 ? ? ? ? 48 89 9C 24 ? ? ? ? 48 8B CB FF 15 ? ? ? ? 90", 0);
 
 
@@ -169,8 +169,8 @@ const char* PatternSolver::GetPatternName(int id)
         "USkeletalMeshComponent_GetBoneName",
         "XInputGetState_Hook",
         "GetScaleform",
+        "ProcessDOFSettings"
         "TocCheck",
-        //"TocCheck1"
     };  
 
     return szPatternNames[id];

@@ -1,5 +1,19 @@
 #include "Hooks.h"
 
+
+void(__fastcall* pProcessDOFSettings)(int64, int64, int64, int64, int64) = 0;
+
+void ProcessDOFSettings(int64 a1, int64 a2, int64 settings, int64 a4, int64 a5)
+{
+	if (TheMenu->m_bDisableDOF)
+	{
+		*(int*)(settings + 32) = 0;
+	}
+
+	if (pProcessDOFSettings)
+		pProcessDOFSettings(a1, a2, settings, a4, a5);
+}
+
 void MKProcDispatch_Hook()
 {
 	PluginDispatch();

@@ -849,6 +849,7 @@ void DCF2Menu::DrawCameraTab()
 
 
 	ImGui::Separator();
+	ImGui::Checkbox("Disable DOF", &m_bDisableDOF);
 	ImGui::Checkbox("Force Camera To Move", &m_bForceCameraUpdate);
 	ImGui::SameLine(); ShowHelpMarker("Check this option if camera doesn't move in cinematics.");
 
@@ -921,8 +922,6 @@ void DCF2Menu::DrawCheatsTab()
 	ImGui::SameLine();
 	ImGui::Checkbox("P2##0health", &m_bNoHealthP2);
 	ImGui::NextColumn();
-
-
 
 	ImGui::Text("Infinite Meter\n");
 	ImGui::NextColumn();
