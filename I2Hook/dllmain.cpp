@@ -190,7 +190,7 @@ extern "C"
 		Trampoline* tramp = Trampoline::MakeTrampoline(GetModuleHandle(nullptr));
 
 		if (int64 fs_pat = SetFrameSkip_GetPattern())
-			InjectHook(fs_pat, tramp->Jump(SetFrameskip_Hook), PATCH_JUMP);
+			InjectHook(fs_pat, tramp->Jump(SetFrameskip_Hook), HookType::Jump);
 		else
 			MessageBoxA(0, "Could not find required patterns!", "I2Hook_60only", MB_ICONERROR);
 #else
