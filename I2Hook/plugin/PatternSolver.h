@@ -41,6 +41,13 @@ enum EPatternID {
 	PATID_MKCharacter_GetBoneRot,
 	PATID_MKCharacter_ExecuteScript,
 
+	PATID_LoadModifierAssets,
+	PATID_MKModifier_Constructor,
+	PATID_MKModifier_Activate,
+	PATID_MKTagModifier_Constructor,
+	PATID_MKTagModifier_Activate,
+	PATID_MKTagModifier_Activate2,
+
 	PATID_MKObject_GetPos,
 
 	PATID_GetScript0,
@@ -48,6 +55,11 @@ enum EPatternID {
 	PATID_MKScript_GetFunctionID,
 
 	PATID_PlayerInfo_SetMeter,
+	PATID_PlayerInfo_GetDrone,
+	PATID_PlayerInfo_MakeDrone,
+	PATID_PlayerInfo_MakeHuman,
+	PATID_AIDrone_Set,
+	PATID_AIDrone_SetLevel,
 
 	PATID_AnimationToolCode,
 
@@ -60,6 +72,7 @@ enum EPatternID {
 	PATID_ProcessDOFSettings,
 
 	PATID_TocCheck,
+	PATID_FightStartupAddModifiers,
 
 	PATID_Total_Patterns
 };

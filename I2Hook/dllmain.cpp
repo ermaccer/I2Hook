@@ -18,6 +18,7 @@
 
 #include "mk/GameInfo.h"
 #include "mk/Scaleform.h"
+#include "mk/MKModifier.h"
 
 #include "helper/eGamepadManager.h"
 
@@ -28,6 +29,7 @@
 #pragma comment(lib, "Comctl32.lib")
 
 using namespace Memory::VP;
+
 int64 __fastcall GenericTrueReturn() { return 1; }
 int64 __fastcall GenericFalseReturn() { return 0; }
 void __fastcall  GenericDummy() { }
@@ -67,7 +69,7 @@ void OnInitializeHook()
 		freopen("CONOUT$", "w", stderr);
 	}
 
-	eLog::Message(__FUNCTION__, "INFO: I2Hook Begin!");
+	eLog::Message(__FUNCTION__, "INFO: I2Hook (%s | %s) Begin!", I2HOOK_VERSION, __DATE__);
 
 	Notifications->Init();
 	FGGameInfo::FindGameInfo();
@@ -81,13 +83,11 @@ void OnInitializeHook()
 	if (SettingsMgr->bEnable60FPSFrontend)
 	{
 		if (int64 fs_pat = SetFrameSkip_GetPattern())
-			InjectHook(fs_pat, tramp->Jump(SetFrameskip_Hook), PATCH_JUMP);
+			InjectHook(fs_pat, tramp->Jump(SetFrameskip_Hook), HookType::Jump);
 	}
 
 	if (SettingsMgr->bDisableTOCChecks)
-		InjectHook(_pattern(PATID_TocCheck), tramp->Jump(GenericTrueReturn), PATCH_JUMP);
-
-
+		InjectHook(_pattern(PATID_TocCheck), tramp->Jump(GenericTrueReturn), HookType::Jump);
 
 	InjectHook(_pattern(PATID_MKProcDispatch_Hook), tramp->Jump(MKProcDispatch_Hook));
 	InjectHook(_pattern(PATID_RecordEvent_Hook), tramp->Jump(RecordEvent_Hook));
@@ -98,12 +98,15 @@ void OnInitializeHook()
 	InjectHook(_pattern(PATID_CameraPositionHook), tramp->Jump(&MKCamera::HookedSetPosition));
 	InjectHook(_pattern(PATID_CameraRotationHook), tramp->Jump(&MKCamera::HookedSetRotation));
 
-
 	InjectHook(_pattern(PATID_Dispatch_Hook), tramp->Jump(Dispatch_Hook));
 
-
 	ReadCall(_pattern(PATID_ProcessDOFSettings), pProcessDOFSettings);
-	InjectHook(_pattern(PATID_ProcessDOFSettings), tramp->Jump(ProcessDOFSettings), PATCH_CALL);
+	InjectHook(_pattern(PATID_ProcessDOFSettings), tramp->Jump(ProcessDOFSettings));
+
+	ReadCall(_pattern(PATID_PlayerInfo_GetDrone), pPlayerInfo_GetDrone);
+	ReadCall(_pattern(PATID_PlayerInfo_MakeDrone), pPlayerInfo_MakeDrone);
+
+	InjectHook(_pattern(PATID_FightStartupAddModifiers), tramp->Jump(PluginFightStartupAddModifiers));
 
 	//gamepad
 	if (SettingsMgr->bEnableGamepadSupport)
@@ -114,7 +117,7 @@ void OnInitializeHook()
 			uintptr_t xinput_addr = _pattern(PATID_XInputGetState_Hook);
 			xinput_addr += *(unsigned int*)(xinput_addr)+4;
 
-			InjectHook(xinput_addr, tramp->Jump(XInputGetState_Hook), PATCH_JUMP);
+			InjectHook(xinput_addr, tramp->Jump(XInputGetState_Hook), HookType::Jump);
 		}
 
 	}

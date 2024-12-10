@@ -102,3 +102,22 @@ void SetCharacterMKX(PLAYER_NUM plr, char* name)
 	CharacterDefinition* chr = (CharacterDefinition*)(ptr + 192);
 	chr->Set(name, 0, 0);
 }
+
+void SetCharacterAI(PLAYER_NUM plr, char* script, int level)
+{
+	PlayerInfo* info = GetInfo(plr);
+
+	if (!info)
+		return;
+
+	info->MakeDrone();
+
+	AIDrone* drone = info->GetDrone();
+
+	if (!drone)
+		return;
+
+	drone->Set(script, 0);
+	float difficultyLevel = level;
+	drone->SetLevel(difficultyLevel);
+}

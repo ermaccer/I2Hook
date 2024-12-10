@@ -70,6 +70,13 @@ void PatternSolver::Initialize()
     ms_patterns[PATID_MKCharacter_GetBoneRot] = GetPattern("4D 85 C0 74 48 53 48 81 EC ? ? ? ? 49 8B D8 C7 44 24 ? ? ? ? ? 4C 8B C2 45 33 C9 48 8D 54 24 ? E8", 0);
     ms_patterns[PATID_MKCharacter_ExecuteScript] = GetPattern("40 55 56 57 41 56 41 57 48 81 EC ? ? ? ? 48 C7 44 24 ? ? ? ? ? 48 89 9C 24 ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 84 24 ? ? ? ? 45 8B F9 45 8B F0", 0);
     
+    ms_patterns[PATID_LoadModifierAssets] = GetPattern("40 55 56 57 41 56 41 57 48 8B EC 48 81 EC ? ? ? ? 48 C7 45 ? ? ? ? ? 48 89 9C 24 ? ? ? ? 48 8B F9 45 33 FF", 0);
+    ms_patterns[PATID_MKModifier_Constructor] = GetPattern("48 89 4C 24 ? 57 48 83 EC 40 48 C7 44 24 ? ? ? ? ? 48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 48 8B F2 48 8B D9 E8 ? ? ? ? 90", 0);
+    ms_patterns[PATID_MKModifier_Activate] = GetPattern("48 8B C4 57 48 83 EC 70 48 C7 40 ? ? ? ? ? 48 89 58 08 48 89 70 10 48 8B FA 48 8B D9 48 8B 01 BA ? ? ? ? FF 50 28 48 8B F0 48 85 C0", 0);
+    ms_patterns[PATID_MKTagModifier_Constructor] = GetPattern("40 53 48 83 EC 20 48 8B D9 E8 ? ? ? ? 48 8D 05 ? ? ? ? 48 89 03 B8 ? ? ? ? 48 C7 43 ? ? ? ? ? C7 43 ? ? ? ? ? 66 89 43 38 48 8B C3 48 83 C4 20 5B C3", 0);
+    ms_patterns[PATID_MKTagModifier_Activate] = GetPattern("48 85 D2 0F 84 ? ? ? ? 48 89 5C 24 ? 56 48 83 EC 50 83 79 10 00 48 8B F2 48 89 6C 24 ? 48 8B D9 48 89 7C 24 ? 48 8D 3D ? ? ? ? 74 06 48 8B 51 08 EB 03 48 8B D7 0F B7 41 38 44 0F B7 49 ? 44 8B 41 28 66 89 44 24 ? 0F B7 41 36", 0);
+    ms_patterns[PATID_MKTagModifier_Activate2] = GetPattern("48 85 D2 74 33 53 48 83 EC 20 48 8B 02 48 8B CA 48 8B DA FF 50 58 48 8B C8 48 8D 15 ? ? ? ? E8 ? ? ? ? 85 C0 74 0A C7 83", 0);
+
     ms_patterns[PATID_MKObject_GetPos] = GetPattern("40 53 48 83 EC 70 48 8B DA 48 8B 51 20 48 85 D2 74 3F 48 85 DB 74 3A 44 8B 41 30 45 85 C0 74 37 41 83 E8 01 74 0B 41 83 E8 01", 0);
    
     ms_patterns[PATID_GetScript0] = GetPattern("40 57 48 83 EC 70 48 C7 44 24 ? ? ? ? ? 48 89 9C 24 ? ? ? ? 48 8B D9 48 8B D1 33 C9 E8 ? ? ? ? 48 85 C0 0F 85 ? ? ? ? 33 FF 48 85 DB 74 19", 0);
@@ -77,7 +84,13 @@ void PatternSolver::Initialize()
     ms_patterns[PATID_MKScript_GetFunctionID] = GetPattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 8D 99 88 01 00 00 8B FA 44 8B 43 08", 0);
     
     ms_patterns[PATID_PlayerInfo_SetMeter] = GetPattern("40 53 48 83 EC 40 48 8B 05 ? ? ? ? 48 8B D9 0F 29 74 24 ? 0F 28 F1 83 78 1C 00 74 34 83 3D", 0);
-    
+    ms_patterns[PATID_PlayerInfo_GetDrone] = GetPattern("E8 ? ? ? ? 48 85 C0 74 19 48 8B C8 E8 ? ? ? ? 48 85 C0 74 0C 48 8B C8 48 83 C4 28 E9", 0);
+    ms_patterns[PATID_PlayerInfo_MakeDrone] = GetPattern("E8 ? ? ? ? 48 8B 0D ? ? ? ? 48 89 81 ? ? ? ? 48 83 C4 28 C3 CC CC CC 48 8B 05 ? ? ? ? 48 8B 88 ? ? ? ? 4C 8B 41 10 8B 51 08 48 8B 09 E9", 0);
+    ms_patterns[PATID_PlayerInfo_MakeHuman] = GetPattern("40 53 48 83 EC 20 48 8B 41 30 48 8B D9 48 85 C0 74 5F 81 60 ? ? ? ? ? 48 8D 0D ? ? ? ? 48 8B 05 ? ? ? ? 8B 90 ? ? ? ? E8 ? ? ? ? 48 8B 05 ? ? ? ? 83 78 1C 00 75 32 48 8B 43 30 48 8B CB 48 89 7C 24 ? 48 8B 78 10 48 C7 40", 0);
+
+    ms_patterns[PATID_AIDrone_Set] = GetPattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 8B D9 48 8B F2 48 8B 0D ? ? ? ? BA ? ? ? ? 49 8B E8 48 8B 01 FF 90 ? ? ? ? 85 C0 74 09 48 8D 3D ? ? ? ? EB 1B 48 8B 4B 18", 0);
+    ms_patterns[PATID_AIDrone_SetLevel] = GetPattern("40 53 48 83 EC 30 0F 29 74 24 ? 48 8B D9 0F 28 F1 0F 2F 35 ? ? ? ? 77 0D E8 ? ? ? ? F3 0F 11 B3 ? ? ? ? 0F 28 74 24 ? 48 83 C4 30 5B C3", 0);
+
     ms_patterns[PATID_AnimationToolCode] = GetPattern("41 0F 59 C0 F3 44 0F 59 44 11", 11);
     
     ms_patterns[PATID_FName_FName] = GetPattern("40 53 48 83 EC 30 45 8B C8 C7 44 24 ? ? ? ? ? 45 33 C0 48 8B D9 E8 ? ? ? ? 48 8B C3 48 83 C4 30 5B C3", 0);
@@ -88,7 +101,7 @@ void PatternSolver::Initialize()
     ms_patterns[PATID_GetScaleform] = GetPattern("83 3D ? ? ? ? ? 0F 84 ? ? ? ? E8 ? ? ? ? 85 C0 75 09", 2);
     ms_patterns[PATID_ProcessDOFSettings] = GetPattern("48 8D 4B 48 E8 ? ? ? ? 3C 02 75 20 F3 0F 10 5C 24 ? 4D 8D 46 481", 4);
     ms_patterns[PATID_TocCheck] = GetPattern("48 89 54 24 ? 53 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 48 48 C7 44 24 ? ? ? ? ? 4D 8B E1 49 8B E8 48 8B FA 4C 8B F9 48 8D 99 ? ? ? ? 48 89 9C 24 ? ? ? ? 48 8B CB FF 15 ? ? ? ? 90", 0);
-
+    ms_patterns[PATID_FightStartupAddModifiers] = GetPattern("E8 ? ? ? ? E8 ? ? ? ? E8 ? ? ? ? 85 C0 74 13 B9 ? ? ? ? E8 ? ? ? ? E8 ? ? ? ? 85 C0 75 ED E8 ? ? ? ? 33 D2 44 8D 42 01 48 8B 0D ? ? ? ? E8 ? ? ? ? BA ? ? ? ? 44 8B C2 48 8B 0D ? ? ? ? E8", 0);
 
     auto end = std::chrono::high_resolution_clock::now();
 
@@ -158,19 +171,31 @@ const char* PatternSolver::GetPatternName(int id)
         "MKCharacter_GetBonePos",
         "MKCharacter_GetBoneRot",
         "MKCharacter_ExecuteScript",
+        "LoadModifierAssets",
+        "MKModifier_Constructor",
+        "MKModifier_Activate",
+        "MKTagModifier_Constructor",
+        "MKTagModifier_Activate",
+        "MKTagModifier_Activate2",
         "MKObject_GetPos",
         "GetScript0",
         "GetScript1",
         "MKScript_GetFunctionID",
         "PlayerInfo_SetMeter",
+        "PlayerInfo_GetDrone",
+        "PlayerInfo_MakeDrone",
+        "PlayerInfo_MakeHuman",
+        "AIDrone_Set",
+        "AIDrone_SetLevel",
         "AnimationToolCode",
         "FName_FName",
         "GetNames",
         "USkeletalMeshComponent_GetBoneName",
         "XInputGetState_Hook",
         "GetScaleform",
-        "ProcessDOFSettings"
+        "ProcessDOFSettings",
         "TocCheck",
+        "FightStartupAddModifiers",
     };  
 
     return szPatternNames[id];

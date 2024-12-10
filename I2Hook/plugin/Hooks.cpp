@@ -1,4 +1,5 @@
 #include "Hooks.h"
+#include "..\mk\MKModifier.h"
 
 
 void(__fastcall* pProcessDOFSettings)(int64, int64, int64, int64, int64) = 0;
@@ -78,6 +79,17 @@ void PluginDispatch()
 		if (TheMenu->m_bZeroMeterP1)	p1_info->SetMeter(0.0f);
 		if (TheMenu->m_bInfiniteBreakersP1) MKCharacter::SetBreakersAmount(PLAYER1, 1);
 
+		if (TheMenu->m_bAIDroneModifierP1)
+		{
+			if (AIDrone* drone = p1_info->GetDrone())
+			{
+				drone->Set(TheMenu->szPlayer1AI, 0);
+				drone->SetLevel(TheMenu->m_nAIDroneLevelP1);
+			}
+		
+		}
+
+
 
 		if (TheMenu->m_bDisableComboScaling)
 		{
@@ -126,6 +138,16 @@ void PluginDispatch()
 		if (TheMenu->m_bInfiniteMeterP2) p2_info->SetMeter(1.0f);
 		if (TheMenu->m_bZeroMeterP2)	p2_info->SetMeter(0.0f);
 		if (TheMenu->m_bInfiniteBreakersP2) MKCharacter::SetBreakersAmount(PLAYER2, 1);
+
+		if (TheMenu->m_bAIDroneModifierP2)
+		{
+			if (AIDrone* drone = p2_info->GetDrone())
+			{
+				drone->Set(TheMenu->szPlayer2AI, 0);
+				drone->SetLevel(TheMenu->m_nAIDroneLevelP2);
+			}
+
+		}
 
 		if (TheMenu->m_bDisableComboScaling)
 		{
@@ -176,10 +198,12 @@ void PluginDispatch()
 
 void PluginFightStartup()
 {
-	printf("I2Hook::Info() | Starting a new fight!\n");
+	eLog::Message("I2Hook::Info()", "Starting a new fight!");
 	TheMenu->m_bCustomCameraPos = false;
 	TheMenu->m_bCustomCameraRot = false;
 	TheMenu->m_bYObtained = false;
+	TheMenu->m_pTagAssistP1 = nullptr;
+	TheMenu->m_pTagAssistP2 = nullptr;
 
 	if (TheMenu->m_bStageModifier)
 		GetGameInfo()->SetStage(TheMenu->szStageModifierStage);
@@ -189,6 +213,79 @@ void PluginFightStartup()
 	if (TheMenu->m_bPlayer2Modifier)
 		SetCharacterMKX(PLAYER2, TheMenu->szPlayer2ModifierCharacter);
 
-	printf("I2Hook::Info() | %s VS %s\n", GetCharacterName(PLAYER1), GetCharacterName(PLAYER2));
+	if (TheMenu->m_bTagAssist)
+	{
+		TheMenu->m_pTagAssistP1 = new TagAssistModifier(TheMenu->szPlayer1TagAssistCharacter);
+		TheMenu->m_pTagAssistP1->Activate(PLAYER1);
+
+
+		LoadModifierAssets();
+		eLog::Message("I2Hook::Info()", "P1 Tag Assist: %s", TheMenu->szPlayer1TagAssistCharacter);
+	}
+	if (TheMenu->m_bTagAssistP2)
+	{
+		TheMenu->m_pTagAssistP2 = new TagAssistModifier(TheMenu->szPlayer2TagAssistCharacter);
+		TheMenu->m_pTagAssistP2->Activate(PLAYER2);
+
+		LoadModifierAssets();
+		eLog::Message("I2Hook::Info()", "P2 Tag Assist: %s", TheMenu->szPlayer2TagAssistCharacter);
+	}
+
+	eLog::Message("I2Hook::Info()", "%s VS %s", GetCharacterName(PLAYER1), GetCharacterName(PLAYER2));
 	PluginInterface::OnFightStartup();
+}
+
+void PluginFightStartupAddModifiers()
+{
+	if (TheMenu->m_bTagAssist)
+	{
+		if (TheMenu->m_pTagAssistP1)
+			TheMenu->m_pTagAssistP1->ActivateObject(PLAYER1);
+	}
+
+	if (TheMenu->m_bTagAssistP2)
+	{
+		if (TheMenu->m_pTagAssistP2)
+			TheMenu->m_pTagAssistP2->ActivateObject(PLAYER1);
+	}
+
+
+	if (TheMenu->m_bAIDroneModifierP1)
+		SetCharacterAI(PLAYER1, TheMenu->szPlayer1AI, TheMenu->m_nAIDroneLevelP1);
+	if (TheMenu->m_bAIDroneModifierP2)
+		SetCharacterAI(PLAYER2, TheMenu->szPlayer2AI, TheMenu->m_nAIDroneLevelP2);
+
+	if (!TheMenu->m_bAddGlobalModifiers)
+		return;
+
+	unsigned int numModifiers = TheMenu->m_ModifiersList.size();
+
+	std::string modifiersNames = "";
+	for (int i = 0; i < numModifiers; i++)
+	{
+		ModifierEntry& modifier = TheMenu->m_ModifiersList[i];
+
+		modifiersNames += modifier.name.c_str();
+		modifiersNames += "(";
+		if (modifier.flag & ModifierEntryFlag_P1)
+			modifiersNames += "P1";
+		if (modifier.flag & ModifierEntryFlag_P2)
+			modifiersNames += "P2";
+		modifiersNames += ")";
+		if (!(i == numModifiers - 1))
+			modifiersNames += ",";
+	}
+
+	eLog::Message("I2Hook::Info()", "Used modifiers: %s", modifiersNames.c_str());
+
+	for (int i = 0; i < numModifiers; i++)
+	{
+		ModifierEntry& modifier = TheMenu->m_ModifiersList[i];
+
+		if (modifier.flag & ModifierEntryFlag_P1)
+			MKModifier::ActivateModifier(TheMenu->m_ModifiersList[i].name.c_str(), PLAYER1);
+
+		if (modifier.flag & ModifierEntryFlag_P2)
+			MKModifier::ActivateModifier(TheMenu->m_ModifiersList[i].name.c_str(), PLAYER2);
+	}
 }

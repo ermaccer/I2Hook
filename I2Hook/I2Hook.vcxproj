@@ -165,6 +165,7 @@
     <ClInclude Include="mk\GameInfo.h" />
     <ClInclude Include="mk\MKCamera.h" />
     <ClInclude Include="mk\MKCharacter.h" />
+    <ClInclude Include="mk\MKModifier.h" />
     <ClInclude Include="mk\MKObject.h" />
     <ClInclude Include="mk\MKScript.h" />
     <ClInclude Include="mk\MKStructs.h" />
@@ -223,6 +224,7 @@
     <ClCompile Include="mk\GameInfo.cpp" />
     <ClCompile Include="mk\MKCamera.cpp" />
     <ClCompile Include="mk\MKCharacter.cpp" />
+    <ClCompile Include="mk\MKModifier.cpp" />
     <ClCompile Include="mk\MKObject.cpp" />
     <ClCompile Include="mk\MKScript.cpp" />
     <ClCompile Include="mk\PlayerInfo.cpp" />
@@ -236,6 +238,7 @@
     <ClCompile Include="plugin\API.cpp" />
     <ClCompile Include="plugin\Hooks.cpp" />
     <ClCompile Include="plugin\Menu.cpp" />
+    <ClCompile Include="plugin\ModifierList.cpp" />
     <ClCompile Include="plugin\PatternSolver.cpp" />
     <ClCompile Include="plugin\PluginInterface.cpp" />
     <ClCompile Include="plugin\Settings.cpp" />

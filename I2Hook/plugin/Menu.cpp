@@ -9,12 +9,16 @@
 #include "../gui/imgui/imgui.h"
 #include "../gui/gui_impl.h"
 
+#include <random>
 #include <math.h>
 #include <iostream>
 #include <Windows.h>
 
 
 using namespace Memory::VP;
+
+std::random_device rd;
+std::mt19937 mt(rd());
 
 char textBuffer[260] = {};
 const char* szCharacters[] = {
@@ -58,6 +62,7 @@ const char* szCharacters[] = {
 	"CHAR_GorillaGrodd_MSTR",
 	"CHAR_GreenArrow_MSTR",
 	"CHAR_GreenLantern_MSTR",
+	"CHAR_HarleyQuinn_MSTR",
 	"CHAR_Hellboy_MSTR",
 	"CHAR_Joker_MSTR",
 	"CHAR_Leonardo_MSTR",
@@ -73,7 +78,6 @@ const char* szCharacters[] = {
 	"CHAR_Superman_A",
 	"CHAR_Superman_MSTR",
 	"CHAR_SwampThing_MSTR",
-	"Char_Template",
 	"CHAR_TMNT_MSTR",
 	"CHAR_WonderWoman_MSTR",
 
@@ -141,13 +145,55 @@ const char* szCharacters[] = {
 
 
 };
+
+const char* szTagCharacters[] = {
+	"Aquaman",
+	"Atom",
+	"Atrocitus",
+	"Bane",
+	"Batman",
+	"BlackAdam",
+	"BlackCanary",
+	"BlackManta",
+	"BlueBeetle",
+	"Brainiac",
+	"CaptainCold",
+	"Catwoman",
+	"Cheetah",
+	"Cyborg",
+	"DamianWayne",
+	"Darkseid",
+	"Deadshot",
+	"DrFate",
+	"Enchantress",
+	"Firestorm",
+	"Flash",
+	"GorillaGrodd",
+	"GreenArrow",
+	"GreenLantern",
+	"Hellboy",
+	"Joker",
+	"PoisonIvy",
+	"Raiden",
+	"RedHood",
+	"Scarecrow",
+	"StarFire",
+	"SubZero",
+	"Supergirl",
+	"Superman",
+	"SwampThing",
+	"TMNT",
+	"WonderWoman",
+};
+
 const char* szCameraModes[TOTAL_CUSTOM_CAMERAS] = {
 	"Third Person",
 	"Third Person #2",
 	"First Person",
 	"First Person Mid",
 	"Mortal Kombat 11",
-	"Head Perspective"
+	"Head Perspective",
+	"9:16",
 };
 
 const char* szStageNames[]{
@@ -193,6 +239,19 @@ const char* szBones[] = {
 	"Spine3",
 };
 
+const char* szAI[] = {
+	"AI_ButtonMasher.mko",
+	"AI_DebugOnlineButtonMasher.mko",
+	"AI_Dummy.mko",
+	"AI_Fighter.mko",
+	"AI_Flying.mko",
+	"AI_Normal.mko",
+	"AI_SingleMove.mko",
+	"AI_Test.mko",
+	"AI_Training.mko",
+	"AI_Verifier.mko",
+};
+
 
 int GetCamMode(const char* mode)
 {
@@ -232,6 +291,10 @@ DCF2Menu::DCF2Menu()
 	sprintf(szStageModifierStage, szStageNames[0]);
 	sprintf(szPlayer1Bone, szBones[0]);
 	sprintf(szPlayer2Bone, szBones[0]);
+	sprintf(szPlayer1TagAssistCharacter, szTagCharacters[0]);
+	sprintf(szPlayer2TagAssistCharacter, szTagCharacters[0]);
+	sprintf(szPlayer1AI, szAI[0]);
+	sprintf(szPlayer2AI, szAI[0]);
 }
 
 void DCF2Menu::OnActivate()
@@ -381,7 +444,6 @@ void DCF2Menu::Draw()
 			DrawCameraTab();
 			ImGui::EndTabItem();
 		}
-
 		if (ImGui::BeginTabItem("Cheats"))
 		{
 			DrawCheatsTab();
@@ -573,6 +635,45 @@ void DCF2Menu::DrawModifiersTab()
 {
 	if (ImGui::BeginTabBar("##modifiers"))
 	{
+		if (ImGui::BeginTabItem("Tag Assists"))
+		{
+			ImGui::Checkbox("Player 1 Tag Assist Modifier", &m_bTagAssist);
+
+			if (ImGui::BeginCombo("Player 1 Tag Assist Character", szPlayer1TagAssistCharacter))
+			{
+				for (int n = 0; n < IM_ARRAYSIZE(szTagCharacters); n++)
+				{
+					bool is_selected = (szPlayer1TagAssistCharacter == szTagCharacters[n]);
+					if (ImGui::Selectable(szTagCharacters[n], is_selected))
+						sprintf(szPlayer1TagAssistCharacter, szTagCharacters[n]);
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
+
+				}
+				ImGui::EndCombo();
+			}
+			ImGui::Separator();
+			ImGui::Checkbox("Player 2 Tag Assist Modifier", &m_bTagAssistP2);
+
+			if (ImGui::BeginCombo("Player 2 Tag Assist Character", szPlayer2TagAssistCharacter))
+			{
+				for (int n = 0; n < IM_ARRAYSIZE(szTagCharacters); n++)
+				{
+					bool is_selected = (szPlayer2TagAssistCharacter == szTagCharacters[n]);
+					if (ImGui::Selectable(szTagCharacters[n], is_selected))
+						sprintf(szPlayer2TagAssistCharacter, szTagCharacters[n]);
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
+
+				}
+				ImGui::EndCombo();
+			}
+			ImGui::Separator();
+
+			ImGui::TextWrapped("If you get load crashes enable modifier in-game then restart or rematch (when online).");
+			ImGui::TextWrapped("Restart match when you toggle these in game!");
+			ImGui::EndTabItem();
+		}
 		if (ImGui::BeginTabItem("Abilities"))
 		{
 			ImGui::Checkbox("Player 1 Custom Abilities", &m_bP1CustomAbilities);
@@ -700,7 +801,6 @@ void DCF2Menu::DrawModifiersTab()
 				ImGui::TextWrapped("Presets");
 				if (ImGui::Button("Big Heads", { -FLT_MIN, 0 }))
 				{
-					Notifications->SetNotificationTime(2500);
 					GetObj(PLAYER1)->SetBoneSize("Head", 1.5f);
 					GetObj(PLAYER2)->SetBoneSize("Head", 1.5f);
 					GetObj(PLAYER1)->SetBoneSize("Neck", 1.5f);
@@ -739,6 +839,173 @@ void DCF2Menu::DrawModifiersTab()
 			}
 			else
 				ImGui::TextWrapped("Skeleton options are only available in-game!");
+
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem("AI"))
+		{
+			ImGui::TextWrapped("Reload match to change if players are AI controlled.");
+			ImGui::Separator();
+			ImGui::Checkbox("Change Player 1 AI", &m_bAIDroneModifierP1);
+
+			if (ImGui::BeginCombo("Player 1 AI", szPlayer1AI))
+			{
+				for (int n = 0; n < IM_ARRAYSIZE(szAI); n++)
+				{
+					bool is_selected = (szPlayer1AI == szAI[n]);
+					if (ImGui::Selectable(szAI[n], is_selected))
+						sprintf(szPlayer1AI, szAI[n]);
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
+
+				}
+				ImGui::EndCombo();
+			}
+
+			ImGui::SliderInt("Player 1 AI Level", &m_nAIDroneLevelP1, 0, 19);
+			ImGui::Separator();
+			ImGui::Checkbox("Change Player 2 AI", &m_bAIDroneModifierP2);
+
+			if (ImGui::BeginCombo("Player 2 AI", szPlayer2AI))
+			{
+				for (int n = 0; n < IM_ARRAYSIZE(szAI); n++)
+				{
+					bool is_selected = (szPlayer2AI == szAI[n]);
+					if (ImGui::Selectable(szAI[n], is_selected))
+						sprintf(szPlayer2AI, szAI[n]);
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
+
+				}
+				ImGui::EndCombo();
+			}
+			ImGui::SliderInt("Player 2 AI Level", &m_nAIDroneLevelP2, 0, 19);
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem("Tower Modifiers"))
+		{
+			ImGui::TextWrapped("Reload match to apply changes.");
+			ImGui::Separator();
+			ImGui::Checkbox("Add Tower Modifiers", &m_bAddGlobalModifiers);
+			ImGui::Separator();
+
+			enum EModifierFlagType {
+				ModifierFlagType_Both,
+				ModifierFlagType_P1Only,
+				ModifierFlagType_P2Only,
+			};
+			static int flagType = ModifierFlagType_Both;
+
+
+			ImGui::TextWrapped("Target");
+			ImGui::Separator();
+			ImGui::RadioButton("Both", &flagType, ModifierFlagType_Both); ImGui::SameLine();
+			ImGui::RadioButton("Player 1 Only", &flagType, ModifierFlagType_P1Only); ImGui::SameLine();
+			ImGui::RadioButton("Player 2 Only", &flagType, ModifierFlagType_P2Only);
+			ImGui::Separator();
+
+			static char modifierName[256] = {};
+			static ImGuiTextFilter filter;
+			ImGui::Text("Search Modifiers");
+			ImGui::PushItemWidth(-FLT_MIN);
+			filter.Draw("##modlist");
+			ImGui::PopItemWidth();
+			ImGui::BeginChild("##list", { 0, 125.0f }, true);
+			{
+
+				for (int i = 0; i < NUM_MODIFIERS; i++)
+				{
+					if (filter.PassFilter(szModifiers[i]))
+					{
+						bool is_selected = (modifierName == szModifiers[i]);
+						if (ImGui::Selectable(szModifiers[i], is_selected))
+						{
+							sprintf(modifierName, "%s", szModifiers[i]);
+						}
+					}
+
+
+				}
+			}
+			ImGui::EndChild();
+			if (strlen(modifierName) > 0)
+				ImGui::TextWrapped("Selected: %s", modifierName);
+			if (ImGui::Button("Add", { -FLT_MIN, 0 }))
+			{
+				ModifierEntry entry;
+				entry.name = modifierName;
+				switch (flagType)
+				{
+				case ModifierFlagType_Both:
+					entry.flag = ModifierEntryFlag_P1 | ModifierEntryFlag_P2;
+					break;
+				case ModifierFlagType_P1Only:
+					entry.flag = ModifierEntryFlag_P1;
+					break;
+				case ModifierFlagType_P2Only:
+					entry.flag = ModifierEntryFlag_P2;
+					break;
+				default:
+					break;
+				}
+				m_ModifiersList.push_back(entry);
+			}
+			if (ImGui::Button("Add Random", { -FLT_MIN, 0 }))
+			{
+				std::uniform_int_distribution<int> random_dist(0, NUM_MODIFIERS);
+
+				int randomID = random_dist(mt);
+
+				ModifierEntry entry;
+				entry.name = szModifiers[randomID];
+				switch (flagType)
+				{
+				case ModifierFlagType_Both:
+					entry.flag = ModifierEntryFlag_P1 | ModifierEntryFlag_P2;
+					break;
+				case ModifierFlagType_P1Only:
+					entry.flag = ModifierEntryFlag_P1;
+					break;
+				case ModifierFlagType_P2Only:
+					entry.flag = ModifierEntryFlag_P2;
+					break;
+				default:
+					break;
+				}
+				m_ModifiersList.push_back(entry);
+			}
+
+			ImGui::Separator();
+			unsigned int numModifiers = m_ModifiersList.size();
+			if (numModifiers > 0)
+			{
+				ImGui::TextWrapped("Modifiers to activate:");
+				ImGui::Separator();
+				for (unsigned int i = 0; i < m_ModifiersList.size(); i++)
+				{
+					char modifierLabel[64] = {};
+					sprintf(modifierLabel, "%d - %s##gm%d", i + 1, m_ModifiersList[i].name.c_str(), i);
+					char* modifierLabelType = "##";
+					if (m_ModifiersList[i].flag & ModifierEntryFlag_P1)
+						modifierLabelType = "P1##";
+					if (m_ModifiersList[i].flag & ModifierEntryFlag_P2)
+						modifierLabelType = "P2##";
+					if (m_ModifiersList[i].flag & ModifierEntryFlag_P1 && m_ModifiersList[i].flag & ModifierEntryFlag_P2)
+						modifierLabelType = "Both##";
+					ImGui::LabelText(modifierLabelType, modifierLabel);
+				}
+				if (ImGui::Button("Delete Last", { -FLT_MIN, 0 }))
+				{
+					m_ModifiersList.erase(m_ModifiersList.end() - 1);
+				}
+				if (ImGui::Button("Clear", { -FLT_MIN, 0 }))
+				{
+					m_ModifiersList.clear();
+				}
+
+			}
+
+
 
 			ImGui::EndTabItem();
 		}
@@ -798,7 +1065,7 @@ void DCF2Menu::DrawPlayerTab()
 
 void DCF2Menu::DrawSpeedTab()
 {
-	ImGui::Text("Gamespeed Control");
+	ImGui::Text("Gamespeed");
 	ImGui::SameLine(); ShowHelpMarker("Hotkey - F5");
 
 	ImGui::InputFloat("Speed", &m_fSlowMotionSpeed, 0.1f);

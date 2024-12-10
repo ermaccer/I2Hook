@@ -3,13 +3,14 @@
 #include "../mk/CharacterDefinition.h"
 #include "../mk/MKCharacter.h"
 #include "../mk/MKCamera.h"
+#include "../mk/MKModifier.h"
 #include "PluginInterface.h"
 
 #include "../helper/eKeyboardMan.h"
 #include "../utils.h"
 
-
-#define I2HOOK_VERSION "0.5.1"
+#define NUM_MODIFIERS 268
+#define I2HOOK_VERSION "0.5.2"
 
 
 enum eCustomCameras {
@@ -19,6 +20,7 @@ enum eCustomCameras {
 	CAMERA_1STPERSON_MID,
 	CAMERA_MK11,
 	CAMERA_HEAD_TRACKING,
+	CAMERA_9_16,
 	TOTAL_CUSTOM_CAMERAS
 };
 
@@ -35,6 +37,11 @@ enum eScriptExecuteType {
 	SCRIPT_GLOBAL
 };
 
+enum eModifierEntryFlag {
+	ModifierEntryFlag_P1 = 1,
+	ModifierEntryFlag_P2 = 2,
+};
+
 struct eScriptKeyBind {
 	eScriptExecuteType type;
 	eVKKeyCode key;
@@ -42,7 +49,12 @@ struct eScriptKeyBind {
 	unsigned int functionHash;
 };
 
+struct ModifierEntry {
+	std::string name;
+	int flag;
+};
 
+extern const char* szModifiers[NUM_MODIFIERS];
 
 class DCF2Menu {
 public:
@@ -86,7 +98,12 @@ public:
 	bool	m_bPlayer1Modifier = false;
 	bool	m_bPlayer2Modifier = false;
 
+	bool	m_bTagAssist = false;
+	bool	m_bTagAssistP2 = false;
+	bool	m_bAddGlobalModifiers = false;
 	bool    m_bDisableComboScaling = false;
+	bool	m_bAIDroneModifierP1 = false;
+	bool	m_bAIDroneModifierP2 = false;
 
 	float	 m_fSlowMotionSpeed = 0.5f;
 	float	 m_fP1Speed = 1.0f;
@@ -105,6 +122,10 @@ public:
 	int  m_nFreeCameraRotationSpeed = 120;
 	int  m_nCurrentCustomCamera = CAMERA_3RDPERSON;
 	int  m_nCurrentCharModifier = 0;
+
+	int  m_nAIDroneLevelP1 = 0;
+	int  m_nAIDroneLevelP2 = 0;
+
 	int  m_nP1Abilities = 0;
 	int  m_nP2Abilities = 0;
 
@@ -128,8 +149,20 @@ public:
 	char szPlayer2ModifierCharacter[128] = {};
 	char szCurrentCameraOption[64] = {};
 	char szStageModifierStage[128] = {};
+	char szPlayer1TagAssistCharacter[128] = {};
+	char szPlayer2TagAssistCharacter[128] = {};
+
 	char szPlayer1Bone[128] = {};
 	char szPlayer2Bone[128] = {};
+
+	char szPlayer1AI[128] = {};
+	char szPlayer2AI[128] = {};
+
+	TagAssistModifier* m_pTagAssistP1;
+	TagAssistModifier* m_pTagAssistP2;
+
+
+	std::vector<ModifierEntry> m_ModifiersList;
 
 	// camera
 
